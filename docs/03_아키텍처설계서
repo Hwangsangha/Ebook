@@ -1,12 +1,7 @@
 # 아키텍처 설계서 (요약) — 전자책 판매 사이트
 ---
 ## 1) 시스템 구성
-```mermaid
-flowchart LR
-  A[React] --> B[Spring Boot]
-  B --> C[(MySQL)]
-  B --> D[(Redis)]
-  B --> E[(Storage)]
+
 
 ---
 
