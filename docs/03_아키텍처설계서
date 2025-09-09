@@ -7,7 +7,9 @@ flowchart LR
   B --> C[(MySQL)]
   B --> D[(Redis)]
   B --> E[(Storage)]
+
 ---
+
 ## 2) 모듈 역할
 - **user**: 회원가입/로그인, 역할 부여(ADMIN/USER)
 - **catalog**: 전자책 등록/수정(관리자), 목록/상세/검색
@@ -16,12 +18,16 @@ flowchart LR
 - **payment**: 결제 시뮬레이션(성공/실패) 후 주문 상태 갱신
 - **download**: 구매 검증 → `download_token` 발급 → 서명 URL 반환
 - **common**: JWT, 예외 필터, 로깅, 요청 추적
+
 ---
+
 ## 3) 데이터 저장소
 - **MySQL**: 12개 테이블(ERD 참조)
 - **Redis**: 세션/캐시, 다운로드 토큰 단기 캐싱(선택)
 - **Object Storage**: 전자책 파일/썸네일 저장, 서버가 프록시 혹은 서명 URL 발급
+
 ---
+
 ## 4) 핵심 플로우
 - **로그인**: 이메일/패스워드 → JWT 발급
 - **구매**: 장바구니 → 주문 생성 → Mock 결제 성공 → `orders.status = PAID`
@@ -31,24 +37,31 @@ flowchart LR
   3) `download_token` 발급(짧은 만료) 후 서명 URL 반환  
   4) 클라이언트는 해당 URL로 다운로드
 ---
+
 ## 5) 기술 스택
 - **Backend**: Java 17, Spring Boot 3.3, Gradle, Flyway, Swagger(OpenAPI)
 - **DB/Cache/Storage**: MySQL, Redis, Supabase Storage(또는 S3 호환)
 - **CI/CD**: GitHub Actions (빌드/테스트/배포)
+
 ---
+
 ## 6) 보안 요약
 - JWT 인증, BCrypt 비밀번호 해싱
 - 다운로드는 **구매 검증 후 단기 서명 URL**만 제공
 - 관리자 엔드포인트는 ROLE_ADMIN 필요
 - 기본 Rate Limit(선택, Redis 기반)
+
 ---
+
 ## 7) 배포 요약
 - 무료 클라우드 조합 예시:  
   - App: Render/Fly.io/Railway  
   - DB: Railway/MySQL Free  
   - Storage: Supabase Storage  
 - 환경변수: `DB_URL, DB_USER, DB_PASS, JWT_SECRET, STORAGE_KEY/SECRET`
+
 ---
+
 ## 8) API 스켈레톤
 - **Auth**: `POST /auth/signup`, `POST /auth/login`
 - **Ebook**: `GET /ebooks`, `GET /ebooks/{id}`  
@@ -57,7 +70,9 @@ flowchart LR
 - **Order/Payment**: `POST /orders`, `POST /orders/{id}/pay`
 - **Download**: `POST /download/{ebookId}/token`, `GET /download/{token}`
 - **Review**(선택): `POST /reviews`, `PUT /reviews/{id}`, `DELETE /reviews/{id}`
+
 ---
+
 ## 9) 마이그레이션 배치(Flyway)
 - V1: users, roles, user_roles
 - V2: ebook, ebook_file
