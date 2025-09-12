@@ -1,4 +1,4 @@
-package com.example.Ebook.web;
+package com.example.Ebook.controller;
 
 
 import org.springframework.validation.annotation.Validated;
