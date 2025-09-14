@@ -1,11 +1,27 @@
 package com.example.Ebook.controller;
 
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.Ebook.entity.Ebook;
 import com.example.Ebook.service.EbookService;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 //서비스 계층을 호출해 API 엔드포인트를 제공
 //요청, 응답에는 DTO를 사용해 엔티티 노출을 방지
@@ -20,11 +36,83 @@ public class EbookController {
 		this.ebookService = ebookService;
 	}
 	
-//	//목록조회
-//	//기본은 ACTIVE 상태만 반환
-//	// 추후 쿼리 파라ㅣ터로 상태를 받아 확장 가능
-//	@GetMapping
-//	public List<EbookResponse> list(){
-//		return ebookService.listActive().stream().map(EbookResponse::from).toList();
-//	}
+	//목록조회
+	//기본은 ACTIVE 상태만 반환
+	// 추후 쿼리 파라ㅣ터로 상태를 받아 확장 가능
+	@GetMapping
+	public List<EbookResponse> list(){
+		return ebookService.listActive().stream().map(EbookResponse::from).toList();
+	}
+	
+	//부분수정(patch)
+	//null인 필드는 변경x
+	//price는 0이상 필수
+	@PatchMapping("/{id}")
+	public EbookResponse update(@PathVariable Long id, @Valid @RequestBody UpdateRequest req) {
+		Ebook updated = ebookService.update(
+				id,
+				req.title(),
+				req.author(),
+				req.price(),
+				req.thumbnail(),
+				req.status()
+		);
+		return EbookResponse.from(updated);
+	}
+	
+	//이북 삭제
+	//HttpStatus상태코드 204로 반환 기본설정 200
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void delete(@PathVariable Long id) {
+		ebookService.delete(id);
+	}
+	
+//	-----------------------DTO---------------------------------
+	
+	//생성요청-title, price필수
+	public record CreateRequest(
+			@NotBlank(message = "title은 필수입니다.")
+			String title,
+			String author,
+			@NotNull(message = "price는 필수입니다.")
+			@DecimalMin(value = "0.0", inclusive = true, message = "price는 0원 이상입니다.")
+			BigDecimal price,
+			String thumbnail,
+			String status
+	) {}
+	
+	//부분수정요청 DTO
+	//모든 필드 선택사항
+	//price 0이상 필수
+	public record UpdateRequest(
+			Long id,
+			String title,
+			String author,
+			BigDecimal price,
+			String thumbnail,
+			String status
+	) {}
+	
+	//응답DTO
+	//엔티티 노출없이 필요한 필드만 반환
+	public record EbookResponse(
+			Long id,
+			String title,
+			String author,
+			BigDecimal price,
+			String thumbnail,
+			String status
+	) {
+		public static EbookResponse from(Ebook e) {
+			return new EbookResponse(
+					e.getId(),
+					e.getTitle(),
+					e.getAuthor(),
+					e.getPrice(),
+					e.getThumbnail(),
+					e.getStatus()
+			);
+		}
+	}
 }
