@@ -3,6 +3,8 @@ package com.example.Ebook.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +24,12 @@ public class EbookService {
 	
 	//ACTIVE 상태의 이북 목록을 내림차순으로 조회
 	public List<Ebook> listActive(){
-		return ebookRepository.findByStatusByIdDesc("ACTIVE");
+		return ebookRepository.findByStatusOrderByIdDesc("ACTIVE");
 	}
 	
+	public Page<Ebook> listActivePage(Pageable pageable) {
+        return ebookRepository.findByStatus("ACTIVE", pageable);
+	}
 	//단건 조회(없으면 예외)
 	public Ebook getById(Long id) {
 		return ebookRepository.findById(id)

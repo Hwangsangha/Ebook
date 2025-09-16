@@ -4,6 +4,9 @@ package com.example.Ebook.controller;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,8 +44,18 @@ public class EbookController {
 	//기본은 ACTIVE 상태만 반환
 	// 추후 쿼리 파라ㅣ터로 상태를 받아 확장 가능
 	@GetMapping
-	public List<EbookResponse> list(){
-		return ebookService.listActive().stream().map(EbookResponse::from).toList();
+	public PageResponse<EbookResponse> list(
+			@RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size
+		){
+		var pageble = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+		Page<Ebook> pageResult = ebookService.listActivePage(pageble);
+		return PageResponse.of(
+				pageResult.getContent().stream().map(EbookResponse::from).toList(),
+				pageResult.getNumber(),
+				pageResult.getSize(),
+				pageResult.getTotalElements()
+		);
 	}
 	
 	//부분수정(patch)
@@ -113,6 +127,12 @@ public class EbookController {
 					e.getThumbnail(),
 					e.getStatus()
 			);
+		}
+	}
+	
+	public record PageResponse<T>(List<T> items, int page, int size, long total){
+		public static <T> PageResponse<T> of(List<T> items, int page, int size, long total){
+			return new PageResponse<>(items, page, size, total);
 		}
 	}
 }
