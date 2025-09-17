@@ -47,8 +47,9 @@ public class EbookController {
 	// 추후 쿼리 파라ㅣ터로 상태를 받아 확장 가능
 	@GetMapping
 	public PageResponse<EbookResponse> list(
-			@RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size
+			@RequestParam(name = "page", defaultValue = "0") int page,
+	        @RequestParam(name = "size", defaultValue = "10") int size,
+	        @RequestParam(name = "q", required = false) String q
 		){
 		var pageble = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 		Page<Ebook> pageResult = ebookService.listActivePage(pageble);

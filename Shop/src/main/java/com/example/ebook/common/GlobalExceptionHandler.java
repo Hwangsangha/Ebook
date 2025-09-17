@@ -73,21 +73,27 @@ public class GlobalExceptionHandler {
 	}
 	
 	/**
-	 * 컨트롤러에서 빠져나온 모든 미처리 예외 처리
-	 * - 로그: 에러 레벨로 HTTP 메서드/URI/스택트레이스 기록
-	 * - 응답: 500 + 표준 에러 바디(ErrorResponse)
+	 * 마지막 안전망(DEV 진단용):
+	 * - 콘솔에는 전체 스택 로그
+	 * - 응답 바디 message에 "예외클래스: 메시지"를 담아 브라우저에서 바로 원인 확인
+	 *   ※ 운영 전환 전에 이 출력은 반드시 지울 것
 	 */
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleAny(Exception ex, HttpServletRequest req) {
-	    log.error("UNHANDLED @ {} {}", req.getMethod(), req.getRequestURI(), ex); // 전체 스택 로그
+	    log.error("UNHANDLED @ {} {}", req.getMethod(), req.getRequestURI(), ex); // 스택 전체 기록
+
+	    // 예외 클래스 + 메시지로 간단 진단 문자열 구성
+	    String detail = ex.getClass().getName() + (ex.getMessage() == null ? "" : (": " + ex.getMessage()));
+
 	    ErrorResponse body = ErrorResponse.of(
 	            HttpStatus.INTERNAL_SERVER_ERROR,
-	            "Internal server error",
+	            detail,                        // ← 여기! 브라우저에서 원인 바로 보임
 	            req.getRequestURI(),
-	            List.of()
+	            java.util.List.of()
 	    );
 	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}
+
 
 	
 	
