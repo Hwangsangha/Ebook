@@ -1,4 +1,4 @@
-package com.example.Ebook.entity;
+package com.example.ebook.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;

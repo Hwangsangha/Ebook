@@ -1,4 +1,4 @@
-package com.example.Ebook.service;
+package com.example.ebook.service;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.Ebook.domain.EbookRepository;
-import com.example.Ebook.entity.Ebook;
+import com.example.ebook.domain.EbookRepository;
+import com.example.ebook.entity.Ebook;
 
 
 @Service

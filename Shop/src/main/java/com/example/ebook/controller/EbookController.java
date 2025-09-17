@@ -1,4 +1,4 @@
-package com.example.Ebook.controller;
+package com.example.ebook.controller;
 
 
 import java.math.BigDecimal;
@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.Ebook.entity.Ebook;
-import com.example.Ebook.service.EbookService;
+import com.example.ebook.dto.EbookResponse;
+import com.example.ebook.dto.PageResponse;
+import com.example.ebook.entity.Ebook;
+import com.example.ebook.service.EbookService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -107,32 +109,4 @@ public class EbookController {
 			String thumbnail,
 			String status
 	) {}
-	
-	//응답DTO
-	//엔티티 노출없이 필요한 필드만 반환
-	public record EbookResponse(
-			Long id,
-			String title,
-			String author,
-			BigDecimal price,
-			String thumbnail,
-			String status
-	) {
-		public static EbookResponse from(Ebook e) {
-			return new EbookResponse(
-					e.getId(),
-					e.getTitle(),
-					e.getAuthor(),
-					e.getPrice(),
-					e.getThumbnail(),
-					e.getStatus()
-			);
-		}
-	}
-	
-	public record PageResponse<T>(List<T> items, int page, int size, long total){
-		public static <T> PageResponse<T> of(List<T> items, int page, int size, long total){
-			return new PageResponse<>(items, page, size, total);
-		}
-	}
 }

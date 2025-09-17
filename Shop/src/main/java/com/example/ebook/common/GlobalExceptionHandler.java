@@ -1,8 +1,10 @@
-package com.example.Ebook.common;
+package com.example.ebook.common;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.example.Ebook.common.GlobalExceptionHandler.ErrorResponse.ValidationError;
+import com.example.ebook.common.GlobalExceptionHandler.ErrorResponse.ValidationError;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -23,6 +25,13 @@ import jakarta.validation.ConstraintViolationException;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	
+	/**
+	 * 마지막 안전망: 예기치 못한 서버 오류를 잡아
+	 * 1) 콘솔/파일에 전체 스택 로그 남기고
+	 * 2) 클라이언트엔 표준화된 500 응답을 돌려준다.
+	 */
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
 	/*
 	 * NotBlank, NotNull 등 RequestBody 검증 실패
@@ -63,23 +72,23 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 	}
 	
-	/*
-	 * 마지막 안전망: 예기치 못한 서버 오류
-	 * 스택트레이스는 로그로 남기고, 클라이언트엔 일반 메시지만 노출
+	/**
+	 * 컨트롤러에서 빠져나온 모든 미처리 예외 처리
+	 * - 로그: 에러 레벨로 HTTP 메서드/URI/스택트레이스 기록
+	 * - 응답: 500 + 표준 에러 바디(ErrorResponse)
 	 */
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse> handleAny(
-			Exception ex,
-			HttpServletRequest req
-	){
-		//로거로 스택트레이스 기록(예: log.error("Unhandled", ex))
-		ErrorResponse body = ErrorResponse.of(
-				HttpStatus.INTERNAL_SERVER_ERROR,
-				"Internal server error",
-				req.getRequestURI(),
-				List.of());
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	public ResponseEntity<ErrorResponse> handleAny(Exception ex, HttpServletRequest req) {
+	    log.error("UNHANDLED @ {} {}", req.getMethod(), req.getRequestURI(), ex); // 전체 스택 로그
+	    ErrorResponse body = ErrorResponse.of(
+	            HttpStatus.INTERNAL_SERVER_ERROR,
+	            "Internal server error",
+	            req.getRequestURI(),
+	            List.of()
+	    );
+	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}
+
 	
 	
 	private ValidationError toValidationError(FieldError fe) {

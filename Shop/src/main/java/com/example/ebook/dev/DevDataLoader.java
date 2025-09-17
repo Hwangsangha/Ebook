@@ -1,4 +1,4 @@
-package com.example.Ebook.dev;
+package com.example.ebook.dev;
 
 import java.math.BigDecimal;
 
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
  * 이미 데이터가 있으면 아무것도 하지 않는다(중복방지)
  */
 
-import com.example.Ebook.domain.EbookRepository;
-import com.example.Ebook.service.EbookService;
+import com.example.ebook.domain.EbookRepository;
+import com.example.ebook.service.EbookService;
 @Component
 @Profile("dev")
 public class DevDataLoader implements CommandLineRunner{
