@@ -61,11 +61,17 @@ public class EbookController {
 		);
 	}
 	
+	// 단건 조회
+	@GetMapping("/{id}")
+	public EbookResponse get(@PathVariable(name = "id") Long id) {
+	    return EbookResponse.from(ebookService.getById(id));
+	}
+	
 	//부분수정(patch)
 	//null인 필드는 변경x
 	//price는 0이상 필수
 	@PatchMapping("/{id}")
-	public EbookResponse update(@PathVariable Long id, @Valid @RequestBody UpdateRequest req) {
+	public EbookResponse update(@PathVariable(name = "id") Long id, @Valid @RequestBody UpdateRequest req) {
 		Ebook updated = ebookService.update(
 				id,
 				req.title(),
@@ -81,7 +87,7 @@ public class EbookController {
 	//HttpStatus상태코드 204로 반환 기본설정 200
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable Long id) {
+	public void delete(@PathVariable(name = "id") Long id) {
 		ebookService.delete(id);
 	}
 	
