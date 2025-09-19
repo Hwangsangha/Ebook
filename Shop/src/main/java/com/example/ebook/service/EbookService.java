@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.entity.Ebook;
@@ -33,7 +35,7 @@ public class EbookService {
 	//단건 조회(없으면 예외)
 	public Ebook getById(Long id) {
 		return ebookRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Ebook not found: id = " + id));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ebook not found: id = " + id));
 	}
 	
 	//이북생성

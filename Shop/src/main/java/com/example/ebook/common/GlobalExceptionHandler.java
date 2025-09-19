@@ -12,6 +12,7 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.common.GlobalExceptionHandler.ErrorResponse.ValidationError;
 
@@ -92,6 +93,31 @@ public class GlobalExceptionHandler {
 	            java.util.List.of()
 	    );
 	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	}
+	
+	/**
+	 * ResponseStatusException 전용 처리
+	 * - 서비스/컨트롤러에서 명시한 상태코드(예: 400, 404)를 그대로 유지해서 응답한다.
+	 * - 지금 500으로 뭉개지는 문제의 원인 제거.
+	 */
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<ErrorResponse> handleResponseStatus(
+			ResponseStatusException ex,
+			HttpServletRequest req
+	){
+		//콘솔에는 원인 로그 남김
+		log.warn("RSE @ {} {} -> {}", req.getMethod(), req.getRequestURI(), ex.getStatusCode(), ex);
+		
+		//원인이 null일 수 있어 기본 메시지 보정
+		String msg = ex.getReason() != null ? ex.getReason() : ex.getMessage();
+		
+		ErrorResponse body = ErrorResponse.of(
+				HttpStatus.valueOf(ex.getStatusCode().value()),
+				msg,
+				req.getRequestURI(),
+				List.of()
+		);
+		return ResponseEntity.status(ex.getStatusCode()).body(body);
 	}
 
 
