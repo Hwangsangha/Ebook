@@ -32,6 +32,14 @@ public class EbookService {
 	public Page<Ebook> listActivePage(Pageable pageable) {
         return ebookRepository.findByStatus("ACTIVE", pageable);
 	}
+	
+	public Page<Ebook> listActivePage(String q, Pageable pageable){
+		if(q == null || q.isBlank()) {
+			return ebookRepository.findByStatus("ACTIVE", pageable);
+		}
+		return ebookRepository.findByStatusAndTitleContainingIgnoreCase("ACTIVE", q.trim(), pageable);
+	}
+	
 	//단건 조회(없으면 예외)
 	public Ebook getById(Long id) {
 		return ebookRepository.findById(id)

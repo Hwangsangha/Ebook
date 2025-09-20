@@ -26,6 +26,8 @@ import com.example.ebook.service.EbookService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -47,12 +49,23 @@ public class EbookController {
 	// 추후 쿼리 파라ㅣ터로 상태를 받아 확장 가능
 	@GetMapping
 	public PageResponse<EbookResponse> list(
-			@RequestParam(name = "page", defaultValue = "0") int page,
-	        @RequestParam(name = "size", defaultValue = "10") int size,
+			@RequestParam(name = "page", defaultValue = "0")
+			@Min(value = 0, message = "page는 0 이상이어야 합니다.")
+			int page,
+	        @RequestParam(name = "size", defaultValue = "10")
+			@Min(value = 0, message = "size는 0 이상이어야 합니다.")
+			@Max(value = 100, message = "size는 100 이하여야 합니다.")
+			int size,
+			
+			//검색어(선택). 앞뒤 공백은 서비스로 넘기기 전에 정리
 	        @RequestParam(name = "q", required = false) String q
 		){
-		var pageble = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-		Page<Ebook> pageResult = ebookService.listActivePage(pageble);
+		var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+		
+		Page<Ebook> pageResult = (q == null || q.isBlank())
+				? ebookService.listActivePage(pageable)
+				: ebookService.listActivePage(q.trim(), pageable);
+		
 		return PageResponse.of(
 				pageResult.getContent().stream().map(EbookResponse::from).toList(),
 				pageResult.getNumber(),
