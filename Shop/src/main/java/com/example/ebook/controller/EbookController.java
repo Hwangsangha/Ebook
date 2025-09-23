@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.dto.EbookResponse;
 import com.example.ebook.dto.PageResponse;
@@ -118,6 +119,30 @@ public class EbookController {
 		return EbookResponse.from(saved);
 	}
 	
+	/*
+	 *이북 상태 변경 전용 엔드포인트
+	 *ACTIVE / INACTIVE 만 허용
+	 *다른 필드는 건드리지 않음
+	 */
+	@PatchMapping("/{id}/status")
+	public EbookResponse changeStatus(
+			@PathVariable(name = "id") Long id,
+			@RequestBody StatusRequest req
+	) {
+		//허용 값 검증(대소문자 무시) 틀리면 400
+		if(req == null || req.status == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status is required");
+		}
+		String s = req.status.trim().toUpperCase();
+		if(!s.equals("ACTIVE") && !s.equals("INACTIVE")) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status nust be ACTIVE or INACTIVE");
+		}
+		
+		//서비스의 부분 수정 사용: status만 변경
+		var updated = ebookService.update(id, null, null, null, null, s);
+		return EbookResponse.from(updated);
+	}
+	
 //	-----------------------DTO---------------------------------
 	
 	//생성요청-title, price필수
@@ -143,4 +168,8 @@ public class EbookController {
 			String thumbnail,
 			String status
 	) {}
+	
+	public static class StatusRequest{
+		public String status;	//JSON: {"status":"INACTIVE"}같은 형태
+	}
 }
