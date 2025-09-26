@@ -12,4 +12,7 @@ import com.example.ebook.entity.CartItem;
  */
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 	Optional<CartItem> findByCartIdAndEbookId(Long cartId, Long ebookId);
+	
+	//장바구니 비우기
+	void deleteAllByCartId(Long cartId);
 }
