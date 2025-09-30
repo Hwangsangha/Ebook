@@ -1,5 +1,8 @@
 package com.example.ebook.service;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.ebook.domain.CartItemRepository;
 import com.example.ebook.domain.CartRepository;
 import com.example.ebook.domain.EbookRepository;
+import com.example.ebook.dto.CartLine;
 import com.example.ebook.entity.Cart;
 import com.example.ebook.entity.CartItem;
 import com.example.ebook.entity.Ebook;
@@ -78,5 +82,44 @@ public class CartService {
 		Cart cart = getOrCreateCart(userId);	//장바구니 조회
 		cartItemRepository.deleteAllByCartId(cart.getId());	//장바구니 전체삭제			
 		cart.touch();							//장바구니의 타임스탬프갱신
+	}
+	
+	@Transactional(readOnly = true)
+	public List<CartLine> getItems(Long userId){
+		Cart cart = getOrCreateCart(userId);
+		List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+		
+		return items.stream()
+				.map(ci -> new CartLine(
+						ci.getEbook().getId(),
+						ci.getEbook().getTitle(),
+						ci.getEbook().getPrice(),
+						ci.getQuantity(),
+						ci.getEbook().getPrice().multiply(BigDecimal.valueOf(ci.getQuantity()))
+				))
+				.toList();
+	}
+	
+	/*
+	 * 장바구니 항목 수량을 설정
+	 * userId, ebookId로 항목을 찾고 없으면 404
+	 * quantity < 1이면 400
+	 * 성공시 변경된 CartItem반환
+	 */
+	public CartItem setQuantity(Long userId, Long ebookId, int quantity) {
+		if(quantity < 1) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "quantity must be >= 1");
+		}
+		
+		//장바구니가 없으면 생성되지만, 그 안에 해당 항목이 없으면 아래에서 404처리
+		Cart cart = getOrCreateCart(userId);
+		
+		CartItem item = cartItemRepository
+				.findByCartIdAndEbookId(cart.getId(), ebookId)
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.NOT_FOUND, "Cart item not found: ebookId=" + ebookId));
+		
+		item.changeQuantity(quantity);	//도메인 메서드: 최소 1보장 + cart.updatedAt 갱신
+		return cartItemRepository.save(item);
 	}
 }

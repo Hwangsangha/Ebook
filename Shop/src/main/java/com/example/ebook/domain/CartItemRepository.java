@@ -1,5 +1,6 @@
 package com.example.ebook.domain;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 	
 	//장바구니 비우기
 	void deleteAllByCartId(Long cartId);
+	
+	//특정 장바구니 항목 조회
+	List<CartItem> findByCartId(Long cartId);
 }
