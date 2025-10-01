@@ -122,4 +122,19 @@ public class CartService {
 		item.changeQuantity(quantity);	//도메인 메서드: 최소 1보장 + cart.updatedAt 갱신
 		return cartItemRepository.save(item);
 	}
+	
+	/*
+	 * 장바구니에서 특정이북 항목 삭제
+	 * userId의 장바구니에서 ebookId 항목을 찾아 삭제 없으면 404
+	 */
+	public void removeItem(Long userId, Long ebookId) {
+		Cart cart = getOrCreateCart(userId);	//장바구니 확보
+		
+		CartItem item = cartItemRepository
+				.findByCartIdAndEbookId(userId, ebookId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart item not found: ebookId=" + ebookId));
+		
+		cartItemRepository.delete(item);	//삭제
+		cart.touch();						//갱신 시각 업데이트
+	}
 }

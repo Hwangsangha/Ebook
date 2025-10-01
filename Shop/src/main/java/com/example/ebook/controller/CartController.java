@@ -1,11 +1,14 @@
 package com.example.ebook.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +51,10 @@ public class CartController {
 		return new AddItemResponse(item.getId(), req.ebookId, item.getQuantity());
 	}
 	
+	/*
+	 * 장바구니 항목 수량 변경
+	 * 동일 바디로 수량을 설정
+	 */
 	@PatchMapping(path = "/items", consumes = "application/json", produces = "application/json")
 	public AddItemResponse changeQuantity(@Valid @RequestBody UpdateQtyRequest req) {
 		CartItem item = cartService.setQuantity(req.userId, req.ebookId, req.quantity);
@@ -64,6 +71,54 @@ public class CartController {
 	    public Integer quantity;
 	}
 	
+	/*
+	 * 장바구니 항목 조회
+	 * 인증이 업으니 userId를 쿼리로 받음
+	 * 응답: CartService.CartLine 리스트
+	 */
+	@GetMapping("/items")
+	public List<CartLine> list(@RequestParam @NotNull Long userId){
+		return cartService.getItems(userId);
+	}
+	
+	/*
+	 * 장바구니 항목 삭제
+	 * 경로의 ebookId와 쿼리의 userId로대상 결정
+	 * 예) DELETE /cart/items/1?userId=7
+	 * 성공시 204 No Content
+	 */
+	@DeleteMapping("/items/{ebookId}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remove(@RequestParam @NotNull Long userId,
+						@PathVariable(name = "ebookId") Long ebookId) {
+		cartService.removeItem(userId, ebookId);
+	}
+	
+	/*
+	 * 장바구니 요약 조회
+	 * 입력: userId
+	 * 처리: CartService.getItems(userId)결과로 총 수량/총 금액 계산
+	 * 출력: items(라인들), totalQuantity, totalAmount
+	 * 예) GET /cart/summary?userId=1
+	 */
+	@GetMapping("/summary")
+	public CartSummary summary(@RequestParam @NotNull Long userId) {
+		List<CartLine> lines = cartService.getItems(userId);
+		
+		//총수량
+		int totalQty = lines.stream()
+				.mapToInt(line -> line.quantity)
+				.sum();
+		
+		//총 금액
+		BigDecimal totalAmt = lines.stream()
+				.map(line -> line.subTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		return new CartSummary(lines, totalQty, totalAmt);
+		
+	}
+	
 	//요청 바디
 	public static class AddItemRequest{
 		@NotNull(message = "userId는 필수입니다.")
@@ -73,7 +128,7 @@ public class CartController {
 		@Min(value = 1, message = "quantity는 1이상이어야 합니다.")
 		public Integer quantity;
 	}
-	
+		
 	//응답 바디 
 	public static class AddItemResponse{
 		public final Long id;
@@ -86,13 +141,16 @@ public class CartController {
 		}
 	}
 	
-	/*
-	 * 장바구니 항목 조회
-	 * 인증이 업으니 userId를 쿼리로 받음
-	 * 응답: CartService.CartLine 리스트
-	 */
-	@GetMapping("/items")
-	public List<CartLine> list(@RequestParam @NotNull Long userId){
-		return cartService.getItems(userId);
+	//응답용 내부  DTO
+	public static class CartSummary{
+		public final List<CartLine> items;		//라인 목록
+		public final int totalQuantity;			//총 수량
+		public final BigDecimal totalAmount;	//총 금액
+		
+		public CartSummary(List<CartLine> items, int totalQuantity, BigDecimal totalAmount) {
+			this.items = items;
+			this.totalQuantity = totalQuantity;
+			this.totalAmount = totalAmount;
+		}
 	}
 }
