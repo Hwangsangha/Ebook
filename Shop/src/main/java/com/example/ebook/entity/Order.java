@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +37,7 @@ public class Order {
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(name = "order_user_id", nullable = false)
+	@Column(name = "user_id", nullable = false)
 	private Long userId;
 	
 	@Column(name = "order_number", nullable = false, length = 20)
@@ -43,7 +46,7 @@ public class Order {
 	@Column(nullable = false, length = 20)
 	private String status;
 	
-	@Column(name = "total_amount", nullable = false, precision = 12, scale = 20)
+	@Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
 	private BigDecimal totalAmount = BigDecimal.ZERO;
 	
 	@Column(name = "final_amount", nullable = false, precision = 12, scale = 2)
@@ -55,21 +58,16 @@ public class Order {
 	@Column(name = "canceled_at")
 	private LocalDateTime canceledAt;
 	
+	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 	
+	@UpdateTimestamp
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> items = new ArrayList<>();
-	
-	//생명주기
-	@PrePersist
-	void onCreate() {this.canceledAt = this.updatedAt = LocalDateTime.now();}
-	
-	@PreUpdate
-	void onUpdate() {this.updatedAt = LocalDateTime.now();}
 	
 	protected Order() {}	//JPA 기본 생성자
 	
