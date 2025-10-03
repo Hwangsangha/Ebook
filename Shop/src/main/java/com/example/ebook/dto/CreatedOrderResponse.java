@@ -15,12 +15,13 @@ public class CreatedOrderResponse {
 	
 	public static CreatedOrderResponse from(Order o) {
 		CreatedOrderResponse r = new CreatedOrderResponse();
-		r.id = o.getId();
-		r.orderNumber = o.getOrderNumber();
-		r.status = o.getStatus();
-		r.totalAmount = o.getTotalAmount();
-		r.finalAmount = o.getFinalAmount();
-		r.createdAt = o.getCreatedAt();
-		return r;
+        r.id = o.getId();
+        r.orderNumber = o.getOrderNumber();
+        r.status = o.getStatus();
+        r.totalAmount = o.getTotalAmount();
+        r.finalAmount = o.getFinalAmount();
+        r.createdAt = o.getCreatedAt();
+        return r;
 	}
+	
 }

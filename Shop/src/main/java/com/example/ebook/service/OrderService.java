@@ -12,7 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.domain.CartItemRepository;
+import com.example.ebook.domain.OrderItemRepository;
 import com.example.ebook.domain.OrderRepository;
+import com.example.ebook.dto.OrderDetail;
+import com.example.ebook.dto.OrderLine;
 import com.example.ebook.entity.CartItem;
 import com.example.ebook.entity.Order;
 import com.example.ebook.entity.OrderItem;
@@ -28,15 +31,18 @@ import com.example.ebook.entity.OrderItem;
 public class OrderService {
 
 	private final OrderRepository orderRepository;
+	private final OrderItemRepository orderItemRepository;
 	private final CartItemRepository cartItemRepository;
 	private final CartService cartService;
 	
 	public OrderService(OrderRepository orderRepository,
 						CartItemRepository cartItemRepository,
-						CartService cartService) {
+						CartService cartService,
+						OrderItemRepository orderItemRepository) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
+		this.orderItemRepository = orderItemRepository;
 	}
 	
 	/*
@@ -105,5 +111,45 @@ public class OrderService {
 		// 길이 20자 맞춤: "ORD-"(4) + 16자리 대문자 HEX
 	    String hex = java.util.UUID.randomUUID().toString().replace("-", "");
 	    return "ORD-" + hex.substring(0, 16).toUpperCase();
-	    }
+	}
+	
+	/*
+	 * 주문 상세조회
+	 * 다른 사람 주문이면 존재 자체를 숨기기 위해 404를 던진다
+	 * 트랜젝션은 readOnly로 열어서 LAZY 접근 안전화 + 약간의 최적화
+	 */
+	@Transactional(readOnly = true)
+	public OrderDetail getDetail(Long userId, Long orderId) {
+		if(userId == null || orderId == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId and orderId are required");
+		}
+		
+		//주문 헤더 로드 없으면 404
+		var order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+		
+		//권한 확인
+		if(!order.getUserId().equals(userId)) {
+			//권한 없는 사용자는 존재 자체를 모르게 처리
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
+		}
+		
+		List<OrderLine> lines = orderItemRepository.findByOrderId(orderId).stream()
+				.map(oi -> new OrderLine(
+						oi.getEbook().getId(),
+						oi.getTitleSnap(),
+						oi.getPriceSnap(),
+						oi.getQuantity(),
+						oi.getSubTotal()
+				)).toList();
+		return new OrderDetail(
+				order.getId(),
+				order.getOrderNumber(),
+				order.getStatus(),
+				order.getTotalAmount(),
+				order.getFinalAmount(),
+				order.getCreatedAt(),
+				lines
+				);
+	}
 }
