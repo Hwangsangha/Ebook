@@ -2,6 +2,7 @@ package com.example.ebook.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +39,11 @@ public class OrderController {
 		Order order = orderService.createFromCart(userId);
 		return CreatedOrderResponse.from(order);
 	}
-	
-	
+	//결제 완료 처리: PATCH /orders/{id}/pay?userId=1
+	@PostMapping("/{id}/pay")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void pay(@PathVariable("id") Long id,
+					@RequestParam @NotNull Long userId) {
+		orderService.markPaid(userId, id);
+	}
 }

@@ -2,9 +2,7 @@ package com.example.ebook.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -151,5 +149,33 @@ public class OrderService {
 				order.getCreatedAt(),
 				lines
 				);
+	}
+	
+	//주문 상태를 PENDING -> PAID로 변경
+	@Transactional
+	public void markPaid(Long userId, Long orderId) {
+		if(userId == null || orderId == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId and orderId are required");
+		}
+		
+		var order = orderRepository.findById(orderId)
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
+		
+		//본인 주문만 가능
+		if(!order.getUserId().equals(userId)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found");
+		}
+		
+		//상태체크
+		String s = order.getStatus();
+		if(!"PENDING".equalsIgnoreCase(s)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, " Order is not PENDING");
+		}
+		
+		order.setStatus("PAID");
+		order.setPaidAt(LocalDateTime.now());
+		
+		//더티체킹으로 flush 되지만 명시적으로 저장해도 무방
+		orderRepository.save(order);
 	}
 }
