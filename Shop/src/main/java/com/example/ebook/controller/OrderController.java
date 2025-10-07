@@ -2,6 +2,8 @@ package com.example.ebook.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ebook.dto.CreatedOrderResponse;
+import com.example.ebook.dto.OrderDetail;
 import com.example.ebook.entity.Order;
 import com.example.ebook.service.OrderService;
 
@@ -40,10 +43,24 @@ public class OrderController {
 		return CreatedOrderResponse.from(order);
 	}
 	//결제 완료 처리: PATCH /orders/{id}/pay?userId=1
-	@PostMapping("/{id}/pay")
+	@PatchMapping("/{id}/pay")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void pay(@PathVariable("id") Long id,
 					@RequestParam @NotNull Long userId) {
 		orderService.markPaid(userId, id);
+	}
+	//상세조회
+	@GetMapping("/{id}")
+	public OrderDetail detail(
+			@PathVariable("id") Long id,
+			@RequestParam @NotNull Long userId) {
+		return orderService.getDetail(userId, id);
+	}
+	//주문 취소: PATCH /orders/id/cancel?userId=1
+	@PatchMapping("/{id}/cancel")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void cancel(@PathVariable Long id,
+						@RequestParam @NotNull Long userId) {
+		orderService.cancel(userId, id);
 	}
 }

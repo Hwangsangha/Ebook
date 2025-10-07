@@ -178,4 +178,29 @@ public class OrderService {
 		//더티체킹으로 flush 되지만 명시적으로 저장해도 무방
 		orderRepository.save(order);
 	}
+	
+	//주문 취소: PENDING만 가능
+	@Transactional
+	public void cancel(Long userId, Long orderId) {
+		if(userId == null || orderId == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId and orderId are required");
+		}
+		
+		var order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ordeer not found"));
+		if(!order.getUserId().equals(userId)) {
+			//남의 주문은 존재자체를 숨김
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found");
+		}
+		
+		if(!"PENDING".equalsIgnoreCase(order.getStatus())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PENING can be cancelled");
+		}
+		
+		order.setStatus("CANCELLED");
+		order.setCanceledAt(LocalDateTime.now());
+		orderRepository.save(order);	//명시 저장
+	}
+	
+	
 }
