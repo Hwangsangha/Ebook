@@ -27,54 +27,54 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class DevDataLoader{
 
-	private final EbookRepository ebookRepository;
-    private final CartRepository cartRepository;
-    private final OrderRepository orderRepository;
-
-    public DevDataLoader(EbookRepository ebookRepository,
-                         CartRepository cartRepository,
-                         OrderRepository orderRepository) {
-        this.ebookRepository = ebookRepository;
-        this.cartRepository = cartRepository;
-        this.orderRepository = orderRepository;
-	}
-	
-	@PostConstruct
-	@Transactional
-	public void init() {
-		//1) 이미 데이터가 있으면 시드 주입 스킵
-		if(ebookRepository.count() > 0) return;
-		
-		//-----------ebooks-------------
-		Ebook e1 = new Ebook("스프링 입문", "홍길동", new BigDecimal("9900"), null, "ACTIVE");
-		Ebook e2 = new Ebook("이펙티브 자바 요약", "조바", new BigDecimal("12900"), null, "ACTIVE");
-		Ebook e3 = new Ebook("클린 아키텍처 한입", "로버트 C. 마틴", new BigDecimal("15000"), null, "ACTIVE");
-		ebookRepository.save(e1);
-		ebookRepository.save(e2);
-		ebookRepository.save(e3);
-		
-		//----------cart----------------
-		Cart cart = new Cart(1L);	//userId = 1
-		CartItem ci = new CartItem(cart, e1, 1, e1.getPrice());
-		cart.addItem(ci);
-		cartRepository.save(cart);
-		
-		//------------order-------------
-		Order order = new Order();
-		order.setUserId(1L);
-		order.setOrderNumber("ORD-DEMO");
-		order.setStatus("PAID");
-		order.setTotalAmount(e1.getPrice());
-		order.setFinalAmount(e1.getPrice());
-		order.setCreatedAt(LocalDateTime.now());
-		orderRepository.save(order);
-		
-		OrderItem oi = new OrderItem(order, e1, e1.getPrice(), 1);
-		oi.setSubTotal(e1.getPrice());
-		order.additem(oi);
-		
-		orderRepository.save(order);
-		
-		System.out.println("Dev data loaded: 3 ebooks, 1 order, 1 cart (userId=1)");
-	}
+//	private final EbookRepository ebookRepository;
+//    private final CartRepository cartRepository;
+//    private final OrderRepository orderRepository;
+//
+//    public DevDataLoader(EbookRepository ebookRepository,
+//                         CartRepository cartRepository,
+//                         OrderRepository orderRepository) {
+//        this.ebookRepository = ebookRepository;
+//        this.cartRepository = cartRepository;
+//        this.orderRepository = orderRepository;
+//	}
+//	
+//	@PostConstruct
+//	@Transactional
+//	public void init() {
+//		//1) 이미 데이터가 있으면 시드 주입 스킵
+//		if(ebookRepository.count() > 0) return;
+//		
+//		//-----------ebooks-------------
+//		Ebook e1 = new Ebook("스프링 입문", "홍길동", new BigDecimal("9900"), null, "ACTIVE");
+//		Ebook e2 = new Ebook("이펙티브 자바 요약", "조바", new BigDecimal("12900"), null, "ACTIVE");
+//		Ebook e3 = new Ebook("클린 아키텍처 한입", "로버트 C. 마틴", new BigDecimal("15000"), null, "ACTIVE");
+//		ebookRepository.save(e1);
+//		ebookRepository.save(e2);
+//		ebookRepository.save(e3);
+//		
+//		//----------cart----------------
+//		Cart cart = new Cart(1L);	//userId = 1
+//		CartItem ci = new CartItem(cart, e1, 1, e1.getPrice());
+//		cart.addItem(ci);
+//		cartRepository.save(cart);
+//		
+//		//------------order-------------
+//		Order order = new Order();
+//		order.setUserId(1L);
+//		order.setOrderNumber("ORD-DEMO");
+//		order.setStatus("PAID");
+//		order.setTotalAmount(e1.getPrice());
+//		order.setFinalAmount(e1.getPrice());
+//		order.setCreatedAt(LocalDateTime.now());
+//		orderRepository.save(order);
+//		
+//		OrderItem oi = new OrderItem(order, e1, e1.getPrice(), 1);
+//		oi.setSubTotal(e1.getPrice());
+//		order.additem(oi);
+//		
+//		orderRepository.save(order);
+//		
+//		System.out.println("Dev data loaded: 3 ebooks, 1 order, 1 cart (userId=1)");
+//	}
 }
