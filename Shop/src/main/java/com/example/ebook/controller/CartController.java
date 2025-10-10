@@ -119,6 +119,8 @@ public class CartController {
 		
 	}
 	
+	//장바구니 담기
+	
 	//요청 바디
 	public static class AddItemRequest{
 		@NotNull(message = "userId는 필수입니다.")

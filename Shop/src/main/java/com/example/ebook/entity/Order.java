@@ -69,7 +69,7 @@ public class Order {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> items = new ArrayList<>();
 	
-	protected Order() {}	//JPA 기본 생성자
+	public Order() {}	//JPA 기본 생성자
 	
 	public Order(Long userId, String orderNumber, String status) {
 		this.userId = userId;
@@ -109,9 +109,12 @@ public class Order {
 	public void setCanceledAt(LocalDateTime canceledAt) { this.canceledAt = canceledAt; }
 	
 	public LocalDateTime getCreatedAt() { return createdAt; }
+	public void setCreatedAt(LocalDateTime now) {this.createdAt = createdAt;}
 	
 	public LocalDateTime getUpdatedAt() { return updatedAt; }
 	
 	public List<OrderItem> getItems() { return items; }
 	public void setItems(List<OrderItem> items) { this.items = items; }
+
+	
 }

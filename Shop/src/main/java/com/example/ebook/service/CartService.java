@@ -137,4 +137,27 @@ public class CartService {
 		cartItemRepository.delete(item);	//삭제
 		cart.touch();						//갱신 시각 업데이트
 	}
+	
+	@Transactional
+	public void addToCart(Long userId, Long ebookId, int quantity) {
+		//카트 확보
+		Cart cart = cartRepository.findByUserId(userId)
+				.orElseGet(() -> cartRepository.save(new Cart(userId)));
+		
+		//기존 항목 있으면 수량만 변경
+		var existing = cartItemRepository.findByCartIdAndEbookId(cart.getId(), ebookId);
+		if(existing.isPresent()) {
+			CartItem item = existing.get();
+			item.changeQuantity(item.getQuantity() + Math.max(1, quantity));
+			return;	//JPA dirty checking으로 끝
+		}
+		
+		//없으면 새로 추가
+		Ebook ebook = ebookRepository.findById(ebookId)
+				.orElseThrow(() -> new IllegalArgumentException("Ebook not found: " + ebookId));
+		
+		CartItem ci = new CartItem(cart, ebook, Math.max(1, quantity));
+		cart.addItem(ci);			//연관관계 고정 + cart.touch()
+		cartRepository.save(cart);	//cascade로 cart_item까지 저장
+	}
 }

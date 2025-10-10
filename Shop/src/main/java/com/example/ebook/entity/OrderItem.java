@@ -62,11 +62,20 @@ public class OrderItem {
 		this.subTotal = priceSnap.multiply(BigDecimal.valueOf(this.quantity));
 	}
 	
+	public OrderItem(Order order, Ebook ebook, BigDecimal price, int quantity) {
+		this.order = order;
+		this.ebook = ebook;
+		this.titleSnap = ebook.getTitle();
+		this.priceSnap = price;
+		this.quantity = Math.max(1, quantity);
+		this.subTotal = price.multiply(BigDecimal.valueOf(this.quantity));
+	}
+
 	//내부 일관성 유지
 	public void setOrder(Order order) {
 		this.order = order;
 	}
-	public void serPriceSnap(BigDecimal priceSnap) {
+	public void setPriceSnap(BigDecimal priceSnap) {
 		this.priceSnap = priceSnap;
 		this.subTotal = priceSnap.multiply(BigDecimal.valueOf(this.quantity));
 	}
@@ -85,4 +94,5 @@ public class OrderItem {
 	public BigDecimal getPriceSnap() {return priceSnap;}
 	public int getQuantity() {return quantity;}
 	public BigDecimal getSubTotal() {return subTotal;}
+	public void setSubTotal(BigDecimal price) {this.subTotal = subTotal;}
 }

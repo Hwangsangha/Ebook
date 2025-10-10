@@ -69,4 +69,14 @@ public class Ebook {
 
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
+    
+    public Ebook(String title, String author, BigDecimal price, String thumbnail, String status) {
+        this.title = title;
+        this.author = author;
+        this.price = price;
+        this.thumbnail = thumbnail;
+        this.status = status;
+    }
+    
+    public Ebook() {}
 }

@@ -1,5 +1,6 @@
 package com.example.ebook.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -52,10 +53,12 @@ public class CartItem {
 		this.ebook = ebook;
 		this.quantity = Math.max(1, quantity);
 		this.addedAt = LocalDateTime.now();
-		cart.touch();	//장바구니 갱신
 	}
 	
-//---------------------------------도메인 동작------------------------------
+	public CartItem(Cart cart, Ebook ebook, int quantity, BigDecimal price) {
+		this(cart, ebook, quantity);
+	}
+	//---------------------------------도메인 동작------------------------------
 	public void changeQuantity(int quantity) {
 		this.quantity = Math.max(1, quantity);
 		this.cart.touch();
