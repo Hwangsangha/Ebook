@@ -6,40 +6,98 @@ function App() {
   const [error, serError] = useState(null);
 
   useEffect(() => {
-    console.log("App 마운트됨, CartApi.summary 호출 시작");
-
     CartApi.summary(1)
-      .then(data => {
-        console.log("요약 등답:", data);
-        setSummary(data);
-      })
-      .catch(err => {
-        console.log("요약 에러:", err)
-        serError(err.message || String(err));
-      });
+      .then(setSummary)
+      .catch(err => serError(err.message || String(err)));
   }, []);
 
-  if(error) return <p>에러: {error}</p>;
-  if(!summary) return <p>불러오는 중...</p>;
+  if(error){
+    return(
+      <div style={page}>
+        <div style={card}>
+          <h2>에러</h2>
+          <p2 style={muted}>{error}</p2>
+        </div>
+      </div>
+    );
+  }
+  if(!summary){
+    return(
+      <div style={page}>
+        <div style={card}>불러오는 중...</div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif"}}>
-      <h1>프론트 연결 디버그 화면</h1>
+    <div style={page}>
+      <div style={card}>
+        <h1 style={{marginTop: 0, marginBottom: 8}}>장바구니 요약</h1>
+        <p style={muted}>userId = 1 기준</p>
 
-      <div style={{ marginTop: 16}}>
-        <h2>상태</h2>
-        <p>error: <code>{error ?? "없음"}</code></p>
-        <p>summary 존재 여부: <code>{summary ? "있음" : "null"}</code></p>
-      </div>
+        <div>
+          <span>총 수량</span>
+          <strong>{summary.totalQuantity}</strong>
+        </div>
 
-      <div style={{margin: 16}}>
-        <h2>summary 원본 데이터</h2>
-        <pre style={{ background: "#f3f4f6", padding: 12, borderRadius: 8}}>
-          {JSON.stringify(summary, null, 2)}
-        </pre>
+        <div>
+          <span>총 금액</span>
+          <strong>{summary.totalAmount}</strong>
+        </div>
+
+        <button
+          style={button}
+          onClick={() =>
+            CartApi.summary(1)
+              .then(setSummary)
+              .catch(err => setError(err.message || String(err)))
+          }>
+            새로고침
+        </button>
       </div>
     </div>
   );
 }
+
+const page = {
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  background: "#111827",
+  color: "#f9fafb",
+  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+};
+
+const card = {
+  background: "#111827",
+  border: "1px solid #374151",
+  borderRadius: 12,
+  padding: 20,
+  width: 360,
+  boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+};
+
+const row = {
+  display: "flex",
+  justifyContent: "space-between",
+  padding: "8px 0",
+  borderTop: "1px solid #1f2933",
+};
+
+const muted = {
+  fontSize: 12,
+  color: "#9ca3af",
+};
+
+const button = {
+  marginTop: 16,
+  width: "100%",
+  padding: "10px, 12px",
+  borderRadius: 8,
+  border: "1px solid #4b5563",
+  background: "#1f2937",
+  color: "#f9fafb",
+  cursor: "pointer",
+};
 
 export default App
