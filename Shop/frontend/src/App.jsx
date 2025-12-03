@@ -1,103 +1,21 @@
-import { useEffect, useState } from 'react'
-import { CartApi } from "./api"
+import { Routes, Route, Link } from "react-router-dom";
+import SummaryPage from "./pages/SummaryPage";
+import Cartpage from "./pages/Cartpage";
 
 function App() {
-  const [summary, setSummary] = useState(null);
-  const [error, serError] = useState(null);
-
-  useEffect(() => {
-    CartApi.summary(1)
-      .then(setSummary)
-      .catch(err => serError(err.message || String(err)));
-  }, []);
-
-  if(error){
-    return(
-      <div style={page}>
-        <div style={card}>
-          <h2>에러</h2>
-          <p2 style={muted}>{error}</p2>
-        </div>
-      </div>
-    );
-  }
-  if(!summary){
-    return(
-      <div style={page}>
-        <div style={card}>불러오는 중...</div>
-      </div>
-    );
-  }
-
   return (
-    <div style={page}>
-      <div style={card}>
-        <h1 style={{marginTop: 0, marginBottom: 8}}>장바구니 요약</h1>
-        <p style={muted}>userId = 1 기준</p>
+    <div style={{ padding: 24, fontFamily: "system-ui"}}>
+      <nav style={{ marginBottom: 20}}>
+        <Link to="/" style={{ marginRight: 16}}>요약</Link>
+        <Link to="/cart">장바구니</Link>
+      </nav>
 
-        <div>
-          <span>총 수량</span>
-          <strong>{summary.totalQuantity}</strong>
-        </div>
-
-        <div>
-          <span>총 금액</span>
-          <strong>{summary.totalAmount}</strong>
-        </div>
-
-        <button
-          style={button}
-          onClick={() =>
-            CartApi.summary(1)
-              .then(setSummary)
-              .catch(err => setError(err.message || String(err)))
-          }>
-            새로고침
-        </button>
-      </div>
+      <Routes>
+        <Route path="/" element={<SummaryPage/>}/>
+        <Route path="/cart" element={<Cartpage/>}/>
+      </Routes>
     </div>
   );
 }
 
-const page = {
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  background: "#111827",
-  color: "#f9fafb",
-  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-};
-
-const card = {
-  background: "#111827",
-  border: "1px solid #374151",
-  borderRadius: 12,
-  padding: 20,
-  width: 360,
-  boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-};
-
-const row = {
-  display: "flex",
-  justifyContent: "space-between",
-  padding: "8px 0",
-  borderTop: "1px solid #1f2933",
-};
-
-const muted = {
-  fontSize: 12,
-  color: "#9ca3af",
-};
-
-const button = {
-  marginTop: 16,
-  width: "100%",
-  padding: "10px, 12px",
-  borderRadius: 8,
-  border: "1px solid #4b5563",
-  background: "#1f2937",
-  color: "#f9fafb",
-  cursor: "pointer",
-};
-
-export default App
+export default App;
