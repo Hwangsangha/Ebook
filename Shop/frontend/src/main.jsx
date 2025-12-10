@@ -10,3 +10,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+//React 애플리케이션의 시작점
+//app 컴포넌트를 화면에 렌더링

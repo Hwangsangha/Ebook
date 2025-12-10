@@ -1,6 +1,6 @@
 import { Routes, Route, Link } from "react-router-dom";
 import SummaryPage from "./pages/SummaryPage";
-import Cartpage from "./pages/Cartpage";
+import Cartpage from "./pages/CartPage";
 
 function App() {
   return (
@@ -19,3 +19,6 @@ function App() {
 }
 
 export default App;
+
+//앱 전체의 라우팅을 담당하는 컴포넌트
+//각 페이지들을 Routes로 연결
