@@ -25,11 +25,14 @@ export const CartApi = {
     listItems: (userId) =>
         unwrap(api.get("/cart/items", {params: {userId}})),
 
-    serQuantity: ({userId, ebookId, quantity}) =>
+    setQuantity: ({userId, ebookId, quantity}) =>
         unwrap(api.patch("/cart/items", {userId, ebookId, quantity})),
 
     summary: (userId) =>
         unwrap(api.get("/cart/summary", {params: {userId}})),
+
+    removeItem: ({userId, ebookId}) =>
+        unwrap(api.delete(`/cart/items/${ebookId}`, {params: {userId}})),
 };
 
 export default api;

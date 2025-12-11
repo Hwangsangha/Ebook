@@ -30,6 +30,62 @@ function Cartpage(){
         return <p>장바구니가 비었습니다.</p>;
     }
 
+// 수량 증가
+function handleIncrease(item){
+    const newQty = item.quantity + 1;
+
+    CartApi.setQuantity({
+        userId: 1,
+        ebookId: item.ebookId,
+        quantity: newQty
+    })
+        .then(() => {
+            //성공하면 화면에 즉시 업뎃
+            setItems(prev =>
+                prev.map(i =>
+                    i.ebookId === item.ebookId ? { ...i, quantity: newQty, subTotal: i.price * newQty } : i
+                )
+            );
+        })
+        .catch(err => alert("증가 실패: " + err.message));
+}
+
+// 수량 감소
+function handleDecrease(item){
+    const newQty = Math.max(1, item.quantity - 1);
+
+    CartApi.setQuantity({
+        userId: 1,
+        ebookId: item.ebookId,
+        quantity: newQty
+    })
+        .then(() => {
+            setItems(prev =>
+                prev.map(i =>
+                    i.ebookId === item.ebookId ? { ...i, quantity: newQty, subTotal: i.price * newQty} : i
+                )
+            );
+        })
+        .catch(err => alert("감소 실패: " + err.message));
+}
+
+//항목 삭제
+function handleRemove(item){
+    if(!confirm("이 항목을 삭제하시겠습니까?")) return;
+
+    CartApi.removeItem({
+        userId: 1,
+        ebookId: item.ebookId
+    })
+        .then(() => {
+            //화면에서 즉시 제거
+            setItems(prev =>
+                prev.filter(i => i.ebookId !== item.ebookId)
+            );
+        })
+        .catch(err => alert("삭제 실패: " + err.message));
+}
+
     //항목 있을때
     return (
         <div>
@@ -50,8 +106,15 @@ function Cartpage(){
                       <tr key={item.ebookId}>
                         <td>{item.title}</td>
                         <td>{item.price}</td>
-                        <td>{item.quantity}</td>
+                        <td>
+                            <button onClick={() => handleDecrease(item)}>-</button>
+                            <span style={{ margin: "0 10px"}}>{item.quantity}</span>
+                            <button onClick={() => handleIncrease(item)}>+</button>
+                        </td>
                         <td>{item.subTotal}</td>
+                        <td>
+                            <button onClick={() => handleRemove(item)}>삭제</button>
+                        </td>
                       </tr>  
                     ))}
                 </tbody>
