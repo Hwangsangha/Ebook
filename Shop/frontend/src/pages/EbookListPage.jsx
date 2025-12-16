@@ -20,6 +20,7 @@ function EbookListPage(){
     }, []);
 
     if(loading) return <p>불러오는 중...</p>;
+    if(!ebooks.length) return <p>등록된 전자책이 없습니다.</p>;
 
     return (
         <div>
