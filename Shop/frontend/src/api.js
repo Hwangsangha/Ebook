@@ -17,6 +17,13 @@ function unwrap(promise){
     });
 }
 
+//전자책 관련 API
+export const EbookApi = {
+    list() {
+        return unwrap(api.get("/ebooks"));
+    }
+};
+
 //장바구니 관련 API
 export const CartApi = {
     addItem: ({userId, ebookId, quantity = 1}) =>

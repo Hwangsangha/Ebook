@@ -1,32 +1,38 @@
 //전자책 목록 페이지
 
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { CartApi } from "../api";
+import { CartApi, EbookApi } from "../api";
 
-function EbookListPage(){
+function EbookListPage() {
     const [ebooks, setEbooks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const userId = 1;
 
     useEffect(() => {
-        axios
-            .get("http://localhost:8080/ebooks")
-            .then(res => {
-                setEbooks(res.data);
+        console.log("API BASE:", import.meta.env.VITE_API_BASE);
+
+        EbookApi.list()
+            .then(data => {
+                console.log("응답 전체: ", data);
+                setEbooks(data.items);
                 setLoading(false);
             })
-            .catch(() => setLoading(false));
+            .catch(err => {
+                setError(err.message);
+                setLoading(false);
+            });
     }, []);
 
-    if(loading) return <p>불러오는 중...</p>;
-    if(!ebooks.length) return <p>등록된 전자책이 없습니다.</p>;
+    if (loading) return <p>불러오는 중...</p>;
+    if (error) return <p>에러: {error}</p>;
+    if (!ebooks || ebooks.length === 0) return <p>등록된 전자책이 없습니다.</p>;
 
     return (
         <div>
             <h1>전자책 목록</h1>
 
-            <table border={1} cellPadding={8} style={{width: "100%", borderCollapse: "collapse"}}>
+            <table border={1} cellPadding={8} style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thread>
                     <tr>
                         <th>제목</th>
