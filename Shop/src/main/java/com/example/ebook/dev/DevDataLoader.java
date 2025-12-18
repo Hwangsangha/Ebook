@@ -49,9 +49,14 @@ public class DevDataLoader{
 		Ebook e1 = new Ebook("스프링 입문", "홍길동", new BigDecimal("9900"), null, "ACTIVE");
 		Ebook e2 = new Ebook("이펙티브 자바 요약", "조바", new BigDecimal("12900"), null, "ACTIVE");
 		Ebook e3 = new Ebook("클린 아키텍처 한입", "로버트 C. 마틴", new BigDecimal("15000"), null, "ACTIVE");
+		Ebook e4 = new Ebook("자바 기초", "이몽룡", new BigDecimal("20000"), null, "ACTIVE");
+		Ebook e5 = new Ebook("리액트 처음부터", "임꺽정", new BigDecimal("18000"), null, "ACTIVE");		
+		
 		ebookRepository.save(e1);
 		ebookRepository.save(e2);
 		ebookRepository.save(e3);
+		ebookRepository.save(e4);
+		ebookRepository.save(e5);
 		
 		//----------cart----------------
 		Cart cart = new Cart(1L);	//userId = 1
