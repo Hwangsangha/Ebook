@@ -15,7 +15,9 @@ import com.example.ebook.dto.CartLine;
 import com.example.ebook.entity.Cart;
 import com.example.ebook.entity.CartItem;
 import com.example.ebook.entity.Ebook;
+import jakarta.annotation.Nonnull;
 
+@Nonnull
 @Service
 @Transactional	//따로 트랜잭션으로 묶어 끝나면 커밋 시킴
 public class CartService {

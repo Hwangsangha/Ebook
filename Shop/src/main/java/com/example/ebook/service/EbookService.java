@@ -12,8 +12,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.entity.Ebook;
+import jakarta.annotation.Nonnull;
 
-
+@Nonnull
 @Service
 @Transactional(readOnly = true)  //기본 읽기 트랜잭션
 public class EbookService {
@@ -68,6 +69,7 @@ public class EbookService {
 	//이북 정보 수정, 널이 아닌 값만 반영
 	//제목, 저자, 가격, 썸네일, 상태를 선택적으로 갱신
 	@Transactional
+	@Nonnull
 	public Ebook update(Long id, String title, String author, BigDecimal price, String thumbnail, String status) {
 		Ebook e = getById(id); //존재 확인
 		if(title != null && !title.isBlank()) e.setTitle(title.trim()); //제목 변경 null이면 변경 안함, 제목 앞뒤 공백 제거
