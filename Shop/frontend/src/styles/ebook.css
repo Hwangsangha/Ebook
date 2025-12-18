@@ -1,0 +1,73 @@
+
+/* 전체 페이지 레이아웃 */
+.page {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px;
+  font-family: Arial, sans-serif;
+}
+
+/* 제목 */
+.page h1 {
+  margin-bottom: 24px;
+  font-size: 24px;
+}
+
+/* 테이블 기본 */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* 컬럼 폭 고정 */
+.table td.title {
+  width: 40%;
+}
+
+.table td.author {
+  width: 20%;
+}
+
+.table td.price {
+  width: 20%;
+  text-align: right;
+}
+
+.table td.action {
+  width: 20%;
+  text-align: center;
+}
+
+
+/* 헤더 */
+.table thead {
+  background-color: #f5f5f5;
+}
+
+.table th {
+    padding-inline-start: 50%;
+}
+.table td {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+/* 가격 정렬 */
+.table td.price {
+  text-align: right;
+}
+
+/* 버튼 */
+.btn {
+  padding: 6px 12px;
+  border: 1px solid #333;
+  background: #fff;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #333;
+  color: #fff;
+}

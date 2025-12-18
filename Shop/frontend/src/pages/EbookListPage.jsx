@@ -1,5 +1,6 @@
 //전자책 목록 페이지
 
+import "../styles/ebook.css";
 import { useEffect, useState } from "react";
 import { CartApi, EbookApi } from "../api";
 
@@ -29,10 +30,10 @@ function EbookListPage() {
     if (!ebooks || ebooks.length === 0) return <p>등록된 전자책이 없습니다.</p>;
 
     return (
-        <div>
+        <div className="page">
             <h1>전자책 목록</h1>
 
-            <table border={1} cellPadding={8} style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="table">
                 <thread>
                     <tr>
                         <th>제목</th>
@@ -44,11 +45,11 @@ function EbookListPage() {
                 <tbody>
                     {ebooks.map(e => (
                         <tr key={e.id}>
-                            <td>{e.title}</td>
-                            <td>{e.author}</td>
-                            <td>{e.price}</td>
-                            <td>
-                                <button onClick={() =>
+                            <td className="title">{e.title}</td>
+                            <td className="author">{e.author}</td>
+                            <td className="price">{e.price.toLocaleString()}원</td>
+                            <td className="action">
+                                <button className="btn" onClick={() =>
                                     CartApi.addItem({
                                         userId,
                                         ebookId: e.id,
