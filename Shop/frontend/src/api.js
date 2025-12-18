@@ -5,6 +5,11 @@ const api = axios.create({
     headers: { "Content-Type": "application/json"},
 });
 
+api.interceptors.request.use((config) => {
+  console.log("[API REQ]", (config.method || "GET").toUpperCase(), config.baseURL, config.url);
+  return config;
+});
+
 //공통 에러 처리
 function unwrap(promise){
     return promise.then(r => r.data).catch(err => {
