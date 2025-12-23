@@ -1,0 +1,81 @@
+/* ui.css: 정렬 안 깨지는 최소 UI */
+
+/* 페이지 컨테이너 */
+.ui-page{
+  max-width: 960px;
+  margin: 32px auto;
+  padding: 0 16px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #111;
+}
+
+.ui-title{
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+/* “표처럼 보이는 리스트” */
+.ui-grid{
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* 헤더/행: flex로 동일 규칙 강제 */
+.ui-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.ui-row:last-child{
+  border-bottom: none;
+}
+
+.ui-header{
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+/* 칸 너비를 “강제로” 고정 (정렬 100% 일치) */
+.col-title{ flex: 4; min-width: 0; }
+.col-author{ flex: 2; min-width: 0; }
+.col-price{ flex: 2; text-align: right; font-variant-numeric: tabular-nums; }
+.col-action{ flex: 2; display: flex; justify-content: center; gap: 8px; }
+
+/* 텍스트가 길면 줄임표 */
+.ellipsis{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 버튼 */
+.ui-btn{
+  padding: 7px 10px;
+  border: 1px solid #111;
+  background: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.ui-btn:hover{
+  background: #111;
+  color: #fff;
+}
+
+.ui-btn:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 상태 메시지 */
+.ui-muted{
+  color: #6b7280;
+  padding: 16px 2px;
+}

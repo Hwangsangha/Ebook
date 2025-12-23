@@ -1,6 +1,6 @@
 //전자책 목록 페이지
 
-import "../styles/ebook.css";
+import "../styles/ui.css";
 import { useEffect, useState } from "react";
 import { CartApi, EbookApi } from "../api";
 
@@ -30,40 +30,35 @@ function EbookListPage() {
     if (!ebooks || ebooks.length === 0) return <p>등록된 전자책이 없습니다.</p>;
 
     return (
-        <div className="page">
-            <h1>전자책 목록</h1>
+        <div className="ui-page">
+            <h1 className="ui-title">전자책 목록</h1>
 
-            <table className="table">
-                <thread>
-                    <tr>
-                        <th>제목</th>
-                        <th>저자</th>
-                        <th>가격</th>
-                        <th></th>
-                    </tr>
-                </thread>
-                <tbody>
-                    {ebooks.map(e => (
-                        <tr key={e.id}>
-                            <td className="title">{e.title}</td>
-                            <td className="author">{e.author}</td>
-                            <td className="price">{e.price.toLocaleString()}원</td>
-                            <td className="action">
-                                <button className="btn" onClick={() =>
-                                    CartApi.addItem({
-                                        userId,
-                                        ebookId: e.id,
-                                        quantity: 1
-                                    })
-                                }>
-                                    장바구니 담기
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div className="ui-grid">
+                <div className="ui-row ui-header">
+                    <div className="col-title">제목</div>
+                    <div className="col-author">저자</div>
+                    <div className="col-price">가격</div>
+                    <div className="col-action"></div>
+            </div>
+
+            {ebooks.map((e) => (
+                <div className="ui-row" key={e.id}>
+                    <div className="col-title ellipsis">{e.title}</div>
+                    <div className="col-author ellipsis">{e.author}</div>
+                    <div className="col-price">{Number(e.price).toLocaleString()}원</div>
+                    <div className="col-action">
+                        <button
+                            className="ui-btn"
+                            onClick={() => CartApi.addItem({ userId, ebookId: e.id, quantity: 1 })}
+                        >
+                            담기
+                        </button>
+                    </div>
+                </div>
+            ))}
+            </div>
         </div>
+
     )
 }
 
