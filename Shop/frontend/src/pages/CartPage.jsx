@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CartApi } from "../api";
 
-function Cartpage(){
+function CartPage(){
     const [items, setItems] = useState([]); //장바구니 항목 배열
     const [error, setError] = useState(null); //에러 저장
     const [loading, setLoading] = useState(true); //로딩 상태
@@ -10,7 +10,7 @@ function Cartpage(){
     useEffect(() => {
         CartApi.listItems(1)  //userId = 1 가정
             .then(data => {
-                setItems(data);
+                setItems(data.items);
                 setLoading(false);
             })
             .catch(err => {
@@ -123,4 +123,4 @@ function handleRemove(item){
     );
 }
 
-export default Cartpage;
+export default CartPage;
