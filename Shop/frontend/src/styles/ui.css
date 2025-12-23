@@ -79,3 +79,10 @@
   color: #6b7280;
   padding: 16px 2px;
 }
+
+/* cart 전용 5컬럼 */
+.col-ctitle { flex: 4; min-width: 0; }
+.col-cprice { flex: 2; text-align: right; font-variant-numeric: tabular-nums; }
+.col-cqty   { flex: 2; display: flex; justify-content: center; gap: 8px; }
+.col-csub   { flex: 2; text-align: right; font-variant-numeric: tabular-nums; }
+.col-cact   { flex: 2; display: flex; justify-content: center; gap: 8px; }

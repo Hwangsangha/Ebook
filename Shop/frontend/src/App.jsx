@@ -1,6 +1,6 @@
 import { Routes, Route, Link } from "react-router-dom";
 import SummaryPage from "./pages/SummaryPage";
-import Cartpage from "./pages/CartPage";
+import CartPage from "./pages/CartPage";
 import EbookListPage from "./pages/EbookListPage";
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<SummaryPage/>}/>
-        <Route path="/cart" element={<Cartpage/>}/>
+        <Route path="/cart" element={<CartPage/>}/>
         <Route path="/ebooks" element={<EbookListPage />} />
       </Routes>
     </div>

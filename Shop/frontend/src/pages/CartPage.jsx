@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CartApi } from "../api";
+import "../styles/ui.css"
 
 function CartPage(){
     const [items, setItems] = useState([]); //장바구니 항목 배열
@@ -8,9 +9,11 @@ function CartPage(){
 
     //페이지 처음 로딩 시 실행
     useEffect(() => {
+        setLoading(true);
+
         CartApi.listItems(1)  //userId = 1 가정
             .then(data => {
-                setItems(data.items);
+                setItems(Array.isArray(data) ? data : []);
                 setLoading(false);
             })
             .catch(err => {
@@ -88,38 +91,40 @@ function handleRemove(item){
 
     //항목 있을때
     return (
-        <div>
-            <h1>장바구니 목록</h1>
 
-            <table border="1" cellPadding="8" style={{borderCollapse: "collapse", width: "100%"}}>
-                <thread>
-                    <tr>
-                        <th>제목</th>
-                        <th>가격</th>
-                        <th>수량</th>
-                        <th>소계</th>
-                    </tr>
-                </thread>
+        <div className="ui-page">
+            <h1 className="ui-title">장바구니</h1>
 
-                <tbody>
-                    {items.map(item => (
-                      <tr key={item.ebookId}>
-                        <td>{item.title}</td>
-                        <td>{item.price}</td>
-                        <td>
-                            <button onClick={() => handleDecrease(item)}>-</button>
-                            <span style={{ margin: "0 10px"}}>{item.quantity}</span>
-                            <button onClick={() => handleIncrease(item)}>+</button>
-                        </td>
-                        <td>{item.subTotal}</td>
-                        <td>
-                            <button onClick={() => handleRemove(item)}>삭제</button>
-                        </td>
-                      </tr>  
-                    ))}
-                </tbody>
-            </table>
+            <div className="ui-grid">
+                <div className="ui-row ui-header">
+                <div className="col-ctitle">제목</div>
+                <div className="col-cprice">가격</div>
+                <div className="col-cqty">수량</div>
+                <div className="col-csub">소계</div>
+                <div className="col-cact"></div>
+            </div>
+
+            {items.map((item) => (
+                <div className="ui-row" key={item.ebookId}>
+                    <div className="col-ctitle ellipsis">{item.title}</div>
+                    <div className="col-cprice">{Number(item.price).toLocaleString()}원</div>
+
+                    <div className="col-cqty">
+                        <button className="ui-btn" disabled={item.quantity <= 1} onClick={() => handleDecrease(item)}>−</button>
+                        <span>{item.quantity}</span>
+                        <button className="ui-btn" onClick={() => handleIncrease(item)}>+</button>
+                    </div>
+
+                    <div className="col-csub">{Number(item.subTotal).toLocaleString()}원</div>
+
+                    <div className="col-cact">
+                        <button className="ui-btn" onClick={() => handleRemove(item)}>삭제</button>
+                    </div>
+                </div>
+            ))}
+            </div>
         </div>
+
     );
 }
 
