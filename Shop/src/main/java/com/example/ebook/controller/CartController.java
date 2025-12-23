@@ -77,7 +77,7 @@ public class CartController {
 	 * 응답: CartService.CartLine 리스트
 	 */
 	@GetMapping("/items")
-	public List<CartLine> list(@RequestParam @NotNull Long userId){
+	public List<CartLine> list(@RequestParam("userId") @NotNull Long userId){
 		return cartService.getItems(userId);
 	}
 	
@@ -89,7 +89,7 @@ public class CartController {
 	 */
 	@DeleteMapping("/items/{ebookId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remove(@RequestParam @NotNull Long userId,
+	public void remove(@RequestParam("userId") @NotNull Long userId,
 						@PathVariable(name = "ebookId") Long ebookId) {
 		cartService.removeItem(userId, ebookId);
 	}
@@ -102,7 +102,7 @@ public class CartController {
 	 * 예) GET /cart/summary?userId=1
 	 */
 	@GetMapping("/summary")
-	public CartSummary summary(@RequestParam @NotNull Long userId) {
+	public CartSummary summary(@RequestParam("userId") @NotNull Long userId) {
 		List<CartLine> lines = cartService.getItems(userId);
 		
 		//총수량
