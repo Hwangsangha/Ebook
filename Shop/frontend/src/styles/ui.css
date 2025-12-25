@@ -86,3 +86,17 @@
 .col-cqty   { flex: 2; display: flex; justify-content: center; gap: 8px; }
 .col-csub   { flex: 2; text-align: right; font-variant-numeric: tabular-nums; }
 .col-cact   { flex: 2; display: flex; justify-content: center; gap: 8px; }
+
+/* 장바구니 하단 합계(총 수량, 총 금액) */
+.ui-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.ui-footer span {
+  font-variant-numeric: tabular-nums;
+}

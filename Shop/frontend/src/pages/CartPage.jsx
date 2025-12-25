@@ -122,6 +122,16 @@ function handleRemove(item){
                     </div>
                 </div>
             ))}
+            <div className="ui-footer">
+                <span>총 수량: {items.reduce((sum, i) => sum + i.quantity, 0)}</span>
+                <span>
+                    총 금액:{" "}
+                    {items
+                        .reduce((sum, i) => sum + Number(i.subTotal), 0)
+                        .toLocaleString()}
+                    원
+                </span>
+            </div>
             </div>
         </div>
 
