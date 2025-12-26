@@ -3,6 +3,7 @@
 import "../styles/ui.css";
 import { useEffect, useState } from "react";
 import { CartApi, EbookApi } from "../api";
+import Header from "../components/Header";
 
 function EbookListPage() {
     const [ebooks, setEbooks] = useState([]);
@@ -31,6 +32,7 @@ function EbookListPage() {
 
     return (
         <div className="ui-page">
+            <Header />
             <h1 className="ui-title">전자책 목록</h1>
 
             <div className="ui-grid">

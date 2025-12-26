@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CartApi } from "../api";
+import Header from "../components/Header";
 import "../styles/ui.css"
 
 function CartPage(){
@@ -93,6 +94,7 @@ function handleRemove(item){
     return (
 
         <div className="ui-page">
+            <Header/>
             <h1 className="ui-title">장바구니</h1>
 
             <div className="ui-grid">
