@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { CartApi } from "../api";
 import Header from "../components/Header";
+import Toast from "../components/Toast";
 import "../styles/ui.css"
 
 function CartPage(){
     const [items, setItems] = useState([]); //장바구니 항목 배열
     const [error, setError] = useState(null); //에러 저장
     const [loading, setLoading] = useState(true); //로딩 상태
+    const [toast, setToast] = useState("");
+    const showToast = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(""), 1200);
+        };
 
     //페이지 처음 로딩 시 실행
     useEffect(() => {
@@ -36,6 +42,20 @@ function CartPage(){
 
 // 수량 증가
 function handleIncrease(item){
+    const handleIncrease = async (item) => {
+        try {
+            await CartApi.setQuantity({
+                userId,
+                ebookId: item.ebookId,
+                quantity: item.quantity + 1,
+            });
+            showToast("수량 변경됨");
+            reload(); // 너가 쓰는 재조회 함수 이름으로
+        } catch (e) {
+            showToast(e.message || "실패");
+        }
+    };
+
     const newQty = item.quantity + 1;
 
     CartApi.setQuantity({
@@ -56,6 +76,19 @@ function handleIncrease(item){
 
 // 수량 감소
 function handleDecrease(item){
+    const handleDecrease = async (item) => {
+        try{
+            await CartApi.setQuantity({
+                userId,
+                ebookId: item.ebookId,
+                quantity: Math.max(1, item.quantity - 1),
+            });
+            showToast("수량 변경됨됨");
+            reload();
+        } catch(e) {
+            showToast(e.message || "실패");
+        }
+    };
     const newQty = Math.max(1, item.quantity - 1);
 
     CartApi.setQuantity({
@@ -75,6 +108,16 @@ function handleDecrease(item){
 
 //항목 삭제
 function handleRemove(item){
+    const handleRemove = async (item) => {
+        try {
+            await CartApi.removeItem({ userId, ebookId: item.ebookId });
+            showToast("삭제됨");
+            reload();
+        } catch (e) {
+            showToast(e.message || "실패");
+        }
+    };
+
     if(!confirm("이 항목을 삭제하시겠습니까?")) return;
 
     CartApi.removeItem({

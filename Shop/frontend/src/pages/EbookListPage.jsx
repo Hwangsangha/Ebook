@@ -4,12 +4,14 @@ import "../styles/ui.css";
 import { useEffect, useState } from "react";
 import { CartApi, EbookApi } from "../api";
 import Header from "../components/Header";
+import Toast from "../components/Toast";
 
 function EbookListPage() {
     const [ebooks, setEbooks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const userId = 1;
+    const [toast, setToast] = useState("");
 
     useEffect(() => {
         console.log("API BASE:", import.meta.env.VITE_API_BASE);
@@ -33,6 +35,7 @@ function EbookListPage() {
     return (
         <div className="ui-page">
             <Header />
+            <Toast message={toast}/>
             <h1 className="ui-title">전자책 목록</h1>
 
             <div className="ui-grid">
@@ -51,7 +54,16 @@ function EbookListPage() {
                     <div className="col-action">
                         <button
                             className="ui-btn"
-                            onClick={() => CartApi.addItem({ userId, ebookId: e.id, quantity: 1 })}
+                            onClick={async () => {
+                                try {
+                                    await CartApi.addItem({userId, ebookId: e.id, quantity: 1});
+                                    setToast("장바구니에 담았습니다.");
+                                    setTimeout(() => setToast(""), 1200);
+                                } catch (err) {
+                                    setToast(err.message || "실패");
+                                    setTimeout(() => setToast(""), 1600);
+                                }
+                            }}
                         >
                             담기
                         </button>

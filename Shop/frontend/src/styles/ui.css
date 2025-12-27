@@ -133,3 +133,19 @@
   background: #111;
   color: #fff;
 }
+
+/* toast */
+.ui-toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 700;
+  z-index: 9999;
+  opacity: 0.95;
+}
