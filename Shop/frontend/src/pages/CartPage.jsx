@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CartApi } from "../api";
 import Header from "../components/Header";
@@ -13,6 +14,7 @@ function CartPage(){
         setToast(msg);
         setTimeout(() => setToast(""), 1200);
         };
+    const navigate = useNavigate();
 
     //페이지 처음 로딩 시 실행
     useEffect(() => {
@@ -168,6 +170,15 @@ function handleRemove(item){
                 </div>
             ))}
             <div className="ui-footer">
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+                    <button
+                        className="ui-btn"
+                        disabled={!items || items.length === 0}
+                        onClick={() => navigate("/")}
+                    >
+                        주문 요약 보기
+                    </button>
+                </div>
                 <span>총 수량: {items.reduce((sum, i) => sum + i.quantity, 0)}</span>
                 <span>
                     총 금액:{" "}

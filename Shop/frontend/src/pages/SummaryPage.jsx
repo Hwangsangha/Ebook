@@ -6,7 +6,8 @@ import Header from "../components/Header";
 function SummaryPage(){
     const [summary, setSummary] = useState(null);
     const [error, setError] = useState(null);
-
+    const userId = 1;
+    
     useEffect(() => {
         CartApi.summary(1)
             .then(setSummary)
