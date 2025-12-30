@@ -25,7 +25,7 @@ function SummaryPage(){
                 <h1 className="ui-title">결제 완료</h1>
                 <p className="ui-muted">주문이 완료되었습니다.</p>
 
-                <div style={{ display: "flex", justifyContent: "fles-end", marginTop: 12}}>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12}}>
                     <button className="ui-btn" onClick={() => setPaid(false)}>
                         다시 보기
                     </button>
