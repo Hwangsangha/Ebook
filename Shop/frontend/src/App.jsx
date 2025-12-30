@@ -7,15 +7,16 @@ function App() {
   return (
     <div style={{padding: 24, fontFamily: "system-ui"}}>
       <nav style={{marginBottom: 20}}>
-        <Link to="/" style={{marginRight: 16}}>요약</Link>
-        <Link to="/cart">장바구니</Link>
+        <Link to="/" style={{margin: 16}}>Home</Link>
+        <Link to="/cart" style={{margin: 16}}>장바구니</Link>
         <Link to="/ebooks" style={{marginRight: 16}}>전자책</Link>
       </nav>
 
       <Routes>
-        <Route path="/" element={<SummaryPage/>}/>
+        <Route path="/" element={<EbookListPage/>}/>
+        <Route path="/summary" element={<SummaryPage/>}/>
         <Route path="/cart" element={<CartPage/>}/>
-        <Route path="/ebooks" element={<EbookListPage />} />
+        <Route path="/ebooks" element={<EbookListPage/>}/>
       </Routes>
     </div>
   );

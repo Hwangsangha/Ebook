@@ -9,7 +9,7 @@ export default function Header() {
     <div className="ui-headerbar">
       <div className="ui-brand">Ebook</div>
 
-      <NavLink to="/ebooks" className={linkClass}>
+      <NavLink to="/" className={linkClass}>
         전자책
       </NavLink>
 

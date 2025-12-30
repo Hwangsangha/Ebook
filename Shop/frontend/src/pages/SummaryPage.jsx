@@ -2,12 +2,14 @@ import "../styles/ui.css";
 import { useEffect, useState } from "react";
 import {CartApi} from "../api";
 import Header from "../components/Header";
+import { useNavigate } from "react-router-dom";
 
 function SummaryPage(){
     const [summary, setSummary] = useState(null);
     const [error, setError] = useState(null);
     const userId = 1;
     const [paid, setPaid] = useState(false);
+    const navigate = useNavigate();
     
     useEffect(() => {
         CartApi.summary(1)
@@ -28,6 +30,9 @@ function SummaryPage(){
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12}}>
                     <button className="ui-btn" onClick={() => setPaid(false)}>
                         다시 보기
+                    </button>
+                    <button className="ui-btn" onClick={() => navigate("/")}>
+                        전자책 목록으로
                     </button>
                 </div>
             </div>
@@ -56,6 +61,21 @@ function SummaryPage(){
                         {Number(summary.totalAmount).toLocaleString()}원
                     </div>
                 </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12}}>
+                <button
+                    className="ui-btn"
+                    disabled={!summary || summary.totalQuantity === 0}
+                    onClick={async () => {
+                        try {
+                            await CartApi.clear(userId);
+                        } finally {
+                            setPaid(true);
+                        }
+                    }}
+                >
+                    결제하기
+                </button>
             </div>
         </div>
 );

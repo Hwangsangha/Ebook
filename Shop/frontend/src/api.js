@@ -45,6 +45,9 @@ export const CartApi = {
 
     removeItem: ({userId, ebookId}) =>
         unwrap(api.delete(`/cart/items/${ebookId}`, {params: {userId}})),
+
+    clear: (userId) =>
+        unwrap(api.delete("/cart/items", {params: {userId}})),
 };
 
 export default api;

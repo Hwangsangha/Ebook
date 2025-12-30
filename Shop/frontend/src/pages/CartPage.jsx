@@ -174,7 +174,7 @@ function handleRemove(item){
                     <button
                         className="ui-btn"
                         disabled={!items || items.length === 0}
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate("/summary")}
                     >
                         주문 요약 보기
                     </button>
