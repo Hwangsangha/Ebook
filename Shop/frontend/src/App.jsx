@@ -2,6 +2,8 @@ import { Routes, Route, Link } from "react-router-dom";
 import SummaryPage from "./pages/SummaryPage";
 import CartPage from "./pages/CartPage";
 import EbookListPage from "./pages/EbookListPage";
+import LoginPage from "./pages/LoginPage";
+import AdminEbooksPage from "./admin/AdminEbooksPage";
 
 function App() {
   return (
@@ -10,6 +12,7 @@ function App() {
         <Link to="/" style={{margin: 16}}>Home</Link>
         <Link to="/cart" style={{margin: 16}}>장바구니</Link>
         <Link to="/ebooks" style={{marginRight: 16}}>전자책</Link>
+        <Link to="/admin/ebooks" style={{marginRight: 16}}>관리자</Link>
       </nav>
 
       <Routes>
@@ -17,6 +20,8 @@ function App() {
         <Route path="/summary" element={<SummaryPage/>}/>
         <Route path="/cart" element={<CartPage/>}/>
         <Route path="/ebooks" element={<EbookListPage/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/admin/ebooks" element={<AdminEbooksPage/>}/>
       </Routes>
     </div>
   );
