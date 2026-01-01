@@ -48,12 +48,15 @@ function AdminEbooksPage() {
                 ? data.content
                 : Array.isArray(data?.items)
                 ? data.items
+                :Array.isArray(data?.data)
+                ?data.data
                 : [];
 
             setEbooks(list);
         } catch(e) {
             setMsg(e.message || "목록 조회 실패");
             setEbooks([]);  //실패 시에도 화면이 꺠지지 않게 빈 배열로
+            console.log("[LIST ERROR]", e);
         }
     };
 
