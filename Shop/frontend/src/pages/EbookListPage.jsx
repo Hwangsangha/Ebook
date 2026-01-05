@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CartApi, EbookApi } from "../api";
 import Header from "../components/Header";
 import Toast from "../components/Toast";
+import { useNavigate } from "react-router-dom"; //상세페이지 이동용
 
 function EbookListPage() {
     const [ebooks, setEbooks] = useState([]);
@@ -12,6 +13,7 @@ function EbookListPage() {
     const [error, setError] = useState(null);
     const userId = 1;
     const [toast, setToast] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         console.log("API BASE:", import.meta.env.VITE_API_BASE);
@@ -40,15 +42,21 @@ function EbookListPage() {
 
             <div className="ui-grid">
                 <div className="ui-row ui-header">
-                    <div className="col-title">제목</div>
-                    <div className="col-author">저자</div>
+                    <div className="col-title ellipsis">제목</div>
+                    <div className="col-author ellipsis">저자</div>
                     <div className="col-price">가격</div>
                     <div className="col-action"></div>
             </div>
 
             {ebooks.map((e) => (
                 <div className="ui-row" key={e.id}>
-                    <div className="col-title ellipsis">{e.title}</div>
+                    <div 
+                        className="col-title ellipsis"
+                        style={{cursor: "pointer"}}
+                        onClick={() => navigate(`/ebooks/${e.id}`)}
+                        >
+                            {e.title}
+                    </div>
                     <div className="col-author ellipsis">{e.author}</div>
                     <div className="col-price">{Number(e.price).toLocaleString()}원</div>
                     <div className="col-action">

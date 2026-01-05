@@ -4,6 +4,8 @@ import CartPage from "./pages/CartPage";
 import EbookListPage from "./pages/EbookListPage";
 import LoginPage from "./pages/LoginPage";
 import AdminEbooksPage from "./admin/AdminEbooksPage";
+import EbookDetailPage from "./pages/EbookEdtailPage"
+import { Navigate } from "react-router-dom";
 
 function App() {
   return (
@@ -22,9 +24,62 @@ function App() {
         <Route path="/ebooks" element={<EbookListPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/admin/ebooks" element={<AdminEbooksPage/>}/>
+        <Route path="/ebooks/:id" element={<EbookDetailPage/>}/>
+
+        {/* 관리자 라우트 */}
+        <Route
+          path="/admin/ebooks"
+          element={
+            <AdminRoute>
+              <AdminEbooksPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/cart"
+          element={
+            <PrivateRoute>
+              <CartPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/summary"
+          element={
+            <PrivateRoute>
+              <SummaryPage />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </div>
   );
+}
+
+function AdminRoute({children}) {
+  const token = localStorage.getItem("accessToken");  //로그인 여부
+  const role = localStorage.getItem("role");  //권한
+
+  //로그인 상태 아닐시 로그인 페이지로 이동
+  if(!token) {
+    return <Nvaigate to="/login" replace />;
+  }
+
+  // ADMIN 아니면 접근 차단
+  if(role !== "ADMIN") {
+    return <div style={{padding: 24}}>ADMIN 권한이 필요합니다.</div>;
+  }
+
+  return children;  //통과 시 실제 페이지 렌더링
+}
+
+function PrivateRoute({children}) {
+  if(!localStorage.getItem("accessToken")) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
 }
 
 export default App;
