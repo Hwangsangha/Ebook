@@ -10,13 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.ebook.domain.CartRepository;
 import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.domain.OrderRepository;
+import com.example.ebook.domain.UserRepository;
 import com.example.ebook.entity.Cart;
 import com.example.ebook.entity.CartItem;
 import com.example.ebook.entity.Ebook;
 import com.example.ebook.entity.Order;
 import com.example.ebook.entity.OrderItem;
-
+import com.example.ebook.entity.User;
 import jakarta.annotation.PostConstruct;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /*
  * dev 프로필에서만 실행되는 초기 데이터 로더
@@ -24,23 +28,40 @@ import jakarta.annotation.PostConstruct;
  * 이미 데이터가 있으면 아무것도 하지 않는다(중복방지)
  */
 @Component
-public class DevDataLoader{
+@Profile("dev")
+public class DevDataLoader implements CommandLineRunner{
 
 	private final EbookRepository ebookRepository;
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
 
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+
     public DevDataLoader(EbookRepository ebookRepository,
                          CartRepository cartRepository,
-                         OrderRepository orderRepository) {
+                         OrderRepository orderRepository,
+						 UserRepository userRepository,
+						 PasswordEncoder passwordEncoder) {
         this.ebookRepository = ebookRepository;
         this.cartRepository = cartRepository;
         this.orderRepository = orderRepository;
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Override
+	@Transactional	//시드 전체를 한 트랜잭션으로
+	public void run(String... args) {
+
+		seedAdminUser();	//관리자 계정 시드(중복방지)
+		seedEbookCarOrder();	//전자책/카트/주문 시드 (ebook기준 중복방지)
+
+		System.out.println("Dev data loaded(dev profile)");
 	}
 	
-	@PostConstruct
-	@Transactional
-	public void init() {
+
+	private void seedEbookCarOrder() {
 		//1) 이미 데이터가 있으면 시드 주입 스킵
 		if(ebookRepository.count() > 0) return;
 		
@@ -81,4 +102,20 @@ public class DevDataLoader{
 		
 		System.out.println("Dev data loaded: 3 ebooks, 1 order, 1 cart (userId=1)");
 	}
+
+
+	private void seedAdminUser() {
+		boolean exists = userRepository.findByEmail("admin@test.com").isPresent();
+		if(exists)
+			return;
+
+		userRepository.save(
+		User.builder()
+			.email("admin@test.com")
+			.password(passwordEncoder.encode("1234"))
+			.role(User.Role.ADMIN)
+			.build()
+		);
+	}
+
 }
