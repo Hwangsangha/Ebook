@@ -10,38 +10,75 @@ function LoginPage() {
     const [password, setPassword] = useState('');   //비밀먼호 입력
 
     //임시 로그인 처리: 서버없이 localStorage에 값 저장
-    const handelDevLogin = (role) => {
-        //임시 토큰: 값 자체는 의미 X. 단순 로그인 표시
-        localStorage.setItem('accessToken', 'dev-token');
+    const handelLogin = async () => {
+        setMsg(""); //이전 메시지 초기화
 
-        //임시 권한: 관리자 화면 접근 테스트용
-        localStorage.setItem('role', role); //'ADMIN'
+        try {
+            //백엔드 로그인 API 호출
+            const res = await api.post("/auth/login", {
+                email,
+                password
+            });
 
-        //로그인 성공 처리: 전자책 목록으로 이동
-        navigate('/ebooks')
+            //서버가 준 accessToken 저장
+            const token = res.data?.accessToken;
+            if(!token) {
+                throw new Error("로그인 응답에 accessToken이 없습니다.");
+            }
+            localStorage.setItem("accessToken", token);
+
+            //임시 권한: 관리자 화면 접근 테스트용
+            localStorage.setItem('role', role); //'ADMIN'
+
+            //로그인 성공 처리: 전자책 목록으로 이동
+            navigate('/ebooks')
+        } catch (e) {
+            const message = 
+                e?.response?.data?.message ||
+                e?.message ||
+                "로그인 실패";
+            setMsg(message);
+
+            //실패 시 기존 토큰이 남아있으면 꼬이지 제거
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("role");
+
+            console.log("[LOGIN ERROR]", e);    //임시 확인용
+        }
     };
 
     return (
-        <div style={{maxWidth: '420px', margin: '100px auto'}}>
-            <h2>로그인(임시)</h2>
+        <div style={{ maxWidth: 420, margin: "100px auto", fontFamily: "system-ui" }}>
+        <h2>로그인</h2>
 
-            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-                <input
-                    type="email"
-                    placeholder="이메일(임시)"
-                    value={email}   //입력값 연결
-                    onChange={(e) => setEmail(e.target.value)} //입력 시 state 갱신
-                />
+        {msg && <p style={{ color: "crimson" }}>{msg}</p>}
 
-                /* 유저용, 관리자용 권한별 로그인 화면 테스트 */
-                <button onClick={() => handelDevLogin('USER')}>
-                    임시 로그인(USER)
-                </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {/* ✅ 이메일 입력 */}
+            <input
+            type="email"
+            placeholder="이메일"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)} // ✅ 입력값을 state에 반영
+            />
 
-                <button onClick={() => handelDevLogin('ADMIN')}>
-                    임시 로그인(ADMIN)
-                </button>
-            </div>
+            {/* ✅ 비밀번호 입력 */}
+            <input
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)} // ✅ 입력값을 state에 반영
+            />
+
+            {/* ✅ 로그인 버튼 */}
+            <button onClick={handleLogin}>
+            로그인
+            </button>
+        </div>
+
+        <p style={{ marginTop: 12, color: "#666", fontSize: 12 }}>
+            개발용 계정: admin@test.com / 1234
+        </p>
         </div>
     );
 }

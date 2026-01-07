@@ -13,7 +13,10 @@ api.interceptors.request.use((config) => {
     //토큰이 있으면 Authorization헤더 자동 추가
     // -> 나중에 백엔드 JWT 붙여도 그대로 사용 가능
     if(token) {
-        config.headers.Authorization = "Bearer ${token}";
+        config.headers.Authorization = `Bearer ${token}`;
+    } else {
+        //토큰 업으면 Authorization 헤더 제거
+        delete config.headers.Authorization;
     }
 
     //임시 로그인 단계에서 role 확인용

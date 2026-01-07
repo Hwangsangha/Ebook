@@ -3,6 +3,8 @@ package com.example.ebook.common;
 import java.security.Key;
 import java.util.Date;
 import org.springframework.stereotype.Component;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -26,5 +28,24 @@ public class JwtProvider {
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_MS))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    //토큰에서 Claims 꺼내기 : 검증도 같이 수행
+    public Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    // 토큰 유효성 검사 : true면 유효, false면 무효
+    public boolean isValid(String token) {
+        try {
+            parseClaims(token); //검증 로직을 재사용
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }
