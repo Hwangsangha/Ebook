@@ -5,6 +5,9 @@ const api = axios.create({
     headers: { "Content-Type": "application/json"},
 });
 
+//이전에 남아있을수 있어서 정리
+delete api.defaults.headers.common.Authorization;
+
 //요청 인터셉터 - API 요청이 나가기 전에 로직을 한번 거치고 나감
 api.interceptors.request.use((config) => {
     //localStorage에 저장된 토큰 가져오기
@@ -45,9 +48,9 @@ function unwrap(promise){
 
 //전자책 관련 API
 export const EbookApi = {
-    list() {
-        return unwrap(api.get("/ebooks"));
-    }
+    list() {return unwrap(api.get("/ebooks"))},
+
+    get(id) {return unwrap(api.get(`/ebooks/${id}`))}
 };
 
 //장바구니 관련 API

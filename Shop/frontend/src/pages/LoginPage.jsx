@@ -8,9 +8,10 @@ function LoginPage() {
     //입력값(이메일/비밀번호)과 에러메시지를 화면에서 관리하기 위한 state
     const [email, setEmail] = useState(''); //이메일 입력
     const [password, setPassword] = useState('');   //비밀먼호 입력
+    const [msg, setMsg] = useState("");
 
     //임시 로그인 처리: 서버없이 localStorage에 값 저장
-    const handelLogin = async () => {
+    const handleLogin = async () => {
         setMsg(""); //이전 메시지 초기화
 
         try {
@@ -28,10 +29,10 @@ function LoginPage() {
             localStorage.setItem("accessToken", token);
 
             //임시 권한: 관리자 화면 접근 테스트용
-            localStorage.setItem('role', role); //'ADMIN'
+            localStorage.setItem("role", "ADMIN"); //'ADMIN'
 
             //로그인 성공 처리: 전자책 목록으로 이동
-            navigate('/ebooks')
+            navigate("/ebooks")
         } catch (e) {
             const message = 
                 e?.response?.data?.message ||
@@ -51,7 +52,7 @@ function LoginPage() {
         <div style={{ maxWidth: 420, margin: "100px auto", fontFamily: "system-ui" }}>
         <h2>로그인</h2>
 
-        {msg && <p style={{ color: "crimson" }}>{msg}</p>}
+        {/*{msg && <p style={{ color: "crimson" }}>{msg}</p>}*/}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {/* ✅ 이메일 입력 */}

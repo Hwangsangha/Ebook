@@ -17,7 +17,6 @@ import com.example.ebook.entity.Ebook;
 import com.example.ebook.entity.Order;
 import com.example.ebook.entity.OrderItem;
 import com.example.ebook.entity.User;
-import jakarta.annotation.PostConstruct;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -108,6 +107,8 @@ public class DevDataLoader implements CommandLineRunner{
 		boolean exists = userRepository.findByEmail("admin@test.com").isPresent();
 		if(exists)
 			return;
+
+		userRepository.deleteAll();
 
 		userRepository.save(
 		User.builder()

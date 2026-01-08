@@ -18,53 +18,37 @@ function App() {
       </nav>
 
       <Routes>
-        <Route path="/" element={<EbookListPage/>}/>
-        <Route path="/summary" element={<SummaryPage/>}/>
-        <Route path="/cart" element={<CartPage/>}/>
-        <Route path="/ebooks" element={<EbookListPage/>}/>
+
+        {/* 공개 라우트 */}
         <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/admin/ebooks" element={<AdminEbooksPage/>}/>
+        <Route path="/" element={<EbookListPage/>}/>
+        <Route path="/ebooks" element={<EbookListPage/>}/>
         <Route path="/ebooks/:id" element={<EbookDetailPage/>}/>
+
+        {/* 로그인 필요 */}
+        <Route
+          path="/summary"
+          element={<RequireAuth> <SummaryPage/> </RequireAuth>}/>
+        <Route 
+          path="/cart"
+          element={<RequireAuth> <CartPage/> </RequireAuth>}/>
 
         {/* 관리자 라우트 */}
         <Route
           path="/admin/ebooks"
-          element={
-            <AdminRoute>
-              <AdminEbooksPage />
-            </AdminRoute>
-          }
-        />
-
-        <Route
-          path="/cart"
-          element={
-            <PrivateRoute>
-              <CartPage />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/summary"
-          element={
-            <PrivateRoute>
-              <SummaryPage />
-            </PrivateRoute>
-          }
-        />
+          element={<RequireAdmin> <AdminEbooksPage /> </RequireAdmin>}/>
       </Routes>
     </div>
   );
 }
 
-function AdminRoute({children}) {
+function RequireAdmin({children}) {
   const token = localStorage.getItem("accessToken");  //로그인 여부
   const role = localStorage.getItem("role");  //권한
 
   //로그인 상태 아닐시 로그인 페이지로 이동
   if(!token) {
-    return <Nvaigate to="/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // ADMIN 아니면 접근 차단
@@ -75,7 +59,7 @@ function AdminRoute({children}) {
   return children;  //통과 시 실제 페이지 렌더링
 }
 
-function PrivateRoute({children}) {
+function RequireAuth({children}) {
   if(!localStorage.getItem("accessToken")) {
     return <Navigate to="/login" replace />;
   }
