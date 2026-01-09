@@ -52,11 +52,12 @@ GET /cart/summary?userId=
 DELETE /cart/items?userId= (장바구니 비우기)
 
 ---
-## 인증 구현 중 주요 이슈 정리
+## 인증(JWT) 구현 요약
 
-- H2 DB에서 user 테이블명 예약어 충돌 → users로 변경
-- 임시 로그인(dev-token) 잔재로 Authorization 헤더 오류 발생
-- axios interceptor 템플릿 문자열 오류(`${token}` 미치환)
-- 로그인 페이지 런타임 에러(setMsg 누락)로 인증 요청 미실행
+- JWT 기반 인증/권한 구조 구현 (Spring Security + React)
+- axios interceptor를 통한 Authorization 헤더 자동 처리
+- Role 기반 접근 제어 (USER / ADMIN)
+- 인증 실패(403) 발생 시 Network/Console 로그를 기준으로 원인 추적 및 해결
 
-상세 내용은 커밋 로그 및 코드 주석으로 관리
+> 상세 구현 과정 및 트러블슈팅 기록은 `docs/` 참고
+
