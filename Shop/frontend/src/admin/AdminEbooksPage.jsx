@@ -25,9 +25,13 @@ function AdminEbooksPage() {
         status: "ACTIVE",
     });
 
+    const [loading, seetLoading] = useState(false);
+    //공통 로딩 상태: API 요청 중 버튼 비활성화 용도
+
     //관리자 접근 최소 가드
     //role이 ADMIN이 아니면 접근 차단
     useEffect(() => {
+        fetchList();    //처음 한번 목록 가져오기
         const role = localStorage.getItem("role");  //임시 로그인에서 저장한 role
         if(role !== "ADMIN") {
             setMsg("ADMIN만 접근 가능");
@@ -62,8 +66,20 @@ function AdminEbooksPage() {
 
     //등록
     const handleCreate = async () => {
+        if(loading) return;
         setMsg("");
+
+        if(!createForm.title.trim()) {
+            setMsg("제목은 필수입니다.");
+            return;
+        }
+        if(!createForm.price || Number(createForm.price) <= 0) {
+            setMsg("가격은 0보다 커야 합니다.");
+            return;
+        }
+
         try {
+            seetLoading(true);  //요청 시작
             const payload = {
                 title: createForm.title,
                 price: Number(createForm.price),
@@ -77,13 +93,27 @@ function AdminEbooksPage() {
         }   catch(e) {
             setMsg(e.message || "등록실패");
             console.log("[CREATE ERROR]", e);
+        } finally {
+            seetLoading(false); //요청 종료
         }
     };
 
     //수정 저장
     const saveEdit = async(id) => {
+        if(loading) return;
         setMsg("");
+
+        if(!editForm.title.trim()) {
+            setMsg("제목은 필수입니다.");
+            return;
+        }
+        if(!editForm.price || Number(editForm.price) <= 0) {
+            setMsg("가격은 0보다 커야 합니다.");
+            return;
+        }
+
         try {
+            seetLoading(true);
             const payload = {
                 title: editForm.title,
                 price: Number(editForm.price),
@@ -96,11 +126,17 @@ function AdminEbooksPage() {
             fetchList();
         } catch(e) {
             setMsg(e.message || "수정실패");
+        } finally {
+            seetLoading(false);
         }
     };
 
     //삭제
     const deleteEbook = async(id) => {
+        if(!window.confirm("정말 삭제하시겠습니까?"))
+        return;
+        if(loading) return;
+
         setMsg("");
         try {
             await AdminEbookApi.remove(id); //관리자 삭제 API
@@ -108,8 +144,26 @@ function AdminEbooksPage() {
             fetchList();
         } catch(e) {
             setMsg(e.message || "삭제실패");
+        } finally {
+            seetLoading(false);
         }
     };
+
+    // 수정 시작: 선택한 ebook 값을 editForm에 복사하고 editingId설정
+    const startEdit = (ebook) => {
+        setEditingId(ebook.id); //어떤 row를 수정 중인지 표시
+        setEditForm({
+            title: ebook.title ?? "",           // 기존 제목을 폼에 채용
+            price: String(ebook.price ?? ""),   // input은 문자열이 안전
+            status: ebook.status ?? "ACTIVE",   // 기존 상태를 폼에 채움
+        });
+    };
+
+    // 수정 취소: 수정모드 종료 + 폼 초기화
+    const cancelEdit = () => {
+        setEditingId(null); // 수정모드 종료
+        setEditForm({title: "", price: "", status: "ACTIVE"});  //폼 초기화
+    }
 
     // role이 ADMIN이 아니면 안내만 보여주고 UI는 숨김(최소 가드)
     const role = localStorage.getItem("role");
@@ -149,6 +203,7 @@ function AdminEbooksPage() {
                 />
 
                 <input
+                    type="number"   //숫자 입력 유도
                     placeholder="가격"
                     value={createForm.price}
                     onChange={(e) => setCreateForm({ ...createForm, price: e.target.value })}
@@ -163,7 +218,9 @@ function AdminEbooksPage() {
                     <option value="SOLD_OUT">SOLD_OUT</option>
                 </select>
 
-                <button onClick={handleCreate}>등록</button>
+                <button onClick={handleCreate} disabled={loading}>
+                    {loading ? "처리중..." : "등록"}
+                </button>
                 <button onClick={fetchList}>목록 새로고침</button>
             </div>
         </div>
@@ -203,6 +260,7 @@ function AdminEbooksPage() {
                     <td>
                         {isEditing ? (
                         <input
+                            type="number"
                             value={editForm.price}
                             onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
                         />
@@ -231,13 +289,13 @@ function AdminEbooksPage() {
                     <td>
                         {isEditing ? (
                             <>
-                                <button onClick={() => saveEdit(ebook.id)}>저장</button>
+                                <button onClick={() => saveEdit(ebook.id)} disabled={loading}>저장</button>
                                 <button onClick={cancelEdit}>취소</button>
                             </>
                             ) : (
                             <>
                                 <button onClick={() => startEdit(ebook)}>수정</button>
-                                <button onClick={() => deleteEbook(ebook.id)}>삭제</button>
+                                <button onClick={() => deleteEbook(ebook.id)} disabled={loading}>삭제</button>
                             </>
                         )}
                     </td>
