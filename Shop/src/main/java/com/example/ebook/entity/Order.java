@@ -107,7 +107,7 @@ public class Order {
 	public void setCanceledAt(LocalDateTime canceledAt) { this.canceledAt = canceledAt; }
 	
 	public LocalDateTime getCreatedAt() { return createdAt; }
-	public void setCreatedAt(LocalDateTime now) {this.createdAt = createdAt;}
+	public void setCreatedAt(LocalDateTime now) {this.createdAt = now;}
 	
 	public LocalDateTime getUpdatedAt() { return updatedAt; }
 	

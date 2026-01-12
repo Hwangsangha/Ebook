@@ -3,7 +3,6 @@ package com.example.ebook.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +13,7 @@ import com.example.ebook.domain.OrderItemRepository;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.dto.OrderDetail;
 import com.example.ebook.dto.OrderLine;
+import com.example.ebook.dto.OrderSummary;
 import com.example.ebook.entity.CartItem;
 import com.example.ebook.entity.Order;
 import com.example.ebook.entity.OrderItem;
@@ -201,6 +201,23 @@ public class OrderService {
 		order.setCanceledAt(LocalDateTime.now());
 		orderRepository.save(order);	//명시 저장
 	}
-	
+
+	@Transactional(readOnly = true)
+	public List<OrderSummary> getMyOrders(Long userId) {
+		if(userId == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId is required");
+		}
+
+		return orderRepository.findByUserIdOrderByIdDesc(userId).stream()
+				.map(o -> new OrderSummary(
+					o.getId(),
+					o.getOrderNumber(),
+					o.getStatus(),
+					o.getTotalAmount(),
+					o.getFinalAmount(),
+					o.getCreatedAt()
+				))
+				.toList();
+	}
 	
 }

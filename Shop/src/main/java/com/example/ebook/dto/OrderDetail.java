@@ -6,7 +6,7 @@ import java.util.List;
 
 public class OrderDetail {
 
-	public final Long id;
+	public final Long orderId;
 	public final String orderNumber;
 	public final String status;
 	public final BigDecimal totalAmount;
@@ -14,8 +14,8 @@ public class OrderDetail {
 	public final LocalDateTime createdAt;
 	public final List<OrderLine> items;
 	
-	public OrderDetail(Long id, String orderNumber, String status, BigDecimal totalAmount, BigDecimal finalAmount, LocalDateTime createdAt, List<OrderLine> items) {
-		this.id = id;
+	public OrderDetail(Long orderId, String orderNumber, String status, BigDecimal totalAmount, BigDecimal finalAmount, LocalDateTime createdAt, List<OrderLine> items) {
+		this.orderId = orderId;
 		this.orderNumber = orderNumber;
 		this.status = status;
 		this.totalAmount = totalAmount;

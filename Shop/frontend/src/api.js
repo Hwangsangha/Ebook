@@ -87,4 +87,18 @@ export const AdminEbookApi = {
     //전자책 삭제
     remove: (id) => unwrap(api.delete(`/admin/ebooks/${id}`)),
 }
+
+//주문 관련 API
+//백엔드 : GET /orders?userId=1
+//unwrap()을 통해 data만 반환
+export const OrdersApi = {
+    //주문 목록 조회
+    //userId: 임시로 프론트에서 1 고정해서 넘김
+    list: (userId) =>
+        unwrap(
+            api.get("/orders", {
+                params: {userId},   //쿼리스트링으로 ?userId=1 형태로 나감
+            })
+        ),
+}
 export default api;

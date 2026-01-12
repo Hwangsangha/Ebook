@@ -1,5 +1,6 @@
 package com.example.ebook.controller;
 
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ebook.dto.CreatedOrderResponse;
 import com.example.ebook.dto.OrderDetail;
+import com.example.ebook.dto.OrderSummary;
 import com.example.ebook.entity.Order;
 import com.example.ebook.service.OrderService;
 
@@ -38,7 +40,7 @@ public class OrderController {
 	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public CreatedOrderResponse create(@RequestParam @NotNull Long userId) {
+	public CreatedOrderResponse create(@RequestParam("userId") @NotNull Long userId) {
 		Order order = orderService.createFromCart(userId);
 		return CreatedOrderResponse.from(order);
 	}
@@ -46,21 +48,28 @@ public class OrderController {
 	@PatchMapping("/{id}/pay")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void pay(@PathVariable("id") Long id,
-					@RequestParam @NotNull Long userId) {
+					@RequestParam("userId") @NotNull Long userId) {
 		orderService.markPaid(userId, id);
 	}
 	//상세조회
 	@GetMapping("/{id}")
 	public OrderDetail detail(
 			@PathVariable("id") Long id,
-			@RequestParam @NotNull Long userId) {
+			@RequestParam("userId") @NotNull Long userId) {
 		return orderService.getDetail(userId, id);
 	}
 	//주문 취소: PATCH /orders/id/cancel?userId=1
 	@PatchMapping("/{id}/cancel")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void cancel(@PathVariable Long id,
-						@RequestParam @NotNull Long userId) {
+						@RequestParam("userId") @NotNull Long userId) {
 		orderService.cancel(userId, id);
 	}
+
+	//주문 목록 조회: GET /orders?userId=1
+	@GetMapping
+	public List<OrderSummary> list(@RequestParam("userId") @NotNull Long userId) {
+		return orderService.getMyOrders(userId);
+	}
+	
 }

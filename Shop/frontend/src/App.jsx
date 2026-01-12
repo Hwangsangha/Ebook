@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import AdminEbooksPage from "./admin/AdminEbooksPage";
 import EbookDetailPage from "./pages/EbookEdtailPage"
 import { Navigate } from "react-router-dom";
+import OrdersPage from "./pages/OrdersPage";
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
         <Route 
           path="/cart"
           element={<RequireAuth> <CartPage/> </RequireAuth>}/>
+        <Route
+          path="/orders"
+          element={<RequireAuth> <OrdersPage/> </RequireAuth>}/>
 
         {/* 관리자 라우트 */}
         <Route
