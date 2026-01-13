@@ -12,10 +12,11 @@ public class WebCorsConfig implements WebMvcConfigurer{
 		registry.addMapping("/**")					//모든 API경로 허옹
 				.allowedOrigins(
 						"http://localhost:3000",	//React
-						"http://localhost:5173")	//Vite
-				.allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
+						"http://localhost:5173")	// Vite
+				.allowedMethods("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS")
 				.allowedHeaders("*")
-				.allowCredentials(false)			//쿠키/인증정보 필요 없으면 false
+				.exposedHeaders("Authorization")
+				.allowCredentials(true)			//쿠키/인증정보 필요 없으면 false
 				.maxAge(3600);						//preflight 캐시(초)
 		
 	}

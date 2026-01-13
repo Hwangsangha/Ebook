@@ -1,12 +1,17 @@
 package com.example.ebook.common;
 
 import java.time.OffsetDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -79,18 +84,18 @@ public class GlobalExceptionHandler {
 	 *   ※ 운영 전환 전에 이 출력은 반드시 지울 것
 	 */
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse> handleAny(Exception ex, HttpServletRequest req) {
-	    log.error("UNHANDLED @ {} {}", req.getMethod(), req.getRequestURI(), ex); // 스택 전체 기록
+	public ResponseEntity<Map<String, Object>> handleUnhandled(Exception ex, HttpServletRequest req) {	//예외 + 요청정보
+	    log.error("UNHANDLED @ {} {} | type={} | msg={}",
+				req.getMethod(), req.getRequestURI(),
+				ex.getClass().getName(), ex.getMessage(),
+				ex); // 핵심: e를 마지막 인자로 넣어 스택트레이스까지 찍음
 
-	    // 예외 클래스 + 메시지로 간단 진단 문자열 구성
-	    String detail = ex.getClass().getName() + (ex.getMessage() == null ? "" : (": " + ex.getMessage()));
-
-	    ErrorResponse body = ErrorResponse.of(
-	            HttpStatus.INTERNAL_SERVER_ERROR,
-	            detail,                        // ← 여기! 브라우저에서 원인 바로 보임
-	            req.getRequestURI(),
-	            java.util.List.of()
-	    );
+	    Map<String, Object> body = new LinkedHashMap<>();	//응답 바디 구성
+		body.put("path", req.getRequestURI());		//어떤 API에서 터졌는지
+		body.put("method", req.getMethod());		//HTTP 메서드
+		body.put("error", ex.getClass().getSimpleName());	//예외 타입
+		body.put("message", ex.getMessage());		//예외 메시지
+	
 	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	}
 	
@@ -119,8 +124,32 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(ex.getStatusCode()).body(body);
 	}
 
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<Map<String, Object>> handleBadJson(Exception ex, HttpServletRequest req) {
+		log.warn("BAD JSON @ {} {} : {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+		return ResponseEntity.badRequest().body(Map.of(
+			"error", "BAD_REQUEST",
+			"message", "요청 JSON/Enum/타입 변환 실패"
+		));
+	}
 
-	
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<Map<String, Object>> handleConstraint(Exception ex, HttpServletRequest req) {
+		return ResponseEntity.status(409).body(Map.of(
+			"error", "CONSTRAINT_VIOLATION",
+			"message", "DB 제약조건 위반"
+		));
+	}
+
+	@ExceptionHandler(NoSuchElementException.class)
+	public ResponseEntity<Map<String, Object>> handleNotFound(Exception ex, HttpServletRequest req) {
+		log.warn("NOT FOUND @ {} {} : {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+		return  ResponseEntity.status(404).body(Map.of(
+			"error", "NOT_FOUND",
+			"message", "대상이 존재하지 않음"
+		));
+	}
+
 	
 	private ValidationError toValidationError(FieldError fe) {
 		return new ValidationError(fe.getField(), fe.getDefaultMessage(), String.valueOf(fe.getRejectedValue()));

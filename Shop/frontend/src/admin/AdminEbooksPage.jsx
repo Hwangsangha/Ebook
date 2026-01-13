@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";    //React 훅: 상태/생명주기
 import {EbookApi, AdminEbookApi} from "../api";   //unwrap적용 API
 
 function AdminEbooksPage() {
+    console.log("[ADMIN API CHECK]", AdminEbookApi, typeof AdminEbookApi?.create, typeof AdminEbookApi?.update, typeof AdminEbookApi?.remove);
+
     //서버에서 받은 전자책 목록
     const [ebooks, setEbooks] = useState([]);
 
