@@ -82,7 +82,7 @@ export const AdminEbookApi = {
 
     //전자책 수정
     update: (id, {title, price, status}) =>
-        unwrap(api.put(`/admin/ebooks/${id}`, {title, price, status})),
+        unwrap(api.patch(`/admin/ebooks/${id}`, {title, price, status})),
     
     //전자책 삭제
     remove: (id) => unwrap(api.delete(`/admin/ebooks/${id}`)),

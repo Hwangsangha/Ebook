@@ -27,7 +27,7 @@ function AdminEbooksPage() {
         status: "ACTIVE",
     });
 
-    const [loading, seetLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     //공통 로딩 상태: API 요청 중 버튼 비활성화 용도
 
     //관리자 접근 최소 가드
@@ -81,7 +81,7 @@ function AdminEbooksPage() {
         }
 
         try {
-            seetLoading(true);  //요청 시작
+            setLoading(true);  //요청 시작
             const payload = {
                 title: createForm.title,
                 price: Number(createForm.price),
@@ -96,7 +96,7 @@ function AdminEbooksPage() {
             setMsg(e.message || "등록실패");
             console.log("[CREATE ERROR]", e);
         } finally {
-            seetLoading(false); //요청 종료
+            setLoading(false); //요청 종료
         }
     };
 
@@ -115,7 +115,7 @@ function AdminEbooksPage() {
         }
 
         try {
-            seetLoading(true);
+            setLoading(true);
             const payload = {
                 title: editForm.title,
                 price: Number(editForm.price),
@@ -129,7 +129,7 @@ function AdminEbooksPage() {
         } catch(e) {
             setMsg(e.message || "수정실패");
         } finally {
-            seetLoading(false);
+            setLoading(false);
         }
     };
 
@@ -147,7 +147,7 @@ function AdminEbooksPage() {
         } catch(e) {
             setMsg(e.message || "삭제실패");
         } finally {
-            seetLoading(false);
+            setLoading(false);
         }
     };
 
