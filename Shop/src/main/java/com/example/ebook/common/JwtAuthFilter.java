@@ -48,7 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         //토큰에서 userId/role 꺼내기
         Claims claims = jwtProvider.parseClaims(token);
         String userId = claims.getSubject();    //createAccessToken에서 subject에 넣은 값
-        String role = (String)claims.get("role");   //ADMIN / USER
+        String role = (String)claims.get("role", String.class);   //ADMIN / USER
 
         //Spring Security가 이해하는 권한 문자열로 변환
         //Spring Security는 보통 ROLE_ 접두사를 기대

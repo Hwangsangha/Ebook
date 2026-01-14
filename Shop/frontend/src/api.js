@@ -77,7 +77,8 @@ export const CartApi = {
 //관리자 전자책 관련 API
 export const AdminEbookApi = {
     //관리자 목록 조회
-    list: (params) => api.get("/admin/ebooks", {params}).then(unwrap),
+    list: (params) => 
+        unwrap(api.get("/admin/ebooks", {params})),
 
     //전자책 등록
     create: ({title, price, status}) =>
