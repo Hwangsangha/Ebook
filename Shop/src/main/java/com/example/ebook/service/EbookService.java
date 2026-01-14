@@ -23,6 +23,16 @@ public class EbookService {
 	public EbookService (EbookRepository ebookRepository) {
 		this.ebookRepository = ebookRepository;
 	}
+
+	//상태무관 전체 목록 페이지 조회
+	public Page<Ebook> listAllPage(Pageable pageable) {
+		return ebookRepository.findAll(pageable);	//JPA 기본 findAll
+	}
+
+	//상태별 목록 페이지 조회
+	public Page<Ebook> listByStatusPage(String status, Pageable pageable) {
+		return ebookRepository.findByStatus(status, pageable);
+	}
 	
 	//ACTIVE 상태의 이북 목록을 내림차순으로 조회
 	public List<Ebook> listActive(){

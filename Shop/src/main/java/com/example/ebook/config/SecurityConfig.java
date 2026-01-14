@@ -1,5 +1,6 @@
 package com.example.ebook.config;
 
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Http;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -40,6 +41,9 @@ public class SecurityConfig {
 
         //URL 별 접근 제어
         http.authorizeHttpRequests(auth -> auth
+                //관리자 API는 ADMIN만
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+
                 //로그인 API는 누구나 접근가능
                 .requestMatchers("/auth/**").permitAll()
 
@@ -48,9 +52,6 @@ public class SecurityConfig {
 
                 //공개 조회는 허용(필요시 조정)
                 .requestMatchers(HttpMethod.GET, "/ebooks/**").permitAll()
-
-                //관리자 API는 ADMIN만
-                .requestMatchers("/admin/**").hasRole("ADMIN")
 
                 //그 외는 로그인 필요
                 .anyRequest().authenticated()

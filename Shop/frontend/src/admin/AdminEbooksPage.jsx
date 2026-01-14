@@ -44,7 +44,7 @@ function AdminEbooksPage() {
     const fetchList = async () => {
         setMsg("");
         try {
-            const data = await EbookApi.list(); //unwrap으로 데이터 받기
+            const data = await AdminEbookApi.list(); //unwrap으로 데이터 받기
             // ✅ 서버 응답 형태가 달라도 목록 배열을 뽑아내는 정규화
             // 1) data 자체가 배열이면 그대로 사용
             // 2) 페이지 응답이면 content/items 같은 필드에서 꺼내기
