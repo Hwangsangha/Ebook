@@ -108,10 +108,9 @@ public class DevDataLoader implements CommandLineRunner{
 		if(exists)
 			return;
 
-		userRepository.deleteAll();
-
 		userRepository.save(
 		User.builder()
+			.name("관리자")
 			.email("admin@test.com")
 			.password(passwordEncoder.encode("1234"))
 			.role(User.Role.ADMIN)

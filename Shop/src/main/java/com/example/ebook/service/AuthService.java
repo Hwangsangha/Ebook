@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.common.JwtProvider;
-import com.example.ebook.controller.AdminEbookController;
-import com.example.ebook.controller.AuthController;
 import com.example.ebook.domain.UserRepository;
 import com.example.ebook.dto.AuthDto;
 import lombok.RequiredArgsConstructor;
@@ -30,16 +28,17 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일입니다.");
         }
 
-        User u = new User();    //유저 생성
-        u.setEmail(email);      //이메일 저장
-        u.setName(req.name().trim());   //이름 저장
-        u.setPassword(passwordEncoder.encode(req.password()));  //해시 저장
-        u.setRole(Role.USER);
+        User saved = userRepository.save(
+            User.builder()
+                .name(req.name().trim())
+                .email(email)
+                .password(passwordEncoder.encode(req.password()))
+                .role(Role.USER)
+                .build()
+        );
 
-        User saved = userRepository.save(u);
-
-        //로그인과 동일한 방식으로 토큰 발급
-        return login(new AuthDto.LoginRequest(email, req.password()));
+        String token = jwtProvider.createAccessToken(saved.getId(), saved.getRole().name());
+        return new AuthDto.LoginResponse(token);
 
     }
 
