@@ -17,20 +17,24 @@ api.interceptors.request.use((config) => {
     // -> 나중에 백엔드 JWT 붙여도 그대로 사용 가능
     if(token) {
         config.headers.Authorization = `Bearer ${token}`;
-    } else {
-        //토큰 업으면 Authorization 헤더 제거
-        delete config.headers.Authorization;
     }
-
-    //임시 로그인 단계에서 role 확인용
-    const role = localStorage.getItem("role");
-    if(role) {
-        config.headers["X-DEV-ROLE"] = role;
-    }
-
-    console.log("[API REQ]", (config.method || "GET").toUpperCase(), config.url);
-    return config;
+    return config;  //토큰 있든 없든 항상 반환
 });
+
+//응압 인터셉터(응답 받은 직후)
+api.interceptors.response.use(
+    (res) => res,   //정상 등답 통화
+    (err) => {      //에러 응답 처리
+        const status = err?.response?.status;       //HTTP상태코드 추출
+        if(status ===401 || status === 403) {       //인증/권한 에러면?(만료 포함)
+            clearAuth();      //로컬 인증정보 삭제
+            if(!window.location.pathname.startsWith("/login")) {    //이미 로그인 화면이면 중복이동 방지
+                window.location.assign("/login");       //로그인 페이지로 강제이동
+            }
+        }
+        return Promise.reject(err);     //에러는 호출한 쪽에서도 처리 가능하게
+    }
+);
 
 //공통 에러 처리
 function unwrap(promise){
@@ -45,6 +49,48 @@ function unwrap(promise){
         throw new Error(status ? `[${status}] ${msg}` : msg);
     });
 }
+
+//JWT payload파싱
+export function parseJwt(token) {
+    if(!token) return null;     //인증토큰 없으면 null
+    const parts = token.split(".");     //JWT는 header.payload.signature로 구성
+    if(parts.length !== 3) return null;     //형식이 아니면 null
+    try {   //파싱 시도
+        const base64Url = parts[1];     //payload 2번째 부분
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g,"/");  //문자 치환
+        const json = decodeURIComponent(        //UTF-8 안전 디코딩
+            atob(base64)
+                .split("")  
+                .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))  //퍼센트 인코딩 문자열로 변환
+                .join("")   //다시 문자열로 합치기
+        );
+        return JSON.parse(json);    //JSON문자열 -> 객체
+    } catch (e) {   
+        return null;    //실패시 null
+    }
+}
+
+//localStorage인증 상태 저장/삭제
+export function setAuth(accessToken) {      //accessToken을 저장하고 userId/role도 같이 저장
+    localStorage.setItem("accessToken", accessToken);       //토큰 저장
+    const payload = parseJwt(accessToken);      //토큰 payload 파싱
+    if(payload?.sub) localStorage.setItem("userId", payload.sub);       //sub를 userId로 저장
+    if(payload?.role) localStorage.setItem("role", payload.role);       //role 저장(USER/ADMIN)
+}
+
+export function clearAuth() {       //인증정보 제거(만료/로그아웃 시)
+    localStorage.removeItem("accessToken");     //토큰 삭제
+    localStorage.removeItem("userId");      //userId삭제
+    localStorage.removeItem("role");        //role 삭제
+}
+
+//Auth API
+export const AuthApi = {
+    register: ({email, password, name}) =>     //회원가입 API
+        unwrap(api.post("/auth/register", {email, password, name})),       //POST 후 unwrap으로 data만 반환
+    login: ({email, password}) =>       //로그인API
+        unwrap(api.post("/auth/login", {email, password})),        //POST 후 unwrap
+};
 
 //전자책 관련 API
 export const EbookApi = {
