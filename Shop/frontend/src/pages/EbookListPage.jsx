@@ -6,6 +6,7 @@ import { CartApi, EbookApi } from "../api";
 import Header from "../components/Header";
 import Toast from "../components/Toast";
 import { useNavigate } from "react-router-dom"; //상세페이지 이동용
+import LogoutButton from "../components/LogoutButton";      //로그아웃 버튼
 
 function EbookListPage() {
     const [ebooks, setEbooks] = useState([]);
@@ -37,6 +38,7 @@ function EbookListPage() {
     return (
         <div className="ui-page">
             <Header />
+            <LogoutButton />
             <Toast message={toast}/>
             <h1 className="ui-title">전자책 목록</h1>
 

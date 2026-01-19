@@ -4,9 +4,12 @@ import CartPage from "./pages/CartPage";
 import EbookListPage from "./pages/EbookListPage";
 import LoginPage from "./pages/LoginPage";
 import AdminEbooksPage from "./admin/AdminEbooksPage";
-import EbookDetailPage from "./pages/EbookEdtailPage"
+import EbookDetailPage from "./pages/EbookDetailPage"
 import { Navigate } from "react-router-dom";
 import OrdersPage from "./pages/OrdersPage";
+import RequireAuth from "./auth/RequireAuth";   //로그인 필요 가드
+import RegisterPage from "./pages/RegisterPage";
+
 
 function App() {
   return (
@@ -16,6 +19,8 @@ function App() {
         <Link to="/cart" style={{margin: 16}}>장바구니</Link>
         <Link to="/ebooks" style={{marginRight: 16}}>전자책</Link>
         <Link to="/admin/ebooks" style={{marginRight: 16}}>관리자</Link>
+        <Link to="/login" style={{margin: 16}}>로그인</Link>
+        <Link to="/register" style={{marginRight: 16}}>회원가입</Link>
       </nav>
 
       <Routes>
@@ -25,6 +30,7 @@ function App() {
         <Route path="/" element={<EbookListPage/>}/>
         <Route path="/ebooks" element={<EbookListPage/>}/>
         <Route path="/ebooks/:id" element={<EbookDetailPage/>}/>
+        <Route path="/register" element={<RegisterPage/>}/>
 
         {/* 로그인 필요 */}
         <Route
@@ -63,12 +69,6 @@ function RequireAdmin({children}) {
   return children;  //통과 시 실제 페이지 렌더링
 }
 
-function RequireAuth({children}) {
-  if(!localStorage.getItem("accessToken")) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-}
 
 export default App;
 

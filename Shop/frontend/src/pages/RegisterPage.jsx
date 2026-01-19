@@ -28,29 +28,10 @@ function RegisterPage() {       //회원가입 컴포넌트
             setAuth(data.accessToken);
             navigate("/ebooks");
         } catch (err) {
-            const serverMsg = err?.response?.data?.message;
-            setMsg(serverMsg || err.message || "회원가입 실패");
+            setMsg(err?.message || "회원가입 실패");    //unwrap이 이미 메시지 만들어서 Error로 던짐
+            clearAuth();    // 실패 시 꼬임 방지
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleRegister = async () => {
-        try{
-            const data = await Auth.register({      // /auth/register 호출
-                email: email.trim(),
-                password,
-                name: name.trim(),
-            });
-            
-            const token = data?.accessToken;        //토큰 꺼내기
-            if(!token) throw new Error("회원가입 응답에 accessToken이 없습니다.");
-
-            setAuth(token);     // accessToken + userId + role 저장
-            navigate("/ebooks")     //이동
-        } catch(e) {
-            setMsg(e?.message || "회원가입 실패");      //메시지
-            clearAuth();        //정리
         }
     };
 
