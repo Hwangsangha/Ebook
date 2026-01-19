@@ -1,9 +1,10 @@
 import { useState } from "react";   //상태 관리 훅
-import {useNavigate} from "react-router-dom"    //페이지 이동 훅
+import {useNavigate, useLocation} from "react-router-dom"    //페이지 이동 훅
 import {AuthApi, setAuth, clearAuth} from "../api";     //토큰 저장/삭제 공통 유틸 사용
 
 function LoginPage() {
     const navigate = useNavigate(); //로그인 성공 시 다른 페이지로 이동할때 사용
+    const location = useLocation();
     
     //입력값(이메일/비밀번호)과 에러메시지를 화면에서 관리하기 위한 state
     const [email, setEmail] = useState(""); //이메일 입력
@@ -43,7 +44,8 @@ function LoginPage() {
             setAuth(token);     //accessToken + userId(sub) + role 저장
 
             //로그인 성공 처리: 전자책 목록으로 이동
-            navigate("/ebooks")
+            const from = location.state?.from?.pathname || "/ebooks";
+            navigate(from, {replace: true});
         } catch (e) {       //실패처리
             const message =         //표시할 메시지 우선순위
                 e?.message ||       //unwrap이 throw한 Error메시지

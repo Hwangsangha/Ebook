@@ -38,7 +38,7 @@ function EbookListPage() {
     return (
         <div className="ui-page">
             <Header />
-            <LogoutButton />
+            
             <Toast message={toast}/>
             <h1 className="ui-title">전자책 목록</h1>
 
