@@ -118,6 +118,13 @@ public class CartController {
 		return new CartSummary(lines, totalQty, totalAmt);
 		
 	}
+
+	//장바구니 전체 비우기
+	@DeleteMapping("/items")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void clear(@RequestParam("userId") @NotNull Long userId) {
+		cartService.clear(userId);
+	}
 	
 	//장바구니 담기
 	

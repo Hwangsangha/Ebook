@@ -1,18 +1,17 @@
 import "../styles/ui.css";
 import { useEffect, useState } from "react";
-import {CartApi} from "../api";
+import {CartApi, OrdersApi} from "../api";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 
 function SummaryPage(){
     const [summary, setSummary] = useState(null);
     const [error, setError] = useState(null);
-    const userId = 1;
     const [paid, setPaid] = useState(false);
     const navigate = useNavigate();
     
     useEffect(() => {
-        CartApi.summary(1)
+        CartApi.summary()
             .then(setSummary)
             .catch((err) => setError(err.message || String(err)));
     }, []);
@@ -28,8 +27,8 @@ function SummaryPage(){
                 <p className="ui-muted">주문이 완료되었습니다.</p>
 
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12}}>
-                    <button className="ui-btn" onClick={() => setPaid(false)}>
-                        다시 보기
+                    <button className="ui-btn" onClick={() => navigate("/orders")}>
+                        주문 목록 보기
                     </button>
                     <button className="ui-btn" onClick={() => navigate("/")}>
                         전자책 목록으로
@@ -68,9 +67,17 @@ function SummaryPage(){
                     disabled={!summary || summary.totalQuantity === 0}
                     onClick={async () => {
                         try {
-                            await CartApi.clear(userId);
-                        } finally {
-                            setPaid(true);
+                            setError(null);     //에러 초기화
+                            const created = await OrdersApi.create();       //장바구니 -> 주문 생성
+                            const orderId = created?.id;        //주문 id추출(백엔드 응답에 있어야함)
+                            if(!orderId) throw new Error("주문 생성 응답에 id가 없습니다.");
+
+                            await OrdersApi.pay(orderId);       //결제 처리
+                            await CartApi.clear();      //장바구니 비움
+
+                            setPaid(true);      //결제 완료 화면 전환
+                        } catch(err) {
+                            setError(err?.message || "결제 실패");      //에러 표시
                         }
                     }}
                 >

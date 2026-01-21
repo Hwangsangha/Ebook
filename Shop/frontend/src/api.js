@@ -50,6 +50,12 @@ function unwrap(promise){
     });
 }
 
+function getUserIdOrThrow() {
+    const userId = localStorage.getItem("userId");      //저장딘 userId
+    if(!userId) throw new Error("로그인이 필요합니다. (userId 없음)");      //없으면 에러
+    return Number(userId);
+}
+
 //JWT payload파싱
 export function parseJwt(token) {
     if(!token) return null;     //인증토큰 없으면 null
@@ -101,23 +107,39 @@ export const EbookApi = {
 
 //장바구니 관련 API
 export const CartApi = {
-    addItem: ({userId, ebookId, quantity = 1}) =>
-        unwrap(api.post("/cart/items", {userId, ebookId, quantity})),
+    addItem: ({ebookId, quantity = 1}) =>
+        unwrap(api.post("/cart/items", {
+            userId: getUserIdOrThrow(),
+            ebookId,
+            quantity,
+        })),
 
-    listItems: (userId) =>
-        unwrap(api.get("/cart/items", {params: {userId}})),
+    listItems: () =>
+        unwrap(api.get("/cart/items",
+            {params: {userId: getUserIdOrThrow()},
+        })),
 
-    setQuantity: ({userId, ebookId, quantity}) =>
-        unwrap(api.patch("/cart/items", {userId, ebookId, quantity})),
+    setQuantity: ({ebookId, quantity}) =>
+        unwrap(api.patch("/cart/items", {
+            userId: getUserIdOrThrow(),
+            ebookId,
+            quantity,
+        })),
 
-    summary: (userId) =>
-        unwrap(api.get("/cart/summary", {params: {userId}})),
+    summary: () =>
+        unwrap(api.get("/cart/summary",
+            {params: {userId: getUserIdOrThrow()}, 
+        })),
 
-    removeItem: ({userId, ebookId}) =>
-        unwrap(api.delete(`/cart/items/${ebookId}`, {params: {userId}})),
+    removeItem: ({ebookId}) =>
+        unwrap(api.delete(`/cart/items/${ebookId}`,
+            {params: {userId: getUserIdOrThrow()},
+        })),
 
-    clear: (userId) =>
-        unwrap(api.delete("/cart/items", {params: {userId}})),
+    clear: () =>
+        unwrap(api.delete("/cart/items",
+            {params: {userId: getUserIdOrThrow()},
+        })),
 };
 
 //관리자 전자책 관련 API
@@ -142,13 +164,27 @@ export const AdminEbookApi = {
 //백엔드 : GET /orders?userId=1
 //unwrap()을 통해 data만 반환
 export const OrdersApi = {
+    //장바구니 -> 주문생성
+    create: () =>
+        unwrap(api.post("/orders", null, {params: {userId: getUserIdOrThrow()}})),
+
     //주문 목록 조회
-    //userId: 임시로 프론트에서 1 고정해서 넘김
-    list: (userId) =>
-        unwrap(
-            api.get("/orders", {
-                params: {userId},   //쿼리스트링으로 ?userId=1 형태로 나감
-            })
-        ),
-}
+    list: () =>
+        unwrap(api.get("/orders", 
+            {params: {userId: getUserIdOrThrow()},   //쿼리스트링으로 ?userId=1 형태로 나감
+    })),
+
+    //주문 상세
+    get: (id) =>
+        unwrap(api.get(`/orders/${id}`, {params: {userId: getUserIdOrThrow()}})),
+
+    //결제 처리
+    pay: (id) =>
+        unwrap(api.patch(`/orders/${id}/pay`, null, {params: {userId: getUserIdOrThrow()}})),
+
+    //주문 취소
+    cancel: (id) =>
+        unwrap(api.patch(`/orders/${id}/cancel`, null, {params: {userId: getUserIdOrThrow()}})),
+};
+
 export default api;
