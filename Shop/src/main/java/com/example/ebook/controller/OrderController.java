@@ -61,7 +61,7 @@ public class OrderController {
 	//주문 취소: PATCH /orders/id/cancel?userId=1
 	@PatchMapping("/{id}/cancel")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void cancel(@PathVariable Long id,
+	public void cancel(@PathVariable("id") Long id,
 						@RequestParam("userId") @NotNull Long userId) {
 		orderService.cancel(userId, id);
 	}
