@@ -8,6 +8,8 @@ function SummaryPage(){
     const [summary, setSummary] = useState(null);
     const [error, setError] = useState(null);
     const [paid, setPaid] = useState(false);
+    const [orderId, setOrderId] = useState(null);       //생성된 주문 id저장
+    const [processing, setProcessing] = useState(false);        //버튼 중복 클릭 방지
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -61,27 +63,41 @@ function SummaryPage(){
                     </div>
                 </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12}}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 12}}>
                 <button
                     className="ui-btn"
-                    disabled={!summary || summary.totalQuantity === 0}
+                    disabled={processing || !summary || summary.totalQuantity === 0 || !!orderId}
                     onClick={async () => {
                         try {
                             setError(null);     //에러 초기화
-                            const created = await OrdersApi.create();       //장바구니 -> 주문 생성
-                            const orderId = created?.id;        //주문 id추출(백엔드 응답에 있어야함)
-                            if(!orderId) throw new Error("주문 생성 응답에 id가 없습니다.");
 
-                            await OrdersApi.pay(orderId);       //결제 처리
-                            await CartApi.clear();      //장바구니 비움
-
-                            setPaid(true);      //결제 완료 화면 전환
+                            const created = await OrdersApi.create();       //주문 생성
+                            const id = created?.id ?? created?.orderId;
+                            
+                            if(!id) throw new Error("주문 생성 응답에 id가 없습니다.");
+                            setOrderId(id);      //orderId저장
                         } catch(err) {
-                            setError(err?.message || "결제 실패");      //에러 표시
+                            setError(err?.message || "주문 생성 실패");      //에러 표시
                         }
                     }}
                 >
-                    결제하기
+                    {processing ? "처리중..." : orderId ? `주문생성됨(#${orderId})` : "주문 생성"}
+                </button>
+
+                <button 
+                    className="ui-btn"
+                    disabled={processing || !orderId}       //주문 있어야 결제가능
+                    onClick={async () => {
+                        try {
+                            setError(null);
+                            await OrdersApi.pay(orderId);       //결제(PAID)
+                            setPaid(true);      //완료화면
+                        } catch (err) {
+                            setError(err?.message || "결제 실패")
+                        }
+                    }}
+                >
+                    {processing ? "처리중..." : "결제"}
                 </button>
             </div>
         </div>

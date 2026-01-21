@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.ebook.domain.CartItemRepository;
 import com.example.ebook.domain.OrderItemRepository;
 import com.example.ebook.domain.OrderRepository;
+import com.example.ebook.dto.CartLine;
 import com.example.ebook.dto.OrderDetail;
 import com.example.ebook.dto.OrderLine;
 import com.example.ebook.dto.OrderSummary;
@@ -49,9 +50,16 @@ public class OrderService {
 	 * 비활성 이북이 있으면 400
 	 * 성공 시: 주문과 주문아이템 저장, 장바구니 비움
 	 */
-	public Order createFromCart(Long userId) {
-		if(userId == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId is required");
+	public Order createFromCart(Long userId) {		//주문 생성
+		//PENDING 주문이 있으면 새로 만들지 말고 기존 것 반환(중복방지)
+		var existing = orderRepository.findTopByUserIdAndStatusOrderByIdDesc(userId, "PENDING");
+		if(existing.isPresent()) {
+			return existing.get();
+		}
+
+		List<CartLine> lines = cartService.getItems(userId);		//장바구니 라인 조회
+		if(lines.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cart is empty");
 		}
 		
 		//유저 장바구니 확보
@@ -96,10 +104,6 @@ public class OrderService {
 		
 		//저장
 		Order saved = orderRepository.save(order);
-		
-		//장바구니 비우기(동일 트랜젝션 내에서 처리)
-		cartItemRepository.deleteAllByCartId(cart.getId());
-		cart.touch(); //updated_at 갱신(더티체킹으로 UPDATE)
 		
 		return saved;
 	}
@@ -177,6 +181,11 @@ public class OrderService {
 		
 		//더티체킹으로 flush 되지만 명시적으로 저장해도 무방
 		orderRepository.save(order);
+
+		//결제 성공 후 장바구니 비우기
+		var cart = cartService.getOrCreateCart(userId);		//장바구니 확보
+		cartItemRepository.deleteAllByCartId(cart.getId());		//장바구니 전체 삭제
+		cart.touch();		//updated_at 갱신
 	}
 	
 	//주문 취소: PENDING만 가능
@@ -194,10 +203,10 @@ public class OrderService {
 		}
 		
 		if(!"PENDING".equalsIgnoreCase(order.getStatus())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PENING can be cancelled");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only PENDING can be cancelled");
 		}
 		
-		order.setStatus("CANCELLED");
+		order.setStatus("CANCELED");
 		order.setCanceledAt(LocalDateTime.now());
 		orderRepository.save(order);	//명시 저장
 	}

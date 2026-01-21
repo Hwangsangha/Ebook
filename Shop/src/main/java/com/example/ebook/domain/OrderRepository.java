@@ -14,4 +14,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
 	
 	//userId를 통해 찾아서 내림차순으로 정렬, 여러건이 나오니 List에 담음
 	List<Order> findByUserIdOrderByIdDesc(Long userId);
+
+	Optional<Order> findTopByUserIdAndStatusOrderByIdDesc(Long userId, String status);
 }
