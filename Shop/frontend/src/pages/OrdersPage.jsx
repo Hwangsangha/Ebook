@@ -9,6 +9,7 @@ function OrdersPage() {
     const navigate = useNavigate();     //화면 이동 함수
     const canCancel = status === "PENDING";
 
+
     //페이지 진입 시 주문 목록 자동 조회
     useEffect(() => {
         fetchOrders();
