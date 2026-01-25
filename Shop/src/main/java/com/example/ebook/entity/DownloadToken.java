@@ -31,11 +31,15 @@ public class DownloadToken {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	public Long id;
+	private Long id;
 	
 	//토큰 받는 아이디
 	@Column(name = "user_id",  nullable = false)
 	private Long userId;
+
+	//주문 아이디
+	@Column(name = "order_id")
+	private Long orderId;
 	
 	//다운받을 이북 아이디
 	@Column(name = "ebook_id", nullable = false)
@@ -56,11 +60,17 @@ public class DownloadToken {
 	
 	//--------생성자-----------
 	public DownloadToken() {}
-	public DownloadToken(Long userId, Long ebookId, String token, LocalDateTime expiresAt) {
+	public DownloadToken(Long userId, Long orderId, Long ebookId, String token, LocalDateTime expiresAt) {
 		this.userId = userId;
+		this.orderId = orderId;
 		this.ebookId = ebookId;
 		this.token = token;
 		this.expiresAt = expiresAt;
+	}
+
+	//호환용
+	public DownloadToken(Long userId, Long ebookId, String token, LocalDateTime expiresAt) {
+		this(userId, null, ebookId, token, expiresAt);
 	}
 	
 	//--------------getter/setter--------------
@@ -69,6 +79,9 @@ public class DownloadToken {
 	public Long getUserId() {return userId;}
 	public void setUserId(Long userId) {this.userId = userId;}
 	
+	public Long getOrderId() {return orderId;}
+	public void setOrderId() {this.orderId = orderId;}
+
 	public Long getEbookId() {return ebookId;}
 	public void setEbookId(Long ebookId) {this.ebookId = ebookId;}
 	

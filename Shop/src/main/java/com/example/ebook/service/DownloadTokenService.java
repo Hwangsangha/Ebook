@@ -1,5 +1,6 @@
 package com.example.ebook.service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -55,7 +56,7 @@ public class DownloadTokenService {
 		
 		//주문 아이템에 해당 ebook이 있는지 확인
 		boolean contains = orderItemRepository.findByOrderId(orderId).stream()
-				.anyMatch(oi -> oi.getEbook().getId().equals(ebookId));
+				.anyMatch(oi -> oi.getEbook() != null && ebookId.equals(oi.getEbook().getId()));
 		if(!contains) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ebook not in the order");
 		}
@@ -65,9 +66,61 @@ public class DownloadTokenService {
 		LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(10);
 		
 		//저장
-		var entity = new DownloadToken(userId, ebookId, token, expiresAt);
+		var entity = new DownloadToken(userId, orderId, ebookId, token, expiresAt);
 		downloadTokenRepository.save(entity);
 		
 		return new DownloadTokenResponse(token, expiresAt);
+	}
+
+	//다운로드 응답용(컨드롤러에서 filename(), bytes()로 꺼냄)
+	public record DownloadFile(String filename, byte[] bytes) {}
+
+	//토큰으로 다운로드(만료 검증 + 1회성 소비 + 파일 바이트 생성)
+	public DownloadFile download(String token) {
+		if(token == null || token.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token is required");
+		}
+
+		//토큰 조회
+		DownloadToken dt = downloadTokenRepository.findByToken(token)
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "token not found"));
+
+		//만료체크
+		if(dt.getExpiresAt() == null || dt.getExpiresAt().isBefore(LocalDateTime.now())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token expied");
+		}
+
+		//orderId가 없으면(기존 데이터/이전 토큰) 재발급 유도
+		if(dt.getOrderId() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token has no orderId. re-issue token");
+		}
+
+		//주문 재검증(본인/PAID/ebook 포함)
+		var order = orderRepository.findById(dt.getOrderId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
+		
+		if(!order.getUserId().equals(dt.getUserId())) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found");
+		}
+
+		if(!"PAID".equalsIgnoreCase(order.getStatus())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "order is not PAID");
+		}
+
+		boolean contains = orderItemRepository.findByOrderId(dt.getOrderId()).stream()
+				.anyMatch(oi -> oi.getEbook() != null && dt.getEbookId().equals(oi.getEbook().getId()));
+		
+		if(!contains) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ebook not in the order");
+		}
+
+		//1회성 토큰 소비(엔티티에 used필드 없으니 삭제로 처리)
+		downloadTokenRepository.deleteById(dt.getId());
+
+		//실제 파일은 아직 없으니 "동작 확인용" 텍스트 파일로 응답(다음 단계에서 교체)
+		String filename = "ebook-" + dt.getEbookId() + ".txt";
+		String content = "DOWNLOAD OK\norderId=" + dt.getOrderId() + "\nebookId=" + dt.getEbookId();
+
+		return new DownloadFile(filename, content.getBytes(StandardCharsets.UTF_8));
 	}
 }
