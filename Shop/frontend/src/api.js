@@ -185,6 +185,9 @@ export const OrdersApi = {
     //주문 취소
     cancel: (id) =>
         unwrap(api.patch(`/orders/${id}/cancel`, null, {params: {userId: getUserIdOrThrow()}})),
+
+    detail: (orderId) =>
+        unwrap(api.get(`/orders/${orderId}`)),
 };
 
 export default api;

@@ -10,6 +10,7 @@ import OrdersPage from "./pages/OrdersPage";
 import RequireAuth from "./auth/RequireAuth";   //로그인 필요 가드
 import RegisterPage from "./pages/RegisterPage";
 import { clearAuth } from "./api";
+import OrderDetailPage from "./pages/OrderDetailPage";
 
 
 function App() {
@@ -74,6 +75,9 @@ function App() {
         <Route
           path="/orders"
           element={<RequireAuth> <OrdersPage/> </RequireAuth>}/>
+        <Route
+          path="/orders/:id"
+          element={<RequireAuth><OrderDetailPage/></RequireAuth>}/>
 
         {/* 관리자 라우트 */}
         <Route

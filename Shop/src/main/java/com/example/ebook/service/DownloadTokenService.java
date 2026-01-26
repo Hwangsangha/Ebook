@@ -1,9 +1,10 @@
 package com.example.ebook.service;
 
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,10 +118,20 @@ public class DownloadTokenService {
 		//1회성 토큰 소비(엔티티에 used필드 없으니 삭제로 처리)
 		downloadTokenRepository.deleteById(dt.getId());
 
-		//실제 파일은 아직 없으니 "동작 확인용" 텍스트 파일로 응답(다음 단계에서 교체)
-		String filename = "ebook-" + dt.getEbookId() + ".txt";
-		String content = "DOWNLOAD OK\norderId=" + dt.getOrderId() + "\nebookId=" + dt.getEbookId();
+		//실제 파일 로드(resource/ebooks/ebook-{ebookId}.pdf)
+		String filename = "ebook-" + dt.getEbookId() + ".pdf";
+		String resourcePath = "ebooks/" + filename;
 
-		return new DownloadFile(filename, content.getBytes(StandardCharsets.UTF_8));
+		try {
+			var resource = new ClassPathResource(resourcePath);
+			if(!resource.exists()) {
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ebook file not found: " + filename);
+			}
+
+			byte[] bytes = resource.getInputStream().readAllBytes();
+			return new DownloadFile(filename, bytes);
+		} catch(IOException e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "failed to read ebook file");
+		}
 	}
 }

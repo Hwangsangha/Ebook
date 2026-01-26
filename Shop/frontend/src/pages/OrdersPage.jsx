@@ -5,10 +5,8 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 function OrdersPage() {
     const [orders, setOrders] = useState([]);   //주문 목록 데이터
     const [msg, setMsg] = useState("");     //성공/에러 메시지
-    const [loading, setLoading] = useState("");     //로딩 상태
+    const [loading, setLoading] = useState(false);     //로딩 상태
     const navigate = useNavigate();     //화면 이동 함수
-    const canCancel = status === "PENDING";
-
 
     //페이지 진입 시 주문 목록 자동 조회
     useEffect(() => {

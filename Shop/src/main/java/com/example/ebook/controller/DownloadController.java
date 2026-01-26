@@ -4,11 +4,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.dto.DownloadTokenResponse;
 import com.example.ebook.service.DownloadTokenService;
@@ -34,9 +37,21 @@ public class DownloadController {
 	//토큰발급: POST /downloads/tokens?userId=1&orderId=2&ebookId=3
 	@PostMapping("/tokens")
 	@ResponseStatus(HttpStatus.CREATED)
-	public DownloadTokenResponse issue(@RequestParam @NotNull Long userId,
-										@RequestParam @NotNull Long orderId,
-										@RequestParam @NotNull Long ebookId) {
+	public DownloadTokenResponse issue(@RequestParam @NotNull Long orderId,
+									   @RequestParam @NotNull Long ebookId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if(auth == null || auth.getName() == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+		}
+		
+		//보통 JWT sub가 auth.getName()으로 들어옴
+		Long userId;
+		try {
+			userId = Long.valueOf(auth.getName());
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid user");
+		}
+		
 		return downloadTokenService.issue(userId, orderId, ebookId);
 	}
 
