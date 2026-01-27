@@ -145,8 +145,11 @@ public class OrderService {
 			//권한 없는 사용자는 존재 자체를 모르게 처리
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
 		}
+
+		//List<OrderItem>타입 확정
+		List<OrderItem> items = orderItemRepository.findByOrder_Id(orderId);
 		
-		List<OrderLine> lines = orderItemRepository.findByOrder_Id(orderId).stream()
+		List<OrderLine> lines = items.stream()
 				.map(oi -> new OrderLine(
 						oi.getEbook().getId(),
 						oi.getTitleSnap(),

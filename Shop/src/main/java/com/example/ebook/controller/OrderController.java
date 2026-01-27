@@ -54,9 +54,9 @@ public class OrderController {
 	//상세조회
 	@GetMapping("/{id}")
 	public OrderDetail detail(
-			@PathVariable("id") Long id,
+			@PathVariable("id") Long orderId,
 			@RequestParam("userId") @NotNull Long userId) {
-		return orderService.getDetail(userId, id);
+		return orderService.getDetail(userId, orderId);
 	}
 	//주문 취소: PATCH /orders/id/cancel?userId=1
 	@PatchMapping("/{id}/cancel")
