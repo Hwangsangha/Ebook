@@ -95,7 +95,7 @@ public class DevDataLoader implements CommandLineRunner{
 		
 		OrderItem oi = new OrderItem(order, e1, e1.getPrice(), 1);
 		oi.setSubTotal(e1.getPrice());
-		order.additem(oi);
+		order.addItem(oi);
 		
 		orderRepository.save(order);
 		

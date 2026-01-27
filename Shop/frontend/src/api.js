@@ -187,7 +187,9 @@ export const OrdersApi = {
         unwrap(api.patch(`/orders/${id}/cancel`, null, {params: {userId: getUserIdOrThrow()}})),
 
     detail: (orderId) =>
-        unwrap(api.get(`/orders/${orderId}`)),
+        unwrap(api.get(`/orders/${orderId}`, 
+            {params: {userId: getUserIdOrThrow()}}
+        )),
 };
 
 export default api;

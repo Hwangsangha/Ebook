@@ -56,7 +56,7 @@ public class DownloadTokenService {
 		}
 		
 		//주문 아이템에 해당 ebook이 있는지 확인
-		boolean contains = orderItemRepository.findByOrderId(orderId).stream()
+		boolean contains = orderItemRepository.findByOrder_Id(orderId).stream()
 				.anyMatch(oi -> oi.getEbook() != null && ebookId.equals(oi.getEbook().getId()));
 		if(!contains) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ebook not in the order");
@@ -108,7 +108,7 @@ public class DownloadTokenService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "order is not PAID");
 		}
 
-		boolean contains = orderItemRepository.findByOrderId(dt.getOrderId()).stream()
+		boolean contains = orderItemRepository.findByOrder_Id(dt.getOrderId()).stream()
 				.anyMatch(oi -> oi.getEbook() != null && dt.getEbookId().equals(oi.getEbook().getId()));
 		
 		if(!contains) {

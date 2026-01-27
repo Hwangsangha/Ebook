@@ -31,7 +31,7 @@ function OrderDetailPage() {
 
     const handleDownload = async(ebookId) => {      //다운로드 버튼 클릭 핸들러
         if(!detail) return;     //방어
-        if(loadding) return;        //중복 클릭 방지
+        if(loading) return;        //중복 클릭 방지
 
         const status = (detail.status || "").toUpperCase();     //주문 상태
         if(status !== "PAID") {     //PAID만 허용

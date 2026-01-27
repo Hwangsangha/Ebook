@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.example.ebook.controller.AdminEbookController;
 import com.example.ebook.domain.CartItemRepository;
 import com.example.ebook.domain.OrderItemRepository;
 import com.example.ebook.domain.OrderRepository;
@@ -29,6 +29,8 @@ import com.example.ebook.entity.OrderItem;
 @Transactional	//중간에 에러나면 안되기 때문에 전부 롤백
 public class OrderService {
 
+    private final AdminEbookController adminEbookController;
+
 	private final OrderRepository orderRepository;
 	private final OrderItemRepository orderItemRepository;
 	private final CartItemRepository cartItemRepository;
@@ -37,11 +39,12 @@ public class OrderService {
 	public OrderService(OrderRepository orderRepository,
 						CartItemRepository cartItemRepository,
 						CartService cartService,
-						OrderItemRepository orderItemRepository) {
+						OrderItemRepository orderItemRepository, AdminEbookController adminEbookController) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
 		this.orderItemRepository = orderItemRepository;
+		this.adminEbookController = adminEbookController;
 	}
 	
 	/*
@@ -94,7 +97,7 @@ public class OrderService {
 					ebook.getPrice(),
 					ci.getQuantity()
 			);
-			order.additem(oi);	//양방향 연관 설정 + 리스트에 추가
+			order.addItem(oi);	//양방향 연관 설정 + 리스트에 추가
 			total = total.add(oi.getSubTotal());	//합계 증가
 		}
 		
@@ -104,6 +107,13 @@ public class OrderService {
 		
 		//저장
 		Order saved = orderRepository.save(order);
+
+		//장바구니 비우기
+		cartItemRepository.deleteAllByCartId(cart.getId());
+		cart.touch();
+
+		//주문 아이쳄 DB에 저장
+		orderItemRepository.saveAll(saved.getItems());
 		
 		return saved;
 	}
@@ -136,7 +146,7 @@ public class OrderService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
 		}
 		
-		List<OrderLine> lines = orderItemRepository.findByOrderId(orderId).stream()
+		List<OrderLine> lines = orderItemRepository.findByOrder_Id(orderId).stream()
 				.map(oi -> new OrderLine(
 						oi.getEbook().getId(),
 						oi.getTitleSnap(),
@@ -196,7 +206,7 @@ public class OrderService {
 		}
 		
 		var order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ordeer not found"));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
 		if(!order.getUserId().equals(userId)) {
 			//남의 주문은 존재자체를 숨김
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found");

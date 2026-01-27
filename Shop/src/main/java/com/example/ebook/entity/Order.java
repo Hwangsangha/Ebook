@@ -76,7 +76,7 @@ public class Order {
 	}
 	
 	//양방향 편의: item.order = this + 리스트 추가
-	public void additem(OrderItem item) {
+	public void addItem(OrderItem item) {
 		if(item == null) return;
 		item.setOrder(this);
 		this.items.add(item);

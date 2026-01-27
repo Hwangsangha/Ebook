@@ -9,5 +9,5 @@ import com.example.ebook.entity.OrderItem;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long>{
 	
 	//orderId로 찾아 List에 담아정렬ㄴ
-	List<OrderItem> findByOrderId(Long orderId);
+	List<OrderItem> findByOrder_Id(Long orderId);
 }
