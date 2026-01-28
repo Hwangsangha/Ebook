@@ -7,9 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.example.ebook.controller.AdminEbookController;
 import com.example.ebook.domain.CartItemRepository;
-import com.example.ebook.domain.OrderItemRepository;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.dto.CartLine;
 import com.example.ebook.dto.OrderDetail;
@@ -29,22 +27,17 @@ import com.example.ebook.entity.OrderItem;
 @Transactional	//중간에 에러나면 안되기 때문에 전부 롤백
 public class OrderService {
 
-    private final AdminEbookController adminEbookController;
-
 	private final OrderRepository orderRepository;
-	private final OrderItemRepository orderItemRepository;
 	private final CartItemRepository cartItemRepository;
 	private final CartService cartService;
 	
 	public OrderService(OrderRepository orderRepository,
 						CartItemRepository cartItemRepository,
-						CartService cartService,
-						OrderItemRepository orderItemRepository, AdminEbookController adminEbookController) {
+						CartService cartService
+						) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
-		this.orderItemRepository = orderItemRepository;
-		this.adminEbookController = adminEbookController;
 	}
 	
 	/*
@@ -111,9 +104,6 @@ public class OrderService {
 		//장바구니 비우기
 		cartItemRepository.deleteAllByCartId(cart.getId());
 		cart.touch();
-
-		//주문 아이쳄 DB에 저장
-		orderItemRepository.saveAll(saved.getItems());
 		
 		return saved;
 	}
@@ -127,8 +117,7 @@ public class OrderService {
 	
 	/*
 	 * 주문 상세조회
-	 * 다른 사람 주문이면 존재 자체를 숨기기 위해 404를 던진다
-	 * 트랜젝션은 readOnly로 열어서 LAZY 접근 안전화 + 약간의 최적화
+	 Repository 별도 호출 없이 JPA 연관관계를 통해 아이템 조회
 	 */
 	@Transactional(readOnly = true)
 	public OrderDetail getDetail(Long userId, Long orderId) {
@@ -137,7 +126,7 @@ public class OrderService {
 		}
 		
 		//주문 헤더 로드 없으면 404
-		var order = orderRepository.findById(orderId)
+		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
 		
 		//권한 확인
@@ -145,11 +134,10 @@ public class OrderService {
 			//권한 없는 사용자는 존재 자체를 모르게 처리
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
 		}
-
-		//List<OrderItem>타입 확정
-		List<OrderItem> items = orderItemRepository.findByOrder_Id(orderId);
 		
-		List<OrderLine> lines = items.stream()
+		//아이템 변환(JPA 연관관계 활용)
+		// order.getItems() 호출 시점에 DB에서 Select 쿼리가 실행(Lazy Loading)
+		List<OrderLine> lines = order.getItems().stream()
 				.map(oi -> new OrderLine(
 						oi.getEbook().getId(),
 						oi.getTitleSnap(),

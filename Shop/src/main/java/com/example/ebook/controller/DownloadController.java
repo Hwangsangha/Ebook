@@ -37,8 +37,8 @@ public class DownloadController {
 	//토큰발급: POST /downloads/tokens?userId=1&orderId=2&ebookId=3
 	@PostMapping("/tokens")
 	@ResponseStatus(HttpStatus.CREATED)
-	public DownloadTokenResponse issue(@RequestParam @NotNull Long orderId,
-									   @RequestParam @NotNull Long ebookId) {
+	public DownloadTokenResponse issue(@RequestParam("orderId") @NotNull Long orderId,
+									   @RequestParam("ebookId") @NotNull Long ebookId) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(auth == null || auth.getName() == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
@@ -57,7 +57,7 @@ public class DownloadController {
 
 	//다운로드: GET /downloads/{token}
 	@GetMapping("/{token}")
-	public ResponseEntity<byte[]> download(@PathVariable String token) {
+	public ResponseEntity<byte[]> download(@PathVariable("token") String token) {
 		
 		//서비스에서 토큰 검증 + 파일 바이트 생성
 		var file = downloadTokenService.download(token);

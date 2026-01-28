@@ -52,6 +52,9 @@ public class SecurityConfig {
                 //공개 조회는 허용(필요시 조정)
                 .requestMatchers(HttpMethod.GET, "/ebooks/**").permitAll()
 
+                //다운로드 경로(URL에 토큰)
+                .requestMatchers("/downloads/**").permitAll()
+
                 //그 외는 로그인 필요
                 .anyRequest().authenticated()
         );

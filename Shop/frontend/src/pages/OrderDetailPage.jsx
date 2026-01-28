@@ -68,7 +68,7 @@ function OrderDetailPage() {
     if(!detail) return <p className="ui-muted">주문 정보가 없습니다.</p>        //없음 처리
 
     const status = (detail.status || "").toUpperCase();     //상태 표기용
-    const lines = Array.isArray(detail.lines) ? detail.lines : [];      //주문라인 목록
+    const lines = Array.isArray(detail.items) ? detail.items : [];      //주문라인 목록
 
     return (
         <div className="ui-page">
@@ -100,7 +100,7 @@ function OrderDetailPage() {
                 <p className="ui-muted">구매 항목이 없습니다.</p>
             ) : (
                 <table border="1" cellPadding="8" style={{borderCollapse: "collapse", width: "100%"}}>
-                    <thread>
+                    <thead>
                         <tr>
                             <th>ebookId</th>
                             <th>제목</th>
@@ -108,7 +108,7 @@ function OrderDetailPage() {
                             <th>소계</th>
                             <th>액셕</th>
                         </tr>
-                    </thread>
+                    </thead>
                     <tbody>
                         {lines.map((l) => (
                             <tr key={l.ebookId}>
