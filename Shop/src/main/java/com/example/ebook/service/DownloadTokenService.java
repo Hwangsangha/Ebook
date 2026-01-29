@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,7 +95,7 @@ public class DownloadTokenService {
 
 		//만료체크
 		if(dt.getExpiresAt() == null || dt.getExpiresAt().isBefore(LocalDateTime.now())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token expied");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token expired");
 		}
 
 		//orderId가 없으면(기존 데이터/이전 토큰) 재발급 유도

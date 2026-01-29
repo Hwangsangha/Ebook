@@ -27,8 +27,11 @@ api.interceptors.response.use(
     (err) => {      //에러 응답 처리
         const status = err?.response?.status;       //HTTP상태코드 추출
         if(status ===401 || status === 403) {       //인증/권한 에러면?(만료 포함)
-            clearAuth();      //로컬 인증정보 삭제
-            if(!window.location.pathname.startsWith("/login")) {    //이미 로그인 화면이면 중복이동 방지
+            //현재 로그인 페이지가 아니라면(무한 루프 방지)
+            if(!window.location.pathname.startsWith("/login")) {
+                //사용자에게 이유 알려줌
+                alert("로그인 세션이 만료되었습니다.\n다시 로그인 해주세요.")
+                clearAuth();      //로컬 인증정보 삭제
                 window.location.assign("/login");       //로그인 페이지로 강제이동
             }
         }
