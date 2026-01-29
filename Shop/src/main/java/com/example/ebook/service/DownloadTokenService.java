@@ -1,9 +1,13 @@
 package com.example.ebook.service;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -38,6 +42,10 @@ public class DownloadTokenService {
 		this.orderItemRepository = orderItemRepository;
 		this.downloadTokenRepository = downloadTokenRepository;
 	}
+
+	//yml에서 경로를 주입받음
+	@Value("${ebook.storage.path}")
+	private String storagePath;
 	
 	public DownloadTokenResponse issue(Long userId, Long orderId, Long ebookId) {
 		//파라미터 검증
@@ -120,17 +128,23 @@ public class DownloadTokenService {
 
 		//실제 파일 로드(resource/ebooks/ebook-{ebookId}.pdf)
 		String filename = "ebook-" + dt.getEbookId() + ".pdf";
-		String resourcePath = "ebooks/" + filename;
 
 		try {
-			var resource = new ClassPathResource(resourcePath);
-			if(!resource.exists()) {
+			//설정된 경로(storagePath)와 파일명 합침
+			Path path = Paths.get(storagePath).resolve(filename).normalize();
+
+			//파일 존재 여부 확인
+			if(!Files.exists(path)) {
+				//보안상 실제 경로를 노출하지 않고 404처리
+				System.out.println("File not found at: " + path.toAbsolutePath());
 				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ebook file not found: " + filename);
 			}
 
-			byte[] bytes = resource.getInputStream().readAllBytes();
+			//파일 읽기
+			byte[] bytes = Files.readAllBytes(path);
 			return new DownloadFile(filename, bytes);
 		} catch(IOException e) {
+			e.printStackTrace();		//서버 로그에 에러 출력
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "failed to read ebook file");
 		}
 	}

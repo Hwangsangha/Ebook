@@ -80,7 +80,7 @@ public class DownloadToken {
 	public void setUserId(Long userId) {this.userId = userId;}
 	
 	public Long getOrderId() {return orderId;}
-	public void setOrderId() {this.orderId = orderId;}
+	public void setOrderId(Long orderId) {this.orderId = orderId;}
 
 	public Long getEbookId() {return ebookId;}
 	public void setEbookId(Long ebookId) {this.ebookId = ebookId;}
@@ -91,5 +91,5 @@ public class DownloadToken {
 	public LocalDateTime getExpiresAt() {return expiresAt;}
 	public void setExpiresAt(LocalDateTime expiresAt) {this.expiresAt = expiresAt;}
 	
-	public LocalDateTime getCreatAt() {return createdAt;}
+	public LocalDateTime getCreatedAt() {return createdAt;}
 }
