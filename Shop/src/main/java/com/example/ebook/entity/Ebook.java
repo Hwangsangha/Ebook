@@ -34,11 +34,19 @@ public class Ebook {
 	@Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
-    @Column(length = 500)
-    private String thumbnail;
-
     @Column(length = 20)
     private String status; // ACTIVE/INACTIVE/DRAFT 등
+
+    @Column(name = "thumbnail_path", length = 500)
+    private String thumbnailPath;
+
+    //다운로드 파일 경로
+    @Column(name = "file_path")
+    private String filePath;
+
+    //원본 파일명
+    @Column(name = "original_file_name")
+    private String originalFileName;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -61,8 +69,14 @@ public class Ebook {
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
 
-    public String getThumbnail() { return thumbnail; }
-    public void setThumbnail(String thumbnail) { this.thumbnail = thumbnail; }
+    public String getThumbnailPath() { return thumbnailPath; }
+    public void setThumbnailPath(String thumbnailPath) { this.thumbnailPath = thumbnailPath; }
+
+    public String getFilePath() {return filePath;}
+    public void setFilePath(String filePath) {this.filePath = filePath;}
+
+    public String getOriginalFileName() {return originalFileName;}
+    public void setOriginalFileName(String originalFileName) {this.originalFileName = originalFileName;}
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
@@ -70,12 +84,17 @@ public class Ebook {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     
-    public Ebook(String title, String author, BigDecimal price, String thumbnail, String status) {
+    public Ebook(String title, String author, BigDecimal price, String status) {
         this.title = title;
         this.author = author;
         this.price = price;
-        this.thumbnail = thumbnail;
         this.status = status;
+        this.createdAt = Instant.now();
+
+        //명시적 null 초기화
+        this.thumbnailPath = null;
+        this.filePath = null;
+        this.originalFileName = null;
     }
     
     public Ebook() {}

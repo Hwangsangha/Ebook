@@ -59,7 +59,8 @@ public class EbookService {
 	//이북생성
 	//제목, 가격 필수 검증
 	//status 기본값 미지정시 active로 지정
-	public Ebook create(String title, String author, BigDecimal price, String thumbnail, String status) {
+	public Ebook create(String title, String author, BigDecimal price, String status, String thumbnailPath, 
+						String filePath, String originalFileName) {
 		if(title == null || title.isBlank()) {
 			throw new IllegalArgumentException("title is requierd");
 		}
@@ -70,8 +71,11 @@ public class EbookService {
 		e.setTitle(title.trim());
 		e.setAuthor(author);
 		e.setPrice(price);
-		e.setThumbnail(thumbnail);
 		e.setStatus(status == null || status.isBlank() ? "ACTIVE" : status.trim());
+		e.setThumbnailPath(thumbnailPath);
+		e.setFilePath(filePath);
+		e.setOriginalFileName(originalFileName);
+		
 		
 		return ebookRepository.save(e);
 	}
@@ -86,7 +90,7 @@ public class EbookService {
 			if(price.signum() < 0) throw new IllegalArgumentException("price must be >= 0");
 			e.setPrice(price);
 		} // 새 가격 null이면 변경 안함, 0원 이상만 허용
-		if(thumbnail != null)e.setThumbnail(thumbnail); // null이면 변경안함
+		if(thumbnail != null)e.setThumbnailPath(thumbnail); // null이면 변경안함
 		if(status != null && !status.isBlank()) e.setStatus(status.trim()); //새 상태 null이면 변경안함, 앞뒤 공백제거
 		
 		return ebookRepository.save(e);
@@ -98,4 +102,5 @@ public class EbookService {
 		Ebook e = getById(id); //없으면 예외
 		ebookRepository.delete(e);
 	}
+
 }

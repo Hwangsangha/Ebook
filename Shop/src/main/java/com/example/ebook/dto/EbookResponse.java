@@ -19,7 +19,7 @@ public class EbookResponse {
         r.title = e.getTitle();
         r.author = e.getAuthor();
         r.price = e.getPrice();
-        r.thumbnail = e.getThumbnail();
+        r.thumbnail = e.getThumbnailPath();
         r.status = e.getStatus();
         return r;
     }

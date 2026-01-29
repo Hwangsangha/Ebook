@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -105,19 +104,6 @@ public class EbookController {
 		ebookService.delete(id);
 	}
 	
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public EbookResponse create(@Valid @RequestBody CreateRequest req) {
-		var saved = ebookService.create(
-				req.title(),
-				req.author(),
-				req.price(),
-				req.thumbnail(),
-				req.status()
-				);
-		return EbookResponse.from(saved);
-	}
-	
 	/*
 	 *이북 상태 변경 전용 엔드포인트
 	 *ACTIVE / INACTIVE 만 허용
@@ -134,7 +120,7 @@ public class EbookController {
 		}
 		String s = req.status.trim().toUpperCase();
 		if(!s.equals("ACTIVE") && !s.equals("INACTIVE")) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status nust be ACTIVE or INACTIVE");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status must be ACTIVE or INACTIVE");
 		}
 		
 		//서비스의 부분 수정 사용: status만 변경
