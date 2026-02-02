@@ -152,8 +152,10 @@ export const AdminEbookApi = {
         unwrap(api.get("/admin/ebooks", {params})),
 
     //전자책 등록
-    create: ({title, price, status}) =>
-        unwrap(api.post("/admin/ebooks", {title, price, status})),
+    create: (formData) =>
+        unwrap(api.post("/admin/ebooks", formData, {
+            headers: {"Content-Type": "multipart/form-data"},
+        })),
 
     //전자책 수정
     update: (id, {title, price, status}) =>

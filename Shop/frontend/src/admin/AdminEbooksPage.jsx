@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";    //React 훅: 상태/생명주기
 import {EbookApi, AdminEbookApi} from "../api";   //unwrap적용 API
 
 function AdminEbooksPage() {
-    console.log("[ADMIN API CHECK]", AdminEbookApi, typeof AdminEbookApi?.create, typeof AdminEbookApi?.update, typeof AdminEbookApi?.remove);
-
     //서버에서 받은 전자책 목록
     const [ebooks, setEbooks] = useState([]);
 
@@ -16,6 +14,9 @@ function AdminEbooksPage() {
         price: "",
         status: "ACTIVE",
     });
+    //파일 입력값 상태(파일 객체 저장용)
+    const [thumbnail, setThumbnail] = useState(null);
+    const [file, setFile] = useState(null);
 
     //수정
     const [editingId, setEditingId] = useState(null);
@@ -48,14 +49,10 @@ function AdminEbooksPage() {
             // ✅ 서버 응답 형태가 달라도 목록 배열을 뽑아내는 정규화
             // 1) data 자체가 배열이면 그대로 사용
             // 2) 페이지 응답이면 content/items 같은 필드에서 꺼내기
-            const list = Array.isArray(data)
-                ? data
-                : Array.isArray(data?.content)
-                ? data.content
-                : Array.isArray(data?.items)
-                ? data.items
-                :Array.isArray(data?.data)
-                ?data.data
+            const list = Array.isArray(data) ? data
+                : Array.isArray(data?.content) ? data.content
+                : Array.isArray(data?.items) ? data.items
+                :Array.isArray(data?.data) ?data.data
                 : [];
 
             setEbooks(list);
@@ -82,14 +79,37 @@ function AdminEbooksPage() {
 
         try {
             setLoading(true);  //요청 시작
-            const payload = {
-                title: createForm.title,
-                price: Number(createForm.price),
-                status: createForm.status,
-            };
+            
+            const formData = new FormData();
 
-            await AdminEbookApi.create(payload);    //관리자 등록 API
-            setCreateForm({title: "", price: "", status: "ACTIVE"});  //폼 초기화
+            //글자 데이터 담기
+            formData.append("title", createForm.title);
+            formData.append("price", Number(createForm.price));
+            formData.append("status", createForm.status);
+            //formData.append("author", "작가명");  //필요시 추가
+
+            //파일 데이터 담기
+            if(thumbnail) {
+                formData.append("thumbnail", thumbnail);
+            }
+            if(file) {
+                formData.append("file", file);
+            }
+
+            //API 전송(FormData 통쨰로 전달 -> api.js에서 multipart/form-data로 처리)
+            await AdminEbookApi.create(formData);
+
+            //초기화
+            setCreateForm({title: "", price: "", status: "ACTIVE"});
+            setThumbnail(null);
+            setFile(null);
+
+            //파일 input 초기화를 위해 강제 리렌더링하거나 ID를 바꾸는 꼼수 대신
+            //아래 UI에서 input value에 상테를 연결하지 않았으므로
+            //화면상 파일명이 남을수 있음.
+            document.getElementById("input-thumbnail").value = "";
+            document.getElementById("input-file").value = "";
+
             setMsg("등록완료");
             fetchList();
         }   catch(e) {
@@ -170,13 +190,15 @@ function AdminEbooksPage() {
     // role이 ADMIN이 아니면 안내만 보여주고 UI는 숨김(최소 가드)
     const role = localStorage.getItem("role");
     if (role !== "ADMIN") {
-    return (
-        <div style={{ padding: 24, fontFamily: "system-ui" }}>
-            <h2>관리자 페이지</h2>
-            <p style={{ color: "crimson" }}>{msg || "ADMIN만 접근 가능"}</p>
-        </div>
-    );
+        return (
+            <div style={{ padding: 24, fontFamily: "system-ui" }}>
+                <h2>관리자 페이지</h2>
+                <p style={{ color: "crimson" }}>{msg || "ADMIN만 접근 가능"}</p>
+            </div>
+        );
     }
+    //백엔드 URL(이미지 표시에 필요)
+    const BASE_URL = import.meta.env.VITE_API_BASE ||  "http://localhost:8080";
 
     return (
         <div style={{ padding: 24, fontFamily: "system-ui" }}>
@@ -219,19 +241,37 @@ function AdminEbooksPage() {
                     <option value="INACTIVE">INACTIVE</option>
                     <option value="SOLD_OUT">SOLD_OUT</option>
                 </select>
+            </div>
 
-                <button onClick={handleCreate} disabled={loading}>
-                    {loading ? "처리중..." : "등록"}
-                </button>
-                <button onClick={fetchList}>목록 새로고침</button>
+            <div style={{display: "flex", gap: 20, alignItems: "center"}}>
+                <div>
+                    <label style={{fontSize: "12px", fontWeight: "bold", display: "block"}}>표시 이미지</label>
+                    <input
+                        id="input-thumbnail"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setThumbnail(e.target.files[0])}
+                    />
+                </div>
+                <div style={{marginTop: 5}}>
+                    <button
+                        onClick={handleCreate}
+                        disabled={loading}
+                        style={{backgroundColor: "#007bff", color: "white", border: "none", padding: "8px 16px", cursor: "pointer", marginRight: "5px"}}
+                    >
+                        {loading ? "처리중..." : "등록"}
+                    </button>
+                    <button onClick={fetchList}>목록 새로고침</button>
+                </div>
             </div>
         </div>
 
         {/* ✅ 목록 테이블 */}
         <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }}>
             <thead>
-                <tr>
+                <tr style={{background: "#eee"}}>
                     <th>ID</th>
+                    <th>표지</th>
                     <th>제목</th>
                     <th>가격</th>
                     <th>상태</th>
@@ -245,6 +285,20 @@ function AdminEbooksPage() {
                 return (
                     <tr key={ebook.id}>
                     <td>{ebook.id}</td>
+
+                    {/* 썸네일 표시 */}
+                    <td style={{textAlign: "center"}}>
+                        {ebook.thumbnail.Path ? (
+                            <img
+                                src={`${BASE_URL}/uploads/${ebook.thumbnailPath}`}
+                                alt="표지"
+                                style={{width: "40px", height: "55px", objectFit: "cover"}}
+                            />
+                        ) : (
+                            <span style={{fontSize: "12px", color: "#ccc"}}>No Image</span>
+                        )}
+                        
+                    </td>
 
                     {/* 제목 */}
                     <td>
