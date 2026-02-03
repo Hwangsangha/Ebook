@@ -35,7 +35,7 @@ import jakarta.validation.constraints.NotNull;
 //요청, 응답에는 DTO를 사용해 엔티티 노출을 방지
 @RestController
 @Validated
-@RequestMapping("/ebooks")
+@RequestMapping("/api/ebooks")
 public class EbookController {
 
 	private final EbookService ebookService;
@@ -44,28 +44,24 @@ public class EbookController {
 		this.ebookService = ebookService;
 	}
 	
-	//목록조회
-	//기본은 ACTIVE 상태만 반환
-	// 추후 쿼리 파라ㅣ터로 상태를 받아 확장 가능
+	/* 
+	목록조회(검색 + 페이징)
+	GET /api/ebook?page=0&size=10&q=검색어
+	*/
 	@GetMapping
 	public PageResponse<EbookResponse> list(
 			@RequestParam(name = "page", defaultValue = "0")
-			@Min(value = 0, message = "page는 0 이상이어야 합니다.")
-			int page,
-	        @RequestParam(name = "size", defaultValue = "10")
-			@Min(value = 0, message = "size는 0 이상이어야 합니다.")
-			@Max(value = 100, message = "size는 100 이하여야 합니다.")
-			int size,
-			
-			//검색어(선택). 앞뒤 공백은 서비스로 넘기기 전에 정리
-	        @RequestParam(name = "q", required = false) String q
-		){
+			@Min(0) int page,
+			@RequestParam(name = "size", defaultValue = "10")
+			@Min(0) @Max(100) int size,
+			@RequestParam(name = "q", required = false) String q) {
+	    
 		var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-		
+
 		Page<Ebook> pageResult = (q == null || q.isBlank())
 				? ebookService.listActivePage(pageable)
 				: ebookService.listActivePage(q.trim(), pageable);
-		
+
 		return PageResponse.of(
 				pageResult.getContent().stream().map(EbookResponse::from).toList(),
 				pageResult.getNumber(),
@@ -73,13 +69,17 @@ public class EbookController {
 				pageResult.getTotalElements()
 		);
 	}
-	
-	// 단건 조회
+
+	/*
+	상세조회(상세페이지용)
+	GET /api/ebooks/{id}
+	*/
 	@GetMapping("/{id}")
 	public EbookResponse get(@PathVariable(name = "id") Long id) {
-	    return EbookResponse.from(ebookService.getById(id));
+		Ebook ebook = ebookService.getById(id);
+		return EbookResponse.from(ebook);
 	}
-	
+
 	//부분수정(patch)
 	//null인 필드는 변경x
 	//price는 0이상 필수

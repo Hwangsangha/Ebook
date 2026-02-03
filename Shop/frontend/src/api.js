@@ -103,9 +103,9 @@ export const AuthApi = {
 
 //전자책 관련 API
 export const EbookApi = {
-    list() {return unwrap(api.get("/ebooks"))},
+    list() {return unwrap(api.get("/api/ebooks"))},
 
-    get(id) {return unwrap(api.get(`/ebooks/${id}`))}
+    get(id) {return unwrap(api.get(`/api/ebooks/${id}`))}
 };
 
 //장바구니 관련 API

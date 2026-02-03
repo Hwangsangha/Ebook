@@ -62,7 +62,7 @@ public class EbookService {
 	public Ebook create(String title, String author, BigDecimal price, String status, String thumbnailPath, 
 						String filePath, String originalFileName) {
 		if(title == null || title.isBlank()) {
-			throw new IllegalArgumentException("title is requierd");
+			throw new IllegalArgumentException("title is required");
 		}
 		if(price == null || price.signum() < 0) {
 			throw new IllegalArgumentException("price must be >= 0");

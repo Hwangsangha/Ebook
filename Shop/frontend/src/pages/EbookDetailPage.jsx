@@ -19,7 +19,7 @@ function EbookDetailPage() {
     setMsg("");
 
     try {
-      const res = await api.get(`/ebooks/${id}`); // axios 직접 호출
+      const res = await api.get(`/api/ebooks/${id}`); // axios 직접 호출
       setEbook(res.data); // 응답 데이터 저장
     } catch (e) {
       setMsg("상세 조회 실패");
