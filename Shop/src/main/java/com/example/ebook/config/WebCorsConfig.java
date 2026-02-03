@@ -20,4 +20,5 @@ public class WebCorsConfig implements WebMvcConfigurer{
 				.maxAge(3600);						//preflight 캐시(초)
 		
 	}
+
 }

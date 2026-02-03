@@ -104,11 +104,12 @@ function AdminEbooksPage() {
             setThumbnail(null);
             setFile(null);
 
-            //파일 input 초기화를 위해 강제 리렌더링하거나 ID를 바꾸는 꼼수 대신
-            //아래 UI에서 input value에 상테를 연결하지 않았으므로
-            //화면상 파일명이 남을수 있음.
-            document.getElementById("input-thumbnail").value = "";
-            document.getElementById("input-file").value = "";
+            //id가 없으면 그냐 넘어감
+            const thumbInput = document.getElementById("input-thumbnail");
+            if(thumbInput) thumbInput.value = "";
+
+            const fileInput = document.getElementById("input-file");
+            if(fileInput) fileInput.value = "";
 
             setMsg("등록완료");
             fetchList();
@@ -244,6 +245,7 @@ function AdminEbooksPage() {
             </div>
 
             <div style={{display: "flex", gap: 20, alignItems: "center"}}>
+                {/* 표시 이미지 업로드 칸*/}
                 <div>
                     <label style={{fontSize: "12px", fontWeight: "bold", display: "block"}}>표시 이미지</label>
                     <input
@@ -251,6 +253,16 @@ function AdminEbooksPage() {
                         type="file"
                         accept="image/*"
                         onChange={(e) => setThumbnail(e.target.files[0])}
+                    />
+                </div>
+                {/* pdf 파일 업로드 칸*/}
+                <div>
+                    <label style={{fontSize: "12px", fontWeight: "bold", display: "block"}}>pdf 파일</label>
+                    <input
+                        id="input-file"
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) => setFile(e.target.files[0])}
                     />
                 </div>
                 <div style={{marginTop: 5}}>
@@ -288,7 +300,7 @@ function AdminEbooksPage() {
 
                     {/* 썸네일 표시 */}
                     <td style={{textAlign: "center"}}>
-                        {ebook.thumbnail.Path ? (
+                        {ebook.thumbnailPath ? (
                             <img
                                 src={`${BASE_URL}/uploads/${ebook.thumbnailPath}`}
                                 alt="표지"

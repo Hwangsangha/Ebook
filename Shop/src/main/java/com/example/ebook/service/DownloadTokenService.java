@@ -14,10 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.domain.DownloadTokenRepository;
+import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.domain.OrderItemRepository;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.dto.DownloadTokenResponse;
 import com.example.ebook.entity.DownloadToken;
+import com.example.ebook.entity.Ebook;
 
 /*
  *다운로드 토큰 발급:
@@ -33,13 +35,16 @@ public class DownloadTokenService {
 	private final OrderRepository orderRepository;
 	private final OrderItemRepository orderItemRepository;
 	private final DownloadTokenRepository downloadTokenRepository;
+	private final EbookRepository ebookRepository;
 	
 	public DownloadTokenService(OrderRepository orderRepository,
 								OrderItemRepository orderItemRepository,
-								DownloadTokenRepository downloadTokenRepository) {
+								DownloadTokenRepository downloadTokenRepository,
+								EbookRepository ebookRepository) {
 		this.orderRepository = orderRepository;
 		this.orderItemRepository = orderItemRepository;
 		this.downloadTokenRepository = downloadTokenRepository;
+		this.ebookRepository = ebookRepository;
 	}
 
 	//yml에서 경로를 주입받음
@@ -115,33 +120,43 @@ public class DownloadTokenService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "order is not PAID");
 		}
 
-		boolean contains = orderItemRepository.findByOrder_Id(dt.getOrderId()).stream()
-				.anyMatch(oi -> oi.getEbook() != null && dt.getEbookId().equals(oi.getEbook().getId()));
-		
-		if(!contains) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ebook not in the order");
-		}
+		Ebook ebook = ebookRepository.findById(dt.getEbookId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ebook not found"));
 
-		//1회성 토큰 소비(엔티티에 used필드 없으니 삭제로 처리)
+		//토큰 삭제(1회용)
 		downloadTokenRepository.deleteById(dt.getId());
 
-		//실제 파일 로드(resource/ebooks/ebook-{ebookId}.pdf)
-		String filename = "ebook-" + dt.getEbookId() + ".pdf";
+		//DB에 저장된 실제 UUID 파일명
+		String realFileName = ebook.getFilePath();
+		
+		if(realFileName == null) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "File path is missing in DB");
+		}
 
 		try {
 			//설정된 경로(storagePath)와 파일명 합침
-			Path path = Paths.get(storagePath).resolve(filename).normalize();
+			Path path = Paths.get(storagePath).resolve(realFileName).normalize();
 
 			//파일 존재 여부 확인
 			if(!Files.exists(path)) {
 				//보안상 실제 경로를 노출하지 않고 404처리
 				System.out.println("File not found at: " + path.toAbsolutePath());
-				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ebook file not found: " + filename);
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Physical file not found: ");
 			}
 
 			//파일 읽기
 			byte[] bytes = Files.readAllBytes(path);
-			return new DownloadFile(filename, bytes);
+
+			//다운로드될때 사용자가 볼 파일명
+			String displayFilename = ebook.getOriginalFileName();
+			if(displayFilename == null || displayFilename.isBlank()) {
+				displayFilename = ebook.getTitle() + ".pdf";
+			}
+
+			//한글 깨짐 방지
+			displayFilename = new String(displayFilename.getBytes("UTF-8"), "ISO-8859-1");
+			
+			return new DownloadFile(displayFilename, bytes);
 		} catch(IOException e) {
 			e.printStackTrace();		//서버 로그에 에러 출력
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "failed to read ebook file");
