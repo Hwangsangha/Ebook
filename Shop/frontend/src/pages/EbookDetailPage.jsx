@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"; // 상태/생명주기
 import { useNavigate, useParams } from "react-router-dom"; // url 파라미터(:id), 이동
-import api, { CartApi } from "../api"; // api(직접 호출), CartApi(unwrap 적용)
+import api, { CartApi, EbookApi, OrdersApi } from "../api"; // api(직접 호출), CartApi(unwrap 적용)
 
 function EbookDetailPage() {
   const { id } = useParams(); // URL의 /ebooks/:id 에서 id 추출
@@ -54,9 +54,33 @@ function EbookDetailPage() {
     }
   };
 
-  // 구매 버튼(최소): 요약 페이지로 이동만
-  const handleBuyNow = () => {
-    navigate("/summary");
+  // 바로 구매 버튼
+  const handleBuyNow = async () => {
+    //데이터가 아직 로딩 안됐으면 클릭 방지
+    if(!ebook) return;
+
+    //사용자 의사 확인
+    if(!window.confirm(`${ebook.title}을(를) 바로 구매하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      //주문 생성 API호출(백엔드 ebook.id를 보냄)
+      const response = await OrdersApi.create(ebook.id);
+
+      //생성된 주문 번호 가져오기
+      const newOrderId = response.id;
+
+      alert("주문서가 생성되었습니다. 결제 페이지로 이동합니다.");
+      navigate(`/orders/${newOrderId}`);    //새 주문서 페이지로 이동
+    } catch(err) {
+      console.error("주문 생성 실패:", err);
+      //에러 메시지 보여주기
+      const errMsg = err.response?.data?.message || "주문에 실패했습니다.";
+      alert(errMsg);
+    }
+
+    
   };
 
   if (loading) {

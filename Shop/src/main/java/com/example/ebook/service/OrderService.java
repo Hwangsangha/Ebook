@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import com.example.ebook.domain.CartItemRepository;
 import com.example.ebook.domain.EbookRepository;
+import com.example.ebook.domain.OrderItemRepository;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.dto.CartLine;
 import com.example.ebook.dto.OrderDetail;
@@ -19,7 +20,6 @@ import com.example.ebook.entity.CartItem;
 import com.example.ebook.entity.Ebook;
 import com.example.ebook.entity.Order;
 import com.example.ebook.entity.OrderItem;
-import jakarta.validation.constraints.NotNull;
 
 /*
  * 장바구니 -> 주문전환
@@ -35,19 +35,19 @@ public class OrderService {
 	private final CartItemRepository cartItemRepository;
 	private final CartService cartService;
 	private final EbookRepository ebookRepository;
-	private final OrderItem orderItem;
+	private final OrderItemRepository orderItemRepository;
 	
 	public OrderService(OrderRepository orderRepository,
 						CartItemRepository cartItemRepository,
 						CartService cartService,
 						EbookRepository ebookRepository,
-						OrderItem orderItem
+						OrderItemRepository orderItemRepository
 						) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
 		this.ebookRepository = ebookRepository;
-		this.orderItem = orderItem;
+		this.orderItemRepository = orderItemRepository;
 	}
 	
 	/*
@@ -260,13 +260,13 @@ public class OrderService {
 
 		orderRepository.save(order);
 
-		// //주문 상품 생성
-		// OrderItem item = new OrderItem();
-		// item.setOrder(order);
-		// item.setEbook(ebook);
-		// item.setPriceSnap(ebook.getPrice());
+		//주문 상품 생성
+		OrderItem item = new OrderItem();
+		item.setOrder(order);
+		item.setEbook(ebook);
+		item.setPriceSnap(ebook.getPrice());
 
-		// orderItemRepository.save(item);
+		orderItemRepository.save(item);
 		
 		return order;
     }

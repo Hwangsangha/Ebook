@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.example.ebook.entity.Order;
 
@@ -16,4 +18,13 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
 	List<Order> findByUserIdOrderByIdDesc(Long userId);
 
 	Optional<Order> findTopByUserIdAndStatusOrderByIdDesc(Long userId, String status);
+
+	@Query("SELECT o FROM Order o " +
+			"JOIN OrderItem oi ON oi.order = o " +
+			"WHERE o.userId = :userId " +
+			"AND oi.ebook.id = :ebookId " +
+			"AND o.status = 'PENDING'")
+	Optional<Order> findPendingOrder(@Param("userId") Long userId, @Param("ebookId") Long ebookId);
+
+	boolean existByUserIdAndEbookIdAndStatus(Long userId, Long ebookId, String Status);
 }

@@ -13,6 +13,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
 
 /*
  * 주문상세
@@ -52,7 +53,7 @@ public class OrderItem {
 	@Column(name = "sub_total", nullable = false, precision = 12, scale = 2)
 	private BigDecimal subTotal;
 	
-	protected OrderItem() {}
+	public OrderItem() {}
 	
 	public OrderItem(Ebook ebook, String titleSnap, BigDecimal priceSnap, int quantity) {
 		this.ebook = ebook;
