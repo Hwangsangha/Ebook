@@ -40,8 +40,15 @@ public class OrderController {
 	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public CreatedOrderResponse create(@RequestParam("userId") @NotNull Long userId) {
-		Order order = orderService.createFromCart(userId);
+	public CreatedOrderResponse create(@RequestParam("userId") @NotNull Long userId,
+										@RequestParam(value = "ebookId", required = false) Long ebookId) {
+		Order order;
+		if(ebookId != null) {
+			order = orderService.createDirectOrder(userId, ebookId);
+		} else {
+			order = orderService.createFromCart(userId);
+		}
+
 		return CreatedOrderResponse.from(order);
 	}
 	//결제 완료 처리: PATCH /orders/{id}/pay?userId=1

@@ -1,6 +1,7 @@
 package com.example.ebook.service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -8,14 +9,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import com.example.ebook.domain.CartItemRepository;
+import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.dto.CartLine;
 import com.example.ebook.dto.OrderDetail;
 import com.example.ebook.dto.OrderLine;
 import com.example.ebook.dto.OrderSummary;
 import com.example.ebook.entity.CartItem;
+import com.example.ebook.entity.Ebook;
 import com.example.ebook.entity.Order;
 import com.example.ebook.entity.OrderItem;
+import jakarta.validation.constraints.NotNull;
 
 /*
  * 장바구니 -> 주문전환
@@ -30,14 +34,20 @@ public class OrderService {
 	private final OrderRepository orderRepository;
 	private final CartItemRepository cartItemRepository;
 	private final CartService cartService;
+	private final EbookRepository ebookRepository;
+	private final OrderItem orderItem;
 	
 	public OrderService(OrderRepository orderRepository,
 						CartItemRepository cartItemRepository,
-						CartService cartService
+						CartService cartService,
+						EbookRepository ebookRepository,
+						OrderItem orderItem
 						) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
+		this.ebookRepository = ebookRepository;
+		this.orderItem = orderItem;
 	}
 	
 	/*
@@ -229,5 +239,36 @@ public class OrderService {
 				))
 				.toList();
 	}
+
+	//장바구니 거치지 않고 단건 주문생성
+	@Transactional
+    public Order createDirectOrder(Long userId, Long ebookId) {
+		//책 정보 조회
+		Ebook ebook = ebookRepository.findById(ebookId)
+						.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "책을 찾을 수 없습니다."));
+		
+		//비활성 상태 체크
+		if(!"ACTIVE".equals(ebook.getStatus())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "판매 중인 상품이 아닙니다.");
+		}
+
+		//주문 생성
+		Order order = new Order();
+		order.setUserId(userId);
+		order.setStatus("PENDING");
+		order.setCreatedAt(LocalDateTime.now());
+
+		orderRepository.save(order);
+
+		// //주문 상품 생성
+		// OrderItem item = new OrderItem();
+		// item.setOrder(order);
+		// item.setEbook(ebook);
+		// item.setPriceSnap(ebook.getPrice());
+
+		// orderItemRepository.save(item);
+		
+		return order;
+    }
 	
 }

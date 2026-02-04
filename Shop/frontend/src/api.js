@@ -170,8 +170,16 @@ export const AdminEbookApi = {
 //unwrap()을 통해 data만 반환
 export const OrdersApi = {
     //장바구니 -> 주문생성
-    create: () =>
-        unwrap(api.post("/orders", null, {params: {userId: getUserIdOrThrow()}})),
+    create: (ebookId = null) => {
+        const params = {userId: getUserIdOrThrow()};
+
+        //ebookId가 넘어왔다면 파라미터에 추가
+        if(ebookId) {
+            params.ebookId = ebookId;
+        }
+
+        return unwrap(api.post("/orders", null, {params}));
+    },
 
     //주문 목록 조회
     list: () =>
