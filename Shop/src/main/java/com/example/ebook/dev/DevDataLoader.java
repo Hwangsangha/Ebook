@@ -77,7 +77,7 @@ public class DevDataLoader implements CommandLineRunner{
 		ebookRepository.save(e4);
 		ebookRepository.save(e5);
 		
-		//----------cart----------------
+		/*//----------cart----------------
 		Cart cart = new Cart(1L);	//userId = 1
 		CartItem ci = new CartItem(cart, e1, 1, e1.getPrice());
 		cart.addItem(ci);
@@ -98,7 +98,7 @@ public class DevDataLoader implements CommandLineRunner{
 		order.addItem(oi);
 		
 		orderRepository.save(order);
-		
+		*/
 		System.out.println("Dev data loaded: 3 ebooks, 1 order, 1 cart (userId=1)");
 	}
 

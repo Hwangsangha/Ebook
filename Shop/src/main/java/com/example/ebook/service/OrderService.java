@@ -4,10 +4,14 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.example.ebook.controller.AdminEbookController;
 import com.example.ebook.domain.CartItemRepository;
 import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.domain.OrderItemRepository;
@@ -31,6 +35,8 @@ import com.example.ebook.entity.OrderItem;
 @Transactional	//중간에 에러나면 안되기 때문에 전부 롤백
 public class OrderService {
 
+    private final AdminEbookController adminEbookController;
+
 	private final OrderRepository orderRepository;
 	private final CartItemRepository cartItemRepository;
 	private final CartService cartService;
@@ -42,12 +48,13 @@ public class OrderService {
 						CartService cartService,
 						EbookRepository ebookRepository,
 						OrderItemRepository orderItemRepository
-						) {
+						, AdminEbookController adminEbookController) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
 		this.ebookRepository = ebookRepository;
 		this.orderItemRepository = orderItemRepository;
+		this.adminEbookController = adminEbookController;
 	}
 	
 	/*
@@ -247,9 +254,17 @@ public class OrderService {
 		Ebook ebook = ebookRepository.findById(ebookId)
 						.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "책을 찾을 수 없습니다."));
 		
-		//비활성 상태 체크
-		if(!"ACTIVE".equals(ebook.getStatus())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "판매 중인 상품이 아닙니다.");
+		//구매완료 확인(PAID) - 예외발생
+		if(orderRepository.existsByUserIdAndEbookIdAndStatus(userId, ebookId, "PAID")) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 구해하신 전자책 입니다.");
+		}
+
+		//결제 대기중 체크(PENDING)
+		Optional<Order> pendingOrder = orderRepository.findPendingOrder(userId, ebookId);
+
+		if(pendingOrder.isPresent()) {
+			//이미 내역이 있다면 새로 안만들고 기본 주문서 리턴
+			return pendingOrder.get();
 		}
 
 		//주문 생성
@@ -257,6 +272,11 @@ public class OrderService {
 		order.setUserId(userId);
 		order.setStatus("PENDING");
 		order.setCreatedAt(LocalDateTime.now());
+		//주문명 설정(선택)
+		//order.setOrderNumber(ebook.getTitle());
+		
+		//UUID로 고유 번호 생성
+		order.setOrderNumber(UUID.randomUUID().toString());
 
 		orderRepository.save(order);
 

@@ -26,5 +26,14 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
 			"AND o.status = 'PENDING'")
 	Optional<Order> findPendingOrder(@Param("userId") Long userId, @Param("ebookId") Long ebookId);
 
-	boolean existByUserIdAndEbookIdAndStatus(Long userId, Long ebookId, String Status);
+	@Query("SELECT COUNT(o) > 0 " +
+			"FROM Order o " +
+			"JOIN OrderItem oi ON oi.order = o " +
+			"WHERE o.userId = :userId " +
+			"AND oi.ebook.id = :ebookId " +
+			"AND o.status = :status")
+	boolean existsByUserIdAndEbookIdAndStatus(
+		@Param("userId") Long userId,
+		@Param("ebookId") Long ebookId,
+		@Param("status") String Status);
 }

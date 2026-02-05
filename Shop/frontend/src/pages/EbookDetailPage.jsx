@@ -6,6 +6,8 @@ function EbookDetailPage() {
   const { id } = useParams(); // URL의 /ebooks/:id 에서 id 추출
   const navigate = useNavigate(); // 버튼 클릭 시 페이지 이동
 
+  const BASE_URL = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+
   // 상세 데이터
   const [ebook, setEbook] = useState(null);
 
@@ -109,9 +111,9 @@ function EbookDetailPage() {
       <div style={{ display: "flex", gap: 16, marginTop: 16 }}>
         {/* 썸네일: 없으면 회색 박스 */}
         <div style={{ width: 200, height: 260, border: "1px solid #ddd", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {ebook.thumbnailUrl ? (
+          {ebook.thumbnail ? (
             <img
-              src={ebook.thumbnailUrl}
+              src={`${BASE_URL}/uploads/${ebook.thumbnail}`}
               alt="thumbnail"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />

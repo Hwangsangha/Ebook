@@ -40,6 +40,9 @@ public class SecurityConfig {
 
         //URL 별 접근 제어
         http.authorizeHttpRequests(auth -> auth
+                //첨부파일
+                .requestMatchers("/uploads/**").permitAll()
+                
                 //관리자 API는 ADMIN만
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 
