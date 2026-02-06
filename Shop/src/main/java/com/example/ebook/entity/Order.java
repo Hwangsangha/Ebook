@@ -38,7 +38,7 @@ public class Order {
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
 	
-	@Column(name = "order_number", nullable = false, length = 20)
+	@Column(name = "order_number", nullable = false, length = 50)
 	private String orderNumber;
 	
 	@Column(nullable = false, length = 20)
@@ -114,5 +114,4 @@ public class Order {
 	public List<OrderItem> getItems() { return items; }
 	public void setItems(List<OrderItem> items) { this.items = items; }
 
-	
 }

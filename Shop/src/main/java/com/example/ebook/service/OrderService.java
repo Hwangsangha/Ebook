@@ -35,8 +35,6 @@ import com.example.ebook.entity.OrderItem;
 @Transactional	//중간에 에러나면 안되기 때문에 전부 롤백
 public class OrderService {
 
-    private final AdminEbookController adminEbookController;
-
 	private final OrderRepository orderRepository;
 	private final CartItemRepository cartItemRepository;
 	private final CartService cartService;
@@ -47,14 +45,12 @@ public class OrderService {
 						CartItemRepository cartItemRepository,
 						CartService cartService,
 						EbookRepository ebookRepository,
-						OrderItemRepository orderItemRepository
-						, AdminEbookController adminEbookController) {
+						OrderItemRepository orderItemRepository) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
 		this.ebookRepository = ebookRepository;
 		this.orderItemRepository = orderItemRepository;
-		this.adminEbookController = adminEbookController;
 	}
 	
 	/*
@@ -277,6 +273,8 @@ public class OrderService {
 		
 		//UUID로 고유 번호 생성
 		order.setOrderNumber(UUID.randomUUID().toString());
+		order.setFinalAmount(ebook.getPrice());		//최종결제 금액 설정
+		order.setTotalAmount(ebook.getPrice());		//전체 금액 설정
 
 		orderRepository.save(order);
 
@@ -285,6 +283,9 @@ public class OrderService {
 		item.setOrder(order);
 		item.setEbook(ebook);
 		item.setPriceSnap(ebook.getPrice());
+		item.setTitleSnap(ebook.getTitle());
+		item.setQuantity(1);
+		item.setSubTotal(ebook.getPrice());
 
 		orderItemRepository.save(item);
 		
