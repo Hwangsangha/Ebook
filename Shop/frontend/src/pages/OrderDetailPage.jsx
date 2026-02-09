@@ -64,6 +64,34 @@ function OrderDetailPage() {
         }
     };
 
+    //결제 버튼
+    const handlePay = async () => {
+        const confirmPay = window.confirm("결제하시겠습니까?(가상결제)");
+        if(!confirmPay) return;
+
+        try {
+            //백엔드에 알림
+            const response = await fetch(`http://localhost:8080/api/orders/${id}/pay`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    //토큰이 필요하면 Authorization헤더 추가
+                },
+            });
+
+            if(response.ok) {
+                alert("결제가 완료되었습니다.");
+                window.location.reload();   //페이지 세로고침해서 상태 변경 확인
+            } else {
+                alert("결제 실패");
+            }
+        } catch(error) {
+            console.error("Payment Error:", error);
+            alert("에러가 발생했습니다.");
+        }
+    };
+    if(!order) return <div>로딩중</div>;
+
     if(loading && !detail) return <p className="ui-muted">불러오는 중...</p>        //초기 로딩
     if(!detail) return <p className="ui-muted">주문 정보가 없습니다.</p>        //없음 처리
 
@@ -130,7 +158,17 @@ function OrderDetailPage() {
                     </tbody>
                 </table>
             )}
-            <div style={{marginTop: 12, display: "flex", justifyContent: "flex-end"}}>
+            <div style={{marginTop: 20, display: "flex", justifyContent: "flex-end", gap: "10px"}}>
+                {/* 상태가 PENDING일 때만 결제 버튼 표시 */}
+                {status === "PENDING" && (
+                    <button
+                        className="ui-btn"
+                        style={{backgroundColor: "#007bff", color: "white", border: "none"}}
+                        onClick={handlePay}
+                    >
+                        결제하기
+                    </button>
+                )}
                 <button className="ui-btn" onClick={() => navigate("/orders")}>
                     목록으로
                 </button>
