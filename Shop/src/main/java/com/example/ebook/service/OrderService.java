@@ -1,7 +1,6 @@
 package com.example.ebook.service;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.example.ebook.controller.AdminEbookController;
 import com.example.ebook.domain.CartItemRepository;
 import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.domain.OrderItemRepository;
@@ -121,23 +119,12 @@ public class OrderService {
 		return saved;
 	}
 	
-//---------내부 유틸-----------
-	private String generateOrderNumber() {
-		// 길이 20자 맞춤: "ORD-"(4) + 16자리 대문자 HEX
-	    String hex = java.util.UUID.randomUUID().toString().replace("-", "");
-	    return "ORD-" + hex.substring(0, 16).toUpperCase();
-	}
-	
 	/*
 	 * 주문 상세조회
 	 Repository 별도 호출 없이 JPA 연관관계를 통해 아이템 조회
 	 */
 	@Transactional(readOnly = true)
 	public OrderDetail getDetail(Long userId, Long orderId) {
-		if(userId == null || orderId == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId and orderId are required");
-		}
-		
 		//주문 헤더 로드 없으면 404
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
@@ -185,8 +172,7 @@ public class OrderService {
 		}
 		
 		//상태체크
-		String s = order.getStatus();
-		if(!"PENDING".equalsIgnoreCase(s)) {
+		if(!"PENDING".equalsIgnoreCase(order.getStatus())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, " Order is not PENDING");
 		}
 		
@@ -196,21 +182,15 @@ public class OrderService {
 		//더티체킹으로 flush 되지만 명시적으로 저장해도 무방
 		orderRepository.save(order);
 
-		//결제 성공 후 장바구니 비우기
-		var cart = cartService.getOrCreateCart(userId);		//장바구니 확보
-		cartItemRepository.deleteAllByCartId(cart.getId());		//장바구니 전체 삭제
-		cart.touch();		//updated_at 갱신
 	}
 	
 	//주문 취소: PENDING만 가능
 	@Transactional
 	public void cancel(Long userId, Long orderId) {
-		if(userId == null || orderId == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId and orderId are required");
-		}
 		
-		var order = orderRepository.findById(orderId)
+		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
+
 		if(!order.getUserId().equals(userId)) {
 			//남의 주문은 존재자체를 숨김
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found");
@@ -225,6 +205,7 @@ public class OrderService {
 		orderRepository.save(order);	//명시 저장
 	}
 
+	//내 주문 목록 조회
 	@Transactional(readOnly = true)
 	public List<OrderSummary> getMyOrders(Long userId) {
 		if(userId == null) {
@@ -291,5 +272,12 @@ public class OrderService {
 		
 		return order;
     }
+
+	//---------내부 유틸-----------
+	private String generateOrderNumber() {
+		// 길이 20자 맞춤: "ORD-"(4) + 16자리 대문자 HEX
+	    String hex = java.util.UUID.randomUUID().toString().replace("-", "");
+	    return "ORD-" + hex.substring(0, 16).toUpperCase();
+	}
 	
 }

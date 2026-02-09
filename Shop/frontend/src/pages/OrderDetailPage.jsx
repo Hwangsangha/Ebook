@@ -66,8 +66,7 @@ function OrderDetailPage() {
 
     //결제 버튼
     const handlePay = async () => {
-        const confirmPay = window.confirm("결제하시겠습니까?(가상결제)");
-        if(!confirmPay) return;
+        if(!window.confirm("결제하시겠습니까?(가상결제)")) return;
 
         try {
             //백엔드에 알림
@@ -83,16 +82,16 @@ function OrderDetailPage() {
                 alert("결제가 완료되었습니다.");
                 window.location.reload();   //페이지 세로고침해서 상태 변경 확인
             } else {
-                alert("결제 실패");
+                const errorText = await response.text();
+                alert(`결제 실패: ${errorText}`);
             }
         } catch(error) {
             console.error("Payment Error:", error);
-            alert("에러가 발생했습니다.");
+            alert("결제 총 시스템 에러가 발생했습니다.");
         }
     };
-    if(!order) return <div>로딩중</div>;
 
-    if(loading && !detail) return <p className="ui-muted">불러오는 중...</p>        //초기 로딩
+    if(loading && !detail) return <div>로딩중</div>       //초기 로딩
     if(!detail) return <p className="ui-muted">주문 정보가 없습니다.</p>        //없음 처리
 
     const status = (detail.status || "").toUpperCase();     //상태 표기용
