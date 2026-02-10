@@ -43,6 +43,9 @@ public class SecurityConfig {
                 //첨부파일
                 .requestMatchers("/uploads/**").permitAll()
                 
+                //주문 관련 허용
+                .requestMatchers("/orders/**").permitAll()
+
                 //관리자 API는 ADMIN만
                 .requestMatchers("/admin/**").hasRole("ADMIN")
 

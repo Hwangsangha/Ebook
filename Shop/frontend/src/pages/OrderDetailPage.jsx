@@ -12,6 +12,7 @@ function OrderDetailPage() {
     const [detail, setDetail] = useState(null);     //주문 상세 테이터
     const [msg, setMsg] = useState("");     //안내/에러 메시지
     const [loading, setLoading] = useState(false);      //로딩 상태
+    const CURRENT_USER_ID = 1;
 
     useEffect(() => {       //페이지 진입 시 1회 호출
         const fetchDetail = async () => {       //상세 조회 함수
@@ -70,8 +71,8 @@ function OrderDetailPage() {
 
         try {
             //백엔드에 알림
-            const response = await fetch(`http://localhost:8080/api/orders/${id}/pay`, {
-                method: "POST",
+            const response = await fetch(`http://localhost:8080/orders/${id}/pay?userId=${CURRENT_USER_ID}`, {
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     //토큰이 필요하면 Authorization헤더 추가
