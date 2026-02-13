@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react"; // 상태/생명주기
 import { useNavigate, useParams } from "react-router-dom"; // url 파라미터(:id), 이동
-import api, { CartApi, EbookApi, OrdersApi } from "../api"; // api(직접 호출), CartApi(unwrap 적용)
+import api from "../api"; // api(직접 호출)
+import Header from "../components/Header";
+import "../styles/ui.css";
 
 function EbookDetailPage() {
   const { id } = useParams(); // URL의 /ebooks/:id 에서 id 추출
   const navigate = useNavigate(); // 버튼 클릭 시 페이지 이동
+  const [ebook, setEbook] = useState(null);  //상세 데이터
 
   const BASE_URL = import.meta.env.VITE_API_BASE || "http://localhost:8080";
-
-  // 상세 데이터
-  const [ebook, setEbook] = useState(null);
 
   // 로딩/메시지
   const [loading, setLoading] = useState(true);
@@ -40,18 +40,19 @@ function EbookDetailPage() {
   const handleAddToCart = async () => {
     setMsg("");
     try {
-      // 임시 유저 ID 필요하면 여기서 고정값으로 넣는다
-      const userId = 1;
-
-      await CartApi.addItem({
-        userId,
-        ebookId: Number(id),
-        quantity: 1,
+      // POST /carts?ebookId=
+      await api.post("/carts", null, {
+        params: {ebookId: Number(id)}
       });
 
-      setMsg("장바구니에 담김");
+      if(window.confirm("장바구니에 담겼습니다. 이동하시겠습니까?")) {
+        navigate("/cart");
+      } else {
+        setMsg("장바구니에 담김");
+      }
     } catch (e) {
-      setMsg(e.message || "담기 실패");
+      const errMsg = e.response?.data?.message || "담기 실패";
+      setMsg(errMsg);
       console.log("[ADD CART ERROR]", e);
     }
   };
@@ -68,10 +69,12 @@ function EbookDetailPage() {
 
     try {
       //주문 생성 API호출(백엔드 ebook.id를 보냄)
-      const response = await OrdersApi.create(ebook.id);
+      const response = await api.post("/orders", null, {
+        params: {ebookId: Number(id)}
+      });
 
       //생성된 주문 번호 가져오기
-      const newOrderId = response.id;
+      const newOrderId = response.data.orderId || response.data.id;
 
       alert("주문서가 생성되었습니다. 결제 페이지로 이동합니다.");
       navigate(`/orders/${newOrderId}`);    //새 주문서 페이지로 이동
@@ -80,9 +83,12 @@ function EbookDetailPage() {
       //에러 메시지 보여주기
       const errMsg = err.response?.data?.message || "주문에 실패했습니다.";
       alert(errMsg);
-    }
 
-    
+      //만약 로그인이 안되어 실패한거면(401), 로그인 페이지로 이동
+      if(err.response?.status === 401) {
+        navigate("/login");
+      }
+    }
   };
 
   if (loading) {

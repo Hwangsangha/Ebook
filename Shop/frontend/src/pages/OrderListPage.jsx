@@ -10,17 +10,12 @@ function OrderListPage() {
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState("");
 
-    //테스트용(로그인 연동 시 삭제)
-    const CURRENT_USER_ID = 1;
-
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                setLoading(ture);
-                //백엔드: GET /orders?userId=1
-                const res = await api.get("/orders", {
-                    params: {userId: CURRENT_USER_ID},
-                });
+                setLoading(true);
+                // /orders 호출하면 백엔드가 토큰 보고 주문
+                const res = await api.get("/orders");
                 setOrders(res.data);
             } catch(e) {
                 setMsg(e.message || "목록 조회 실패");
@@ -44,7 +39,7 @@ function OrderListPage() {
             
             {loading && <p>로딩 중</p>}
 
-            {!lodaing && orders.length === 0 ? (
+            {!loading && orders.length === 0 ? (
                 <p className="ui-muted">주문 내역이 없습니다.</p>
             ) : (
                 <table

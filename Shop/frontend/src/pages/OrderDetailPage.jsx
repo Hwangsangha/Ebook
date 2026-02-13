@@ -71,24 +71,17 @@ function OrderDetailPage() {
 
         try {
             //백엔드에 알림
-            const response = await fetch(`http://localhost:8080/orders/${id}/pay?userId=${CURRENT_USER_ID}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    //토큰이 필요하면 Authorization헤더 추가
-                },
-            });
+            const response = await api.patch(`/orders/${id}/pay`);
 
-            if(response.ok) {
-                alert("결제가 완료되었습니다.");
-                window.location.reload();   //페이지 세로고침해서 상태 변경 확인
-            } else {
-                const errorText = await response.text();
-                alert(`결제 실패: ${errorText}`);
-            }
+            // Axios는 status가 200번대면 성공으로 봄.
+            alert("결제가 완료되었습니다.");
+            window.location.reload();   //페이지 세로고침해서 상태 변경 확인
+            
         } catch(error) {
             console.error("Payment Error:", error);
-            alert("결제 총 시스템 에러가 발생했습니다.");
+            //에러 메시지 추출
+            const msg = error.response?.data?.message || "결제 중 에러가 발생했습니다.";
+            alert(msg);
         }
     };
 
