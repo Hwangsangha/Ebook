@@ -1,7 +1,6 @@
 package com.example.ebook.dev;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 
@@ -11,11 +10,7 @@ import com.example.ebook.domain.CartRepository;
 import com.example.ebook.domain.EbookRepository;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.domain.UserRepository;
-import com.example.ebook.entity.Cart;
-import com.example.ebook.entity.CartItem;
 import com.example.ebook.entity.Ebook;
-import com.example.ebook.entity.Order;
-import com.example.ebook.entity.OrderItem;
 import com.example.ebook.entity.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
