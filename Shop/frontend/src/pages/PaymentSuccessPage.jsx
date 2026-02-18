@@ -17,7 +17,7 @@ function PaymentSuccessPage() {
         //백엔드로 승인 요청 보내기
         async function confirm() {
             try {
-                await api.post("/payments/confirm", {
+                await api.post("/api/payments/confirm", {
                     paymentKey,
                     orderId,
                     amount: Number(amount),

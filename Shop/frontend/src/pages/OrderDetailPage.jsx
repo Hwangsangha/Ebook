@@ -82,7 +82,6 @@ function OrderDetailPage() {
             <Header/>
             <div style={{maxWidth: 800, margin: "0 auto", padding: 20}}>
                 <h2 className="ui-title">주문 상세</h2>
-                {msg && <p className="ui-muted" style={{color: "crimson"}}>{msg}</p>}
 
                 {/*주문 정보 테이블*/}
                 <div className="ui-grid">
