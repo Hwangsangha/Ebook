@@ -12,6 +12,7 @@ import RegisterPage from "./pages/RegisterPage";
 import { clearAuth } from "./api";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 
 
 function App() {
@@ -83,6 +84,14 @@ function App() {
         <Route
           path="/orders"
           element={<RequireAuth><OrderListPage/></RequireAuth>}/>
+
+        <Route
+          path= "/payment/success"
+          element= {<RequireAuth><PaymentSuccessPage/></RequireAuth>} />
+        
+        <Route
+          path="/payment/fail"
+          element={<RequireAuth><div style={{padding:50, textAlign:"center"}}>결제가 취소되었습니다.</div></RequireAuth>}/>
 
         {/* 관리자 라우트 */}
         <Route
