@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api";
 import Header from "../components/Header";
@@ -8,7 +8,14 @@ function PaymentSuccessPage() {
     const [searchParams] = useSearchParams();
     const [isConfirming, setIsConfirming] = useState(true);
 
+    //이미 요청 보냈는지 확인하는 스위치
+    const hasRequested = useRef(false);
+
     useEffect(() => {
+        //요청 반복 방지
+        if(hasRequested.current) return;
+        hasRequested.current = true;
+
         //URL에서 토스가 준 정보 꺼내기
         const paymentKey = searchParams.get("paymentKey");
         const orderId = searchParams.get("orderId");
@@ -17,7 +24,7 @@ function PaymentSuccessPage() {
         //백엔드로 승인 요청 보내기
         async function confirm() {
             try {
-                await api.post("/api/payments/confirm", {
+                await api.post("/payments/confirm", {
                     paymentKey,
                     orderId,
                     amount: Number(amount),
