@@ -10,8 +10,8 @@ function AdminEbooksPage() {
 
     //페이징 및 필터링 상태
     const [currentPage, setCurrentPage] = useState(0);      //현재 페이지
-    const [tatalPages, setTotalPages] = useState(1);        //전체 페이지 수
-    cosnt [filterStatus, setFilterStatus] = useState("ALL");        //필터 상태
+    const [totalPages, setTotalPages] = useState(1);        //전체 페이지 수
+    const [filterStatus, setFilterStatus] = useState("ALL");        //필터 상태
 
     //등록 폼 입력값(최소 필드만)
     const [createForm, setCreateForm] = useState({
