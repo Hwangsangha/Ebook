@@ -94,5 +94,5 @@ public class OrderItem {
 	public BigDecimal getPriceSnap() {return priceSnap;}
 	public int getQuantity() {return quantity;}
 	public BigDecimal getSubTotal() {return subTotal;}
-	public void setSubTotal(BigDecimal price) {this.subTotal = subTotal;}
+	public void setSubTotal(BigDecimal subTotal) {this.subTotal = subTotal;}
 }

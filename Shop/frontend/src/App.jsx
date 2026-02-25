@@ -13,50 +13,14 @@ import { clearAuth } from "./api";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderListPage from "./pages/OrderListPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import AdminOrdersPage from "./admin/AdminOrdersPage";
+import Header from "./components/Header";
 
 
 function App() {
-  const navigate = useNavigate();   //페이지 이동 여부
-  const isAuthed = !!localStorage.getItem("accessToken");   //로그인 여부
-  const role = localStorage.getItem("role");    //권한(USER/ADMIN)
-
-  const handleLogout = () => {    //로그아웃 처리
-    clearAuth();    //토큰/userId/role 삭제
-    navigate("/login");   //로그인으로 이동
-  }
-
   return (
     <div style={{padding: 24, fontFamily: "system-ui"}}>
-      <nav style={{marginBottom: 20, display: "flex", gap: 16, alignItems: "center"}}>
-        <Link to="/">Home</Link>
-        <Link to="/ebooks">전자책</Link>
-
-        {isAuthed && (    //로그인 했을때만
-          <>
-            <Link to="/cart">장바구니</Link>
-            <Link to="/orders">주문</Link>
-            <Link to="/summary">요약</Link>
-          </>
-        )}
-
-        {isAuthed && role === "ADMIN" && (    //ADMIN만 노출
-          <Link to="/admin/ebooks">관리자</Link>
-        )}
-
-        <div style={{marginLeft: "auto", display: "flex", gap: 12, alignItems: "center"}}>
-          {isAuthed ? (   //로그인 상태면
-            <>
-              <span style={{fontSize: 12, color: "#666"}}>role: {role}</span>   //역할 표시
-              <button onClick={handleLogout}>로그아웃</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login">로그인</Link>
-              <Link to="/register">회원가입</Link>
-            </>
-          )}
-        </div>
-      </nav>
+      <Header/>
 
       <Routes>
 
@@ -97,6 +61,9 @@ function App() {
         <Route
           path="/admin/ebooks"
           element={<RequireAdmin> <AdminEbooksPage /> </RequireAdmin>}/>
+
+        <Route
+          path="/admin/orders" element={<RequireAdmin><AdminOrdersPage /></RequireAdmin>} />
       </Routes>
     </div>
   );

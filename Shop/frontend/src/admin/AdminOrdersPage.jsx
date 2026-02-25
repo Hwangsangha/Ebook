@@ -117,4 +117,4 @@ function AdminOrdersPage() {
         </div>
     );
 }
-export default AdmingOrdersPage;
+export default AdminOrdersPage;

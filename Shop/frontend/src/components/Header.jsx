@@ -7,6 +7,9 @@ export default function Header() {
   //토큰 유무로 로그인 여부 판단
   const isLoggedIn = !!localStorage.getItem("accessToken");
 
+  //권한Role 가져오기
+  const role = localStorage.getItem("role");
+
   //링크 활성화 스타일 통일
   const linkClass = ({ isActive }) =>
     isActive ? "ui-link ui-link-active" : "ui-link";
@@ -19,8 +22,8 @@ export default function Header() {
   };
 
   return (
-    <div className="ui-headerbar">
-      <div className="ui-brand">Ebook</div>
+    <div style={{display: "flex", alignItems: "center", padding: "15px", borderBottom: "1px solid #ddd"}}>
+      <div style={{marginRight: 20, fontSize: "20px", fontWeight: "bold", color: "#333"}}>Ebook</div>
 
       {/* 왼쪽 상단 영역 */}
       <NavLink to="/" className={linkClass}>
@@ -31,8 +34,24 @@ export default function Header() {
         장바구니
       </NavLink>
 
+      {/* 관리자 전용 메뉴 */}
+      {role === "ADMIN" && (
+        <div style={{display: "flex", alignItems: "center", marginLeft: 15, paddingLeft: 15, borderLeft: "2px solid #ddd"}}>
+          <span style={{fontSize: "14px", fontWeight: "bold", color: "#8a2be2", marginRight: 10}}>
+            [관리자]
+          </span>
+          <NavLink to="/admin/ebooks" className={linkClass}>
+            전자책 관리
+          </NavLink>
+          <NavLink to="/admin/orders" className={linkClass}>
+            주문 관리
+          </NavLink>
+        </div>
+      )}
+
       {/* 오른쪽 상단 영역 */}
-      <div style={{marginLeft: "auto", display: "flex", gap: 12}}>
+      <div style={{marginLeft: "auto", display: "flex", gap: 12, alignItems: "center"}}>
+        {role && <span style={{fontSize: "12px", color: "#999"}}>role: {role}</span>}
         {isLoggedIn ? (
           //로그인 상태면 로그아웃 버튼 표시
           <button className="ui-link" onClick={handleLogout}>
