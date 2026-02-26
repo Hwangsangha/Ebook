@@ -6,23 +6,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.ebook.domain.OrderRepository;
+import com.example.ebook.dto.OrderDetail;
 import com.example.ebook.entity.Order;
+import com.example.ebook.service.AdminOrderService;
 
 @RestController
 @RequestMapping("/admin/orders")
 public class AdminOrderController {
 
-    private final OrderRepository orderRepository;
+    private final AdminOrderService adminOrderService;
 
-    public AdminOrderController(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    public AdminOrderController(AdminOrderService adminOrderService) {
+        this.adminOrderService = adminOrderService;
     }
 
     //관리자용: 모든 유저의 전체 주문 내역 조회
     @GetMapping
     public ResponseEntity<?> getAllOrders() {
-        //실제로는 페이징(Pageable) 처리를 하는게 좋지만, 일단 전체 목록을 가져옴
-        List<Order> allOrders = orderRepository.findAll();
+        //서비스에 DTO 요청명령
+        List<OrderDetail> allOrders = adminOrderService.getAllOrdersForAdmin();
 
         //데이터 바로 리턴
         return ResponseEntity .ok(allOrders);

@@ -207,7 +207,7 @@ export const OrdersApi = {
 
 export const AdminOrderApi = {
     //관리자: 전체 주문 내역 가져오기
-    list: () => unwrap(api.get("/admin/orers")),
+    list: () => unwrap(api.get("/admin/orders")),
 };
 
 export default api;
