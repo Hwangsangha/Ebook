@@ -24,7 +24,8 @@ import jakarta.persistence.UniqueConstraint;
 		},
 		indexes = {
 			@Index(name = "idx_dt_user", columnList = "user_id"),
-			@Index(name = "idx_dt_ebook", columnList = "ebook_id")
+			@Index(name = "idx_dt_ebook", columnList = "ebook_id"),
+			@Index(name = "idx_dt_order", columnList = "order_id")
 		}
 )
 public class DownloadToken {
@@ -92,4 +93,9 @@ public class DownloadToken {
 	public void setExpiresAt(LocalDateTime expiresAt) {this.expiresAt = expiresAt;}
 	
 	public LocalDateTime getCreatedAt() {return createdAt;}
+
+	//토큰 즉시 만료(환불 처리시 사용)
+	public void expireNow() {
+		this.expiresAt = LocalDateTime.now();
+	}
 }

@@ -20,4 +20,7 @@ public interface DownloadTokenRepository extends JpaRepository<DownloadToken, Lo
 	
 	//필요시: 만료 토큰 정리용
 	long deleteByExpiresAtBefore(LocalDateTime time);
+
+	//특정 주무능로 발급된 토큰 목록 조회(환불시 토큰 무효화)
+	List<DownloadToken> findByOrderId(Long orderId);
 }
