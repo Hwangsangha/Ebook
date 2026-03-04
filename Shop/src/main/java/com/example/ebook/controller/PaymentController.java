@@ -24,7 +24,7 @@ public class PaymentController {
     private final OrderRepository orderRepository;
 
     //토스 시크릿 키
-    @Value("${toss.secret0key:test_sk_DpexMgkW36GvjwPwJNjEVGbR5ozO}")
+    @Value("${toss.secret-key:test_sk_DpexMgkW36GvjwPwJNjEVGbR5ozO}")
     private String tossSecretKey;
 
     public PaymentController(OrderRepository orderRepository) {
