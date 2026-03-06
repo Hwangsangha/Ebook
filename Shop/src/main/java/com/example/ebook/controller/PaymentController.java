@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,19 +17,22 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.entity.Order;
+import com.example.ebook.service.OrderRefundService;
 
 @RestController
 @RequestMapping("/payments")
 public class PaymentController {
 
     private final OrderRepository orderRepository;
+    private final OrderRefundService orderRefundService;
 
     //토스 시크릿 키
     @Value("${toss.secret-key:test_sk_DpexMgkW36GvjwPwJNjEVGbR5ozO}")
     private String tossSecretKey;
 
-    public PaymentController(OrderRepository orderRepository) {
+    public PaymentController(OrderRepository orderRepository, OrderRefundService orderRefundService) {
         this.orderRepository = orderRepository;
+        this.orderRefundService = orderRefundService;
     }
 
     @PostMapping("/confirm")
@@ -71,6 +75,21 @@ public class PaymentController {
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(400).body(Map.of("message", "토스 승인 중 오류: " + e.getMessage()));
+        }
+    }
+
+    //결제 취소 API
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelPayment(@PathVariable Long orderId, @RequestBody Map<String, String> payload) {
+        String cancelReason = payload.getOrDefault("cancelReason", "단순 변심");    //프론트에서 사유 안보내면 기본값
+
+        try {
+            //트랜잭션 서비스 호출
+            orderRefundService.cancelAndRefundOrder(orderId, cancelReason);
+            return ResponseEntity.ok().body(Map.of("message", "결제 취소 및 토큰 만료가 완료되었습니다."));
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(Map.of("message", "결제 취소 실패: " + e.getMessage()));
         }
     }
 }

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.example.ebook.client.TossPaymentClient;
 import com.example.ebook.controller.AdminEbookController;
 import com.example.ebook.controller.AdminOrderController;
 import com.example.ebook.domain.DownloadTokenRepository;
@@ -15,19 +17,14 @@ import com.example.ebook.entity.Order;
 @Service
 public class OrderRefundService {
 
-    private final AdminOrderController adminOrderController;
-
-    private final AdminEbookController adminEbookController;
-
     private final OrderRepository orderRepository;
     private final DownloadTokenRepository tokenRepository;
-    //private final TossPaymentClient tossPaymentClient; //토스 API 통신용
+    private final TossPaymentClient tossPaymentClient; //토스 API 통신용
 
-    public OrderRefundService(OrderRepository orderRepository, DownloadTokenRepository tokenRepository, AdminEbookController adminEbookController, AdminOrderController adminOrderController) {
+    public OrderRefundService(OrderRepository orderRepository, DownloadTokenRepository tokenRepository, TossPaymentClient tossPaymentClient) {
         this.orderRepository = orderRepository;
         this.tokenRepository = tokenRepository;
-        this.adminEbookController = adminEbookController;
-        this.adminOrderController = adminOrderController;
+        this.tossPaymentClient = tossPaymentClient;
     }
 
     @Transactional
@@ -41,8 +38,8 @@ public class OrderRefundService {
        }
 
        //2.외부 API 호출(토스페이먼츠 결제 취소)
-       //tossPaymentClient.cancelPayment(order.getOrderNumber(), cancelReason);
        //에러 시 DB업데이트 로직은 실행되지 않고 롤백됨
+       tossPaymentClient.cancelPayment(order.getOrderNumber(), cancelReason);
 
        //내부 DB: 주문 상태를 취소로 변경
        order.setStatus("CANCELLED");
