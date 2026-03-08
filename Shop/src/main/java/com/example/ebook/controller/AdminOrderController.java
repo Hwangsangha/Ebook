@@ -5,9 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.dto.OrderDetail;
-import com.example.ebook.entity.Order;
 import com.example.ebook.service.AdminOrderService;
 
 @RestController

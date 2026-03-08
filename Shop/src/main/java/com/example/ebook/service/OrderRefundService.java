@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.ebook.client.TossPaymentClient;
-import com.example.ebook.controller.AdminEbookController;
-import com.example.ebook.controller.AdminOrderController;
 import com.example.ebook.domain.DownloadTokenRepository;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.entity.DownloadToken;
