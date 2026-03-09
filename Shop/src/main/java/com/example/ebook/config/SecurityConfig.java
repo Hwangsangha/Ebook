@@ -61,6 +61,9 @@ public class SecurityConfig {
                 //다운로드 경로(URL에 토큰)
                 .requestMatchers("/downloads/**").permitAll()
 
+                //테스트용 환불 허용
+                .requestMatchers("/payments/*/cancel").permitAll()
+
                 //그 외는 로그인 필요
                 .anyRequest().authenticated()
         );

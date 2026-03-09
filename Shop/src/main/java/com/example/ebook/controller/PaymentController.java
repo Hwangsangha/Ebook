@@ -80,7 +80,7 @@ public class PaymentController {
 
     //결제 취소 API
     @PostMapping("/{orderId}/cancel")
-    public ResponseEntity<?> cancelPayment(@PathVariable Long orderId, @RequestBody Map<String, String> payload) {
+    public ResponseEntity<?> cancelPayment(@PathVariable("orderId") Long orderId, @RequestBody Map<String, String> payload) {
         String cancelReason = payload.getOrDefault("cancelReason", "단순 변심");    //프론트에서 사유 안보내면 기본값
 
         try {
