@@ -18,6 +18,10 @@ import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 /*
  * 주문 
@@ -25,6 +29,8 @@ import jakarta.persistence.UniqueConstraint;
  * 금액은 BigDecimal
  */
 @Entity
+@Builder
+@AllArgsConstructor
 @Table(
 		name = "orders",
 		indexes = {@Index(name = "idx_orders_user", columnList = "user_id")},

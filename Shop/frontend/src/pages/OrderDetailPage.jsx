@@ -74,6 +74,28 @@ function OrderDetailPage() {
         }
     };
 
+    // 결제 취소 핸들러
+    const handleCancel = async () => {
+        if(!window.confirm("정말로 결제를 취소하고 환불받으시겠습니까?")) return;
+
+        try {
+            //api(axios)객체를 활용해 취소 api 호출
+            await api.post(`/payments/${id}/cancel`, {
+                cancelReason: "사용자 단순 변심(화면에서 직접 취소)"
+            });
+
+            alert("결제 취소 및 환불이 정상적으로 완료되었습니다.");
+
+            //상태를 다시 불러오기 위해 화면을 새로고침(CANCELLED로 변경됨)
+            window.location.reload();
+        } catch(error) {
+            console.error("환불 에러: ", error);
+            //백엔드에서 던진 메시지가 있다면 보여주고, 아니면 기본 메시지
+            const errMsg = error.response?.data?.message || "결제 취소 중 오류가 발생했습니다.";
+            alert("환불 실패: " + errMsg);
+        }
+    };
+
     if(loading) return <div style={{padding: 20}}>로딩중</div>       //초기 로딩
     if(!detail) return <div style={{padding: 20}}>주문 정보가 없습니다.</div>        //없음 처리
 
@@ -130,6 +152,19 @@ function OrderDetailPage() {
                             onClick={handlePay}
                         >
                             결제하기
+                        </button>
+                    </div>
+                )}
+
+                {/* 결제 취소 버튼 영역 */}
+                {detail.status === "PAID" && (
+                    <div style={{marginTop: 40, textAlign: "center"}}>
+                        <button
+                            className="ui-btn"
+                            style={{width: "100%", backgroundColor: "#FF4444", color: "white", height: 50, fontSize: 16}}
+                            onClick={handleCancel}
+                        >
+                            결제 취소(환불하기)
                         </button>
                     </div>
                 )}
