@@ -15,6 +15,7 @@ import OrderListPage from "./pages/OrderListPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import AdminOrdersPage from "./admin/AdminOrdersPage";
 import Header from "./components/Header";
+import MyOrderListPage from "./pages/MyOrderListPage";
 
 
 function App() {
@@ -56,6 +57,10 @@ function App() {
         <Route
           path="/payment/fail"
           element={<RequireAuth><div style={{padding:50, textAlign:"center"}}>결제가 취소되었습니다.</div></RequireAuth>}/>
+
+        <Route
+          path="/orders"
+          element={<RequireAuth><MyOrderListPage/></RequireAuth>} />
 
         {/* 관리자 라우트 */}
         <Route

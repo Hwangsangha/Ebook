@@ -34,6 +34,13 @@ export default function Header() {
         장바구니
       </NavLink>
 
+      {/* 로그인 유저에게만 마이페이지 노출 */}
+      {isLoggedIn && (
+        <NavLink to="/orders" className={linkClass}>
+          마이페이지
+        </NavLink>
+      )}
+
       {/* 관리자 전용 메뉴 */}
       {role === "ADMIN" && (
         <div style={{display: "flex", alignItems: "center", marginLeft: 15, paddingLeft: 15, borderLeft: "2px solid #ddd"}}>

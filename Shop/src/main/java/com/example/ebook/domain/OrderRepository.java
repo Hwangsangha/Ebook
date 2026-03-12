@@ -36,4 +36,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
 		@Param("userId") Long userId,
 		@Param("ebookId") Long ebookId,
 		@Param("status") String Status);
+
+	@Query("SELECT o FROM Order o JOIN User u ON o.userId = u.id WHERE u.email = :email ORDER BY o.id DESC")
+	List<Order> findByUserEmailOrderMyIdDesc(@Param("email") String email);
 }
