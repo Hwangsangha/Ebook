@@ -103,7 +103,7 @@ public class OrderController {
 	}
 
 	//주문 목록 조회: GET /orders?userId=1
-	@GetMapping("/my")
+	@GetMapping
 	public List<OrderSummary> list(Principal principal) {
 		Long userId = getUserId(principal);
 		return orderService.getMyOrders(userId);
