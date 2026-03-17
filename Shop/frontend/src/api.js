@@ -103,7 +103,10 @@ export const AuthApi = {
 
 //전자책 관련 API
 export const EbookApi = {
-    list() {return unwrap(api.get("/api/ebooks"))},
+    list(q = "") {
+        return url = q ? `/api/ebooks?q=${encodeURIComponent(q)}` : "/api/ebooks";
+        return unwrap(api.get(url));
+    },
 
     get(id) {return unwrap(api.get(`/api/ebooks/${id}`))}
 };
