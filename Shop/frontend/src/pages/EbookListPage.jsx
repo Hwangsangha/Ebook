@@ -24,14 +24,25 @@ function EbookListPage() {
         //EbookApi.list에 검색어 전달
         EbookApi.list(q)
             .then(data => {
-                setEbooks(data.items || []); //결과가 없을 대를 대비해 빈 배열 풀백
+                //응답 구조가 달라졌을까봐 안전장치 추가
+                if(data && data.items) {
+                    setEbooks(data.items);
+                } else if(data && data.content) {
+                    setEbooks(data.content);    //items가 아니라 content일 경우 
+                } else {
+                    setEbooks([]);
+                }
                 setLoading(false);
             })
             .catch(err => {
-                setError(err.message);
+                setError(err.message || "데이터를 불러오지 못했습니다.");
                 setLoading(false);
             });
-    }
+    };
+
+    useEffect(() => {
+        fetchEbooks("");    //처음에 빈 검색어로 전체 목록 호출
+    }, []);
 
     if (loading) return <p>불러오는 중...</p>;
     if (error) return <p>에러: {error}</p>;
@@ -80,7 +91,7 @@ function EbookListPage() {
                         <div className="ui-row" key={e.id}>
                             <div 
                                 className="col-title ellipsis"
-                                style={{cursor: "pointer"}}
+                                style={{cursor: "pointer", fontWeight: "bold"}}
                                 onClick={() => navigate(`/ebooks/${e.id}`)}
                                 >
                                     {e.title}
