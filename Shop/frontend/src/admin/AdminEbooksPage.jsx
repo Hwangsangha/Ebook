@@ -39,15 +39,17 @@ function AdminEbooksPage() {
     //관리자 접근 최소 가드
     //role이 ADMIN이 아니면 접근 차단
     useEffect(() => {
-        fetchList();    //처음 한번 목록 가져오기
         const role = localStorage.getItem("role");  //임시 로그인에서 저장한 role
         if(role !== "ADMIN") {
             setMsg("ADMIN만 접근 가능");
+            return;
         }
-    }, []);
+        //페이지 번호나 상태가 바뀔 때마다 다시 호출
+        fetchList();
+    }, [currentPage, filterStatus]);
 
     //목록 조회
-    const fetchList = async () => {
+    const fetchList = async (page = 0, status = "ALL") => {
         setMsg("");
         try {
             const data = await AdminEbookApi.list(); //unwrap으로 데이터 받기
@@ -61,6 +63,15 @@ function AdminEbooksPage() {
                 : [];
 
             setEbooks(list);
+
+            if(data && data.total !== undefined && data.size) {
+                setTotalPages(Math.ceil(data.total / data.size));
+            } else if(data && data.totalPages !== undefined) {
+                setTotalPages(data.totalPages); //혹시 totalPages로 내려올 경우 대비
+            } else {
+                setTotalPages(1);   //계산 안 되면 일단 1페이지로 설정
+            }
+
         } catch(e) {
             setMsg(e.message || "목록 조회 실패");
             setEbooks([]);  //실패 시에도 화면이 꺠지지 않게 빈 배열로
