@@ -50,7 +50,7 @@ public class AdminEbookController {
         @RequestParam(name = "page", defaultValue = "0")
         @Min(value = 0, message = "page는 0 이상이어야 합니다.")
         int page, //페이지 번호
-        @RequestParam(name = "size", defaultValue = "50")
+        @RequestParam(name = "size", defaultValue = "10")
         @Min(value = 1, message = "size는 1 이상이어야 합니다.")
         @Max(value = 200, message = "size는 200이하여야 합니다.")
         int size, //페이지 크기

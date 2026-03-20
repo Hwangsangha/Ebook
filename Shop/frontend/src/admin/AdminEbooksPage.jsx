@@ -49,23 +49,25 @@ function AdminEbooksPage() {
     }, [currentPage, filterStatus]);
 
     //목록 조회
-    const fetchList = async (page = 0, status = "ALL") => {
+    const fetchList = async () => {
         setMsg("");
         try {
-            const data = await AdminEbookApi.list(); //unwrap으로 데이터 받기
-            // ✅ 서버 응답 형태가 달라도 목록 배열을 뽑아내는 정규화
+            //api에 page, size(10고정), status를 순서대로 반환
+            const data = await AdminEbookApi.list(currentPage, 10, filterStatus);
+            // 서버 응답 형태가 달라도 목록 배열을 뽑아내는 정규화
             // 1) data 자체가 배열이면 그대로 사용
             // 2) 페이지 응답이면 content/items 같은 필드에서 꺼내기
             const list = Array.isArray(data) ? data
                 : Array.isArray(data?.content) ? data.content
                 : Array.isArray(data?.items) ? data.items
-                :Array.isArray(data?.data) ?data.data
+                : Array.isArray(data?.data) ? data.data
                 : [];
 
             setEbooks(list);
 
-            if(data && data.total !== undefined && data.size) {
-                setTotalPages(Math.ceil(data.total / data.size));
+            const pageSize = data?.size || 10;
+            if(data && data.total !== undefined) {
+                setTotalPages(Math.ceil(data.total / pageSize));
             } else if(data && data.totalPages !== undefined) {
                 setTotalPages(data.totalPages); //혹시 totalPages로 내려올 경우 대비
             } else {
