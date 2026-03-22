@@ -37,6 +37,9 @@ public class Ebook {
     @Column(length = 20)
     private String status; // ACTIVE/INACTIVE/DRAFT 등
 
+    @Column(length = 50)
+    private String category;    //예: IT, NOVEL, BUSINESS 등
+
     @Column(name = "thumbnail_path", length = 500)
     private String thumbnailPath;
 
@@ -69,6 +72,9 @@ public class Ebook {
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
 
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    
     public String getThumbnailPath() { return thumbnailPath; }
     public void setThumbnailPath(String thumbnailPath) { this.thumbnailPath = thumbnailPath; }
 
@@ -92,6 +98,7 @@ public class Ebook {
         this.createdAt = Instant.now();
 
         //명시적 null 초기화
+        this.category = "ETC";  //ETC로 기본 카테고리 설정
         this.thumbnailPath = null;
         this.filePath = null;
         this.originalFileName = null;

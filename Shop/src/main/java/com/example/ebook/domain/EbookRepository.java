@@ -23,4 +23,10 @@ public interface EbookRepository extends JpaRepository<Ebook, Long>{
     Page<Ebook> findByStatus(String status, Pageable pageable);
     
     Page<Ebook> findByStatusAndTitleContainingIgnoreCase(String status, String title, Pageable pageable);
+
+    //상태 + 카테고리 + 페이징 조회
+    Page<Ebook> findByStatusAndCategory(String status, String category, Pageable pageable);
+
+    //상태 + 카테고리 + 검색어(제목) + 페이징 조회
+    Page<Ebook> findByStatusAndCategoryAndTitleContainingIgnoreCase(String status, String category, String title, Pageable pageable);
 }
