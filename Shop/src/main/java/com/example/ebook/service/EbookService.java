@@ -49,6 +49,22 @@ public class EbookService {
 		}
 		return ebookRepository.findByStatusAndTitleContainingIgnoreCase("ACTIVE", q.trim(), pageable);
 	}
+
+	//카테고리, 검색어, 페이징 처리 메서드
+	public Page<Ebook> listActivePage(String category, String q, Pageable pageable) {
+		boolean hasCategory = category != null && !category.isBlank() && !category.equals("ALL");
+		boolean hasSearch = q != null && !q.isBlank();
+
+		if(hasCategory && hasSearch) {
+			return ebookRepository.findByStatusAndCategoryAndTitleContainingIgnoreCase("ACTIVE", category.trim(), q.trim(), pageable);
+		} else if(hasCategory) {
+			return ebookRepository.findByStatusAndCategory("ACTIVE", category.trim(), pageable);
+		} else if(hasSearch) {
+			return ebookRepository.findByStatusAndTitleContainingIgnoreCase("ACTIVE", q.trim(), pageable);
+		} else {
+			return ebookRepository.findByStatus("ACTIVE", pageable);
+		}
+	}
 	
 	//단건 조회(없으면 예외)
 	public Ebook getById(Long id) {
@@ -59,7 +75,7 @@ public class EbookService {
 	//이북생성
 	//제목, 가격 필수 검증
 	//status 기본값 미지정시 active로 지정
-	public Ebook create(String title, String author, BigDecimal price, String status, String thumbnailPath, 
+	public Ebook create(String title, String author, BigDecimal price, String status, String category, String thumbnailPath, 
 						String filePath, String originalFileName) {
 		if(title == null || title.isBlank()) {
 			throw new IllegalArgumentException("title is required");
@@ -72,6 +88,7 @@ public class EbookService {
 		e.setAuthor(author);
 		e.setPrice(price);
 		e.setStatus(status == null || status.isBlank() ? "ACTIVE" : status.trim());
+		e.setCategory(category == null || category.isBlank() ? "ETC" : category.trim());
 		e.setThumbnailPath(thumbnailPath);
 		e.setFilePath(filePath);
 		e.setOriginalFileName(originalFileName);
@@ -82,7 +99,7 @@ public class EbookService {
 	//이북 정보 수정, 널이 아닌 값만 반영
 	//제목, 저자, 가격, 썸네일, 상태를 선택적으로 갱신
 	@Transactional
-	public Ebook update(Long id, String title, String author, BigDecimal price, String thumbnail, String status) {
+	public Ebook update(Long id, String title, String author, BigDecimal price, String thumbnail, String status, String category) {
 		Ebook e = getById(id); //존재 확인
 		if(title != null && !title.isBlank()) e.setTitle(title.trim()); //제목 변경 null이면 변경 안함, 제목 앞뒤 공백 제거
 		if(author != null) e.setAuthor(author);
@@ -92,7 +109,8 @@ public class EbookService {
 		} // 새 가격 null이면 변경 안함, 0원 이상만 허용
 		if(thumbnail != null)e.setThumbnailPath(thumbnail); // null이면 변경안함
 		if(status != null && !status.isBlank()) e.setStatus(status.trim()); //새 상태 null이면 변경안함, 앞뒤 공백제거
-		
+		if(category != null && !category.isBlank()) e.setCategory(category.trim());
+
 		return ebookRepository.save(e);
 	}
 	

@@ -89,7 +89,8 @@ public class AdminEbookController {
             @RequestParam("price") BigDecimal price,
             @RequestParam("status") String status,
             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
-            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException{
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(name = "category", defaultValue = "ALL") String category) throws IOException{
         
         //파일 저장(FileStore 위임)
         String thumbnailPath = fileStore.storeFile(thumbnail);
@@ -102,6 +103,7 @@ public class AdminEbookController {
             author,
             price,
             status,
+            category,
             thumbnailPath,
             filePath,
             originalFileName
@@ -118,7 +120,8 @@ public class AdminEbookController {
             req.author(),
             req.price(),
             req.thumbnail(),
-            req.status()
+            req.status(),
+            req.category()
         );
                                     
         return EbookResponse.from(updated); //DTO 변환

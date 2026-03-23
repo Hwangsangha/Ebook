@@ -10,6 +10,7 @@ public class EbookResponse {
     public String title;
     public String author;
     public BigDecimal price;
+    public String category;
     public String thumbnail;
     public String status;
 
@@ -20,6 +21,7 @@ public class EbookResponse {
         r.author = e.getAuthor();
         r.price = e.getPrice();
         r.thumbnail = e.getThumbnailPath();
+        r.category = e.getCategory();
         r.status = e.getStatus();
         return r;
     }

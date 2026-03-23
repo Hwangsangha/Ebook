@@ -54,13 +54,12 @@ public class EbookController {
 			@Min(0) int page,
 			@RequestParam(name = "size", defaultValue = "10")
 			@Min(0) @Max(100) int size,
-			@RequestParam(name = "q", required = false) String q) {
+			@RequestParam(name = "q", required = false) String q,
+			@RequestParam(name = "category", defaultValue = "ALL") String category) {
 	    
 		var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-		Page<Ebook> pageResult = (q == null || q.isBlank())
-				? ebookService.listActivePage(pageable)
-				: ebookService.listActivePage(q.trim(), pageable);
+		Page<Ebook> pageResult = ebookService.listActivePage(category, q, pageable);
 
 		return PageResponse.of(
 				pageResult.getContent().stream().map(EbookResponse::from).toList(),
@@ -91,7 +90,8 @@ public class EbookController {
 				req.author(),
 				req.price(),
 				req.thumbnail(),
-				req.status()
+				req.status(),
+				req.category()
 		);
 		return EbookResponse.from(updated);
 	}
@@ -124,7 +124,7 @@ public class EbookController {
 		}
 		
 		//서비스의 부분 수정 사용: status만 변경
-		var updated = ebookService.update(id, null, null, null, null, s);
+		var updated = ebookService.update(id, null, null, null, null, s, null);
 		return EbookResponse.from(updated);
 	}
 	
@@ -139,7 +139,8 @@ public class EbookController {
 			@DecimalMin(value = "0.0", inclusive = true, message = "price는 0원 이상입니다.")
 			BigDecimal price,
 			String thumbnail,
-			String status
+			String status,
+			String category
 	) {}
 	
 	//부분수정요청 DTO
@@ -151,7 +152,8 @@ public class EbookController {
 			String author,
 			BigDecimal price,
 			String thumbnail,
-			String status
+			String status,
+			String category
 	) {}
 	
 	public static class StatusRequest{
