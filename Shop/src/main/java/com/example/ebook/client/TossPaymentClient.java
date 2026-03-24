@@ -3,8 +3,6 @@ package com.example.ebook.client;
 import java.util.Base64;
 import java.util.Map;
 
-import com.example.ebook.controller.AdminEbookController;
-import com.example.ebook.controller.AdminOrderController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

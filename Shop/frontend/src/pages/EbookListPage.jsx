@@ -23,6 +23,18 @@ function EbookListPage() {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);    //전체 페이지 수
 
+    //카테고리 상태(기본값 ALL)
+    const [category, setCategory] = useState("ALL");
+
+    //화면에 보여줄 카테고리 목록 정의
+    const CATEGORIES = [
+        {id: "ALL", label: "전체"},
+        {id: "IT", label: "IT/프로그래밍"},
+        {id: "NOVEL", label: "소설/문학"},
+        {id: "BUSINESS", label: "경제/경영"},
+        {id: "ETC", label: "기타"}
+    ];
+
     //데이터 불러오는 로직을 별도 함수로 분리(검색어 q를 받음)
     const fetchEbooks = (q = "", page = 0) => {
         setLoading(true);
@@ -57,13 +69,19 @@ function EbookListPage() {
 
     //처음 렌더링 되거나, currentPage가 바뀔때마다 데이터를 다시 불러옴
     useEffect(() => {
-        fetchEbooks(keyword, currentPage);    //처음에 빈 검색어로 전체 목록 호출
-    }, [currentPage]);
+        fetchEbooks(keyword, currentPage, category);    //처음에 빈 검색어로 전체 목록 호출
+    }, [currentPage, category]);
 
     //검색 버튼 눌렀을 때 실행되는 함수
     const handleSearch = () => {
         setCurrentPage(0);
-        fetchEbooks(keyword, 0);
+        fetchEbooks(keyword, 0, category);
+    };
+
+    //카테고리 버튼
+    const handleCategoryClick = (catId) => {
+        setCategory(catId);
+        setCurrentPage(0);  //카테고리 바뀌면 무조건 1페이지로 리셋
     };
 
     if (loading) return <p style={{padding: 20}}>불러오는 중...</p>;
@@ -73,6 +91,28 @@ function EbookListPage() {
         <div className="ui-page">
             <Toast message={toast}/>
             <h1 className="ui-title">전자책 목록</h1>
+
+            {/* 카테고리 탭 ui */}
+            <div style={{display: "flex", gap: "10px", marginBottom: "20px", overflow: "auto"}}>
+                {CATEGORIES.map(c => (
+                    <button
+                        key={c.id}
+                        onClick={() => handleCategoryClick(c.id)}
+                        style={{
+                            padding: "8px 16px",
+                            borderRadius: "20px",
+                            border: "1px solid #ddd",
+                            backgroundColor: category === c.id ? "#3366FF" : "#fff",
+                            color: category === c.id ? "#fff" : "#333",
+                            fontWeight: category === c.id ? "bold" : "normal",
+                            cursor: "pointer",
+                            whiteSpace: "nowrap"
+                        }}
+                    >
+                        {c.label}
+                    </button>
+                ))}
+            </div>
 
             {/* 검색창 ui */}
             <div style={{display: "flex", gap: "10px", marginBottom: "20px"}}>
@@ -112,6 +152,10 @@ function EbookListPage() {
                                     style={{cursor: "pointer", fontWeight: "bold"}}
                                     onClick={() => navigate(`/ebooks/${e.id}`)}
                                     >
+                                        {/* 카테고리 뱃지 */}
+                                        <span style={{fontSize: "12px", color: "#666", marginTop: "8px", border: "1px solid #eee", padding: "2px 6px", borderRadius: "4px"}}>
+                                            {CATEGORIES.find(c => c.id === (e.category || "ETC"))?.label || "기타"}
+                                        </span>
                                         {e.title}
                                 </div>
                                 <div className="col-author ellipsis">{e.author}</div>

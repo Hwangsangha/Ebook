@@ -103,8 +103,8 @@ export const AuthApi = {
 
 //전자책 관련 API
 export const EbookApi = {
-    list(q = "", page = 0, size = 10) {
-        let url = `/api/ebooks?page=${page}&size=${size}`;
+    list(q = "", page = 0, size = 10, category = "ALL") {
+        let url = `/api/ebooks?page=${page}&size=${size}&category=${category}`;
         if(q) {
             url += `&q=${encodeURIComponent(q)}`;   //검색어가 있으면 주소 뒤에 추가
         }
