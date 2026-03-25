@@ -18,6 +18,7 @@ function AdminEbooksPage() {
         title: "",
         price: "",
         status: "ACTIVE",
+        category: "ETC",
     });
     //파일 입력값 상태(파일 객체 저장용)
     const [thumbnail, setThumbnail] = useState(null);
@@ -31,6 +32,7 @@ function AdminEbooksPage() {
         title: "",
         price: "",
         status: "ACTIVE",
+        category: "ETC",
     });
 
     const [loading, setLoading] = useState(false);
@@ -104,7 +106,8 @@ function AdminEbooksPage() {
             formData.append("title", createForm.title);
             formData.append("price", Number(createForm.price));
             formData.append("status", createForm.status);
-            //formData.append("author", "작가명");  //필요시 추가
+            formData.append("author", "작가명");  //필요시 추가
+            formData.append("category", createForm.category);
 
             //파일 데이터 담기
             if(thumbnail) {
@@ -118,7 +121,7 @@ function AdminEbooksPage() {
             await AdminEbookApi.create(formData);
 
             //초기화
-            setCreateForm({title: "", price: "", status: "ACTIVE"});
+            setCreateForm({title: "", price: "", status: "ACTIVE", category: "ETX"});
             setThumbnail(null);
             setFile(null);
 
@@ -159,6 +162,7 @@ function AdminEbooksPage() {
                 title: editForm.title,
                 price: Number(editForm.price),
                 status: editForm.status,
+                category: editForm.category,
             };
 
             await AdminEbookApi.update(id, payload);    //관리자 수정 API
@@ -197,13 +201,14 @@ function AdminEbooksPage() {
             title: ebook.title ?? "",           // 기존 제목을 폼에 채용
             price: String(ebook.price ?? ""),   // input은 문자열이 안전
             status: ebook.status ?? "ACTIVE",   // 기존 상태를 폼에 채움
+            category: ebook.category ?? "ETC", // 기존 카테고리값 불러오기
         });
     };
 
     // 수정 취소: 수정모드 종료 + 폼 초기화
     const cancelEdit = () => {
         setEditingId(null); // 수정모드 종료
-        setEditForm({title: "", price: "", status: "ACTIVE"});  //폼 초기화
+        setEditForm({title: "", price: "", status: "ACTIVE", category: "ETC"});  //폼 초기화
     }
 
     // role이 ADMIN이 아니면 안내만 보여주고 UI는 숨김(최소 가드)
@@ -231,6 +236,15 @@ function AdminEbooksPage() {
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 15 }}>
                     <input placeholder="제목" value={createForm.title} onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })} style={{ flex: 1, padding: 8 }} />
                     <input type="number" placeholder="가격" value={createForm.price} onChange={(e) => setCreateForm({ ...createForm, price: e.target.value })} style={{ width: 120, padding: 8 }} />
+                    
+                    {/* 카테고리 선택 영역 */}
+                    <select>
+                        <option value="ETC">기타</option>
+                        <option value="IT">IT/프로그래밍</option>
+                        <option value="NOVEL">소설/문학</option>
+                        <option value="BUSINESS">경제/경영</option>
+                    </select>
+                    
                     <select value={createForm.status} onChange={(e) => setCreateForm({ ...createForm, status: e.target.value })} style={{ padding: 8 }}>
                         <option value="ACTIVE">ACTIVE</option>
                         <option value="INACTIVE">INACTIVE</option>
@@ -266,6 +280,7 @@ function AdminEbooksPage() {
                 <button onClick={() => fetchList(currentPage, filterStatus)} style={{ padding: "6px 12px", cursor: "pointer" }}>↻ 새로고침</button>
             </div>
 
+            {/* 목록영역 */}
             {ebooks.length === 0 ? (
                 <div style={{ textAlign: "center", padding: 50, border: "1px solid #ddd", borderRadius: 8 }}>
                     <p style={{ color: "#666" }}>표시할 전자책이 없습니다.</p>
@@ -296,6 +311,25 @@ function AdminEbooksPage() {
                                                 <span style={{ fontSize: 12, color: "#ccc" }}>No Image</span>
                                             )}
                                         </td>
+
+                                        {/* 카테고리 수정영역 */}
+                                        <td style={{padding: 12}}>
+                                            {isEditing ? (
+                                                <select value={editForm.category} onChange={(e) => setEditForm({...editForm, category: e.target.value})} style={{padding: 4}}>
+                                                    <option value="ETC">기타</option>
+                                                    <option value="IT">IT/프로그래밍</option>
+                                                    <option value="NOVEL">소설/문학</option>
+                                                    <option value="BUSINESS">경제/경영</option>
+                                                </select>
+                                            ) : (
+                                                <span style={{fontWeight: "bold", color: "#555"}}>
+                                                    {ebook.category === "IT" ? "IT/프로" :
+                                                     ebook.category === "NOVEL" ? "소설" :
+                                                     ebook.category === "BUSINESS" ? "경제" : "기타"}
+                                                </span>
+                                            )}
+                                        </td>
+
                                         <td style={{ padding: 12 }}>
                                             {isEditing ? <input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} style={{ width: "100%", padding: 4 }} /> : ebook.title}
                                         </td>
@@ -357,6 +391,5 @@ function AdminEbooksPage() {
         </div>
     );
 }
-
 
 export default AdminEbooksPage;
