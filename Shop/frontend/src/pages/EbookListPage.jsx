@@ -36,10 +36,10 @@ function EbookListPage() {
     ];
 
     //데이터 불러오는 로직을 별도 함수로 분리(검색어 q를 받음)
-    const fetchEbooks = (q = "", page = 0) => {
+    const fetchEbooks = (q = "", page = 0, category = "ALL") => {
         setLoading(true);
         //EbookApi.list에 검색어 전달
-        EbookApi.list(q, page)
+        EbookApi.list(q, page, 10, category)
             .then(data => {
                 //응답 구조가 달라졌을까봐 안전장치 추가
                 if(data && data.items) {
