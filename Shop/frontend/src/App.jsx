@@ -16,7 +16,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import AdminOrdersPage from "./admin/AdminOrdersPage";
 import Header from "./components/Header";
 import MyOrderListPage from "./pages/MyOrderListPage";
-
+import OAuth2RedirectPage from "./pages/OAuth2RedirectPage";
 
 function App() {
   return (
@@ -61,6 +61,9 @@ function App() {
         <Route
           path="/orders"
           element={<RequireAuth><MyOrderListPage/></RequireAuth>} />
+
+        <Route path="/oauth2/redirect" element={<OAuth2RedirectPage/>} />
+
 
         {/* 관리자 라우트 */}
         <Route

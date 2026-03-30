@@ -60,9 +60,14 @@ function LoginPage() {
         }
     };
 
+    //카카오 로그인
+    const handleKakaoLogin = () => {
+        window.location.href = "http://localhost:8080/oauth2/authorization/kakao";
+    };
+
     return (
-        <div style={{ maxWidth: 420, margin: "100px auto", fontFamily: "system-ui" }}>
-            <h2>로그인</h2>
+        <div className="ui-page" style={{ maxWidth: 400, margin: "0 auto" }}>
+            <h2 className="ui-title">로그인</h2>
 
                 {/*{msg && <p style={{ color: "crimson" }}>{msg}</p>}*/}
 
@@ -102,6 +107,29 @@ function LoginPage() {
                 <p style={{ marginTop: 12, color: "#666", fontSize: 12 }}>
                     개발용 계정: admin@test.com / 1234
                 </p>
+
+            <hr style={{margin: "20px 0", border: "0.5px solid #eee"}}/>
+
+            {/* 카카오 로그인 버튼 */}
+            <button
+                onClick={handleKakaoLogin}
+                style={{
+                    width: "100%",
+                    padding: "12px",
+                    backgroundColor: "#FEE500",
+                    color: "#000000",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "8px"
+                }}
+            >
+                카카오로 3초만에 시작하기
+            </button>
         </div>
     );
 }

@@ -13,6 +13,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import com.example.ebook.common.JwtAuthFilter;
 import com.example.ebook.common.JwtProvider;
+import com.example.ebook.oauth.CustomerOAuth2UserService;
+import com.example.ebook.oauth.OAuth2SuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +29,9 @@ public class SecurityConfig {
     //Security 설정의 핵심 : 어떤  URL을 열고 막을지, 어떤 필터를 끼울지 정의
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                            JwtProvider jwtProvider) throws Exception {
+                                            JwtProvider jwtProvider,
+                                            CustomerOAuth2UserService customerOAuth2UserService,
+                                            OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
         
         //JWT 방식이므로 세션을 쓰지 않는다
         http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -52,11 +56,14 @@ public class SecurityConfig {
                 //로그인 API는 누구나 접근가능
                 .requestMatchers("/auth/**").permitAll()
 
+                //카카오 로그인 접근
+                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
                 //H2 콘솔
                 .requestMatchers("/h2-console/**").permitAll()
 
                 //공개 조회는 허용(필요시 조정)
-                .requestMatchers(HttpMethod.GET, "/ebooks/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/ebooks/**").permitAll()
 
                 //다운로드 경로(URL에 토큰)
                 .requestMatchers("/downloads/**").permitAll()
@@ -66,6 +73,14 @@ public class SecurityConfig {
 
                 //그 외는 로그인 필요
                 .anyRequest().authenticated()
+        );
+
+        //소셜 로그인 
+        http.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(customerOAuth2UserService) //카카오 데이터 전환
+                )
+                .successHandler(oAuth2SuccessHandler)   //성공시 JWT 발급해서 React로 넘김
         );
 
         //JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 끼움
