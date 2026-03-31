@@ -1,7 +1,5 @@
 package com.example.ebook.oauth;
 
-import com.example.ebook.config.SecurityConfig;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -23,14 +21,12 @@ import com.example.ebook.entity.User.Role;
 @Service
 public class CustomerOAuth2UserService extends DefaultOAuth2UserService{
 
-    private final SecurityConfig securityConfig;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public CustomerOAuth2UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SecurityConfig securityConfig) {
+    public CustomerOAuth2UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.securityConfig = securityConfig;
     }
 
     @Override
@@ -39,13 +35,22 @@ public class CustomerOAuth2UserService extends DefaultOAuth2UserService{
         OAuth2User oAuth2User = super.loadUser(userRequest);
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
+        //디버깅
+        System.out.println("=====카카오가 준 데이터=====");
+        System.out.println(attributes);
+
         //카카오 데이터 구조에서 닉네임과 이메일 가져오기
         //카카오는 kakao_account 안에 email과 profile이 숨어있음
-        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+        Map<String, Object> properties = (Map<String, Object>) attributes.get("profile");
+        String name = "카카오유저";
 
-        String email = (String) kakaoAccount.get("email");
-        String name = (String) profile.get("nickname");
+        if(properties != null && properties.get("nickname") != null) {
+            name = (String) properties.get("nickname");
+        }
+
+        //이메일 대신 카카오 고유 ID를 받아서 식별 이메일로 조립
+        Long providerId = ((Number) attributes.get("id")).longValue();
+        String email = "kakao_" + providerId + "@ebook.com";
 
         //DB에 카카오 이메일로 가입된 유저가 있는지 확인
         Optional<User> userOptional = userRepository.findByEmail(email);

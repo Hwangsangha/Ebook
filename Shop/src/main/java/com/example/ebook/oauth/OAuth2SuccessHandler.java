@@ -34,8 +34,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     
         //카카오 유저 정보에서 이메일 가져오기
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        String email = (String) kakaoAccount.get("email");
+
+        //카카오 고유ID로 가짜 이메일 유추
+        Long providerId = ((Number) attributes.get("id")).longValue();
+        String email = "kakao_" + providerId + "@ebook.com";
 
         //권한 가져오기
         String role = authentication.getAuthorities().iterator().next().getAuthority();
