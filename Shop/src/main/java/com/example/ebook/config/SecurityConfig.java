@@ -1,5 +1,6 @@
 package com.example.ebook.config;
 
+import com.example.ebook.oauth.OAuth2FailureHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,6 +21,12 @@ import com.example.ebook.oauth.OAuth2SuccessHandler;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final OAuth2FailureHandler OAuth2FailureHandler;
+
+    SecurityConfig(OAuth2FailureHandler OAuth2FailureHandler) {
+        this.OAuth2FailureHandler = OAuth2FailureHandler;
+    }
+
     // 비밀번호 암호화/검증용
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -31,10 +38,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http,
                                             JwtProvider jwtProvider,
                                             CustomerOAuth2UserService customerOAuth2UserService,
-                                            OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
+                                            OAuth2SuccessHandler oAuth2SuccessHandler,
+                                            OAuth2FailureHandler oAuth2FailureHandler) throws Exception {
         
-        //JWT 방식이므로 세션을 쓰지 않는다
-        http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        //카카오 로그인 중에만 세션을 쓸수있게 허용
+        http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
         
         //REST API라 보통 CSRF 끔
         http.csrf(csrf -> csrf.disable());
@@ -71,6 +79,9 @@ public class SecurityConfig {
                 //테스트용 환불 허용
                 .requestMatchers("/payments/*/cancel").permitAll()
 
+                //백엔드 내부에서 튕겼을때 무한 루프를 막기 위해 허용
+                .requestMatchers("/error").permitAll()
+
                 //그 외는 로그인 필요
                 .anyRequest().authenticated()
         );
@@ -81,6 +92,7 @@ public class SecurityConfig {
                     .userService(customerOAuth2UserService) //카카오 데이터 전환
                 )
                 .successHandler(oAuth2SuccessHandler)   //성공시 JWT 발급해서 React로 넘김
+                .failureHandler(OAuth2FailureHandler)   //실패 탐지기
         );
 
         //JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 끼움
