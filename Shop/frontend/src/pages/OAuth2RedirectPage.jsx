@@ -9,10 +9,14 @@ function OAuth2RedirectPage() {
         //주소창(URL)에서 토큰값 가져오기
         const params = new URLSearchParams(location.search);
         const token = params.get("token");
+        const userId = params.get("userId");
+        const role = params.get("role");
 
         if(token) {
             //토큰이 있으면 브라우저 localStorage에 안전하게 보관
-            localStorage.setItem("token", token);
+            localStorage.setItem("accessToken", token);
+            localStorage.setItem("userId", userId);
+            localStorage.setItem("role", role);
 
             //로그인 처리 후 메인 홈 반환 새로고침으로 상태반영
             window.location.href = "/";

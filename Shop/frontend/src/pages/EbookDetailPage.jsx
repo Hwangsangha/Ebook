@@ -39,11 +39,30 @@ function EbookDetailPage() {
   // 담기 버튼: CartApi.addItem 사용(unwrap 적용)
   const handleAddToCart = async () => {
     setMsg("");
+
+    //백엔드에 userId보여주기
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("accessToken");
+
+    if(!userId) {
+      alert("로그인이 필요합니다. 다시 로그인해주세요.");
+      navigate("/login");
+      return;
+    }
+
     try {
       // POST /carts?ebookId=
-      await api.post("/carts", null, {
-        params: {ebookId: Number(id)}
-      });
+      await api.post("/cart/items", {
+        userId: Number(userId),
+        ebookId: Number(id),
+        quantity: 1
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`  //스프링에 토큰 보여주기
+        }
+      }
+    );
 
       if(window.confirm("장바구니에 담겼습니다. 이동하시겠습니까?")) {
         navigate("/cart");

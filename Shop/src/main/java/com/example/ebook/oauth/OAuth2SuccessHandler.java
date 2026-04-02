@@ -50,7 +50,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String token = jwtProvider.createAccessToken(user.getId(), role);
 
         //react특정 페이지로 토큰 리다이렉트
-        String targetUrl = "http://localhost:5173/oauth2/redirect?token=" + token;
+        String targetUrl = "http://localhost:5173/oauth2/redirect?token=" + token
+                            + "&userId=" + user.getId()
+                            + "&role=" + role;
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }

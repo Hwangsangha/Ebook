@@ -17,6 +17,8 @@ import com.example.ebook.common.JwtProvider;
 import com.example.ebook.oauth.CustomerOAuth2UserService;
 import com.example.ebook.oauth.OAuth2SuccessHandler;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -52,6 +54,7 @@ public class SecurityConfig {
 
         //URL 별 접근 제어
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 //첨부파일
                 .requestMatchers("/uploads/**").permitAll()
                 
@@ -84,6 +87,13 @@ public class SecurityConfig {
 
                 //그 외는 로그인 필요
                 .anyRequest().authenticated()
+        );
+
+        //인증 실패 시 카카오 로그인으로 강제이동(302)하는 현상을 막고, 401 에러를 반환하도록 설정
+        http.exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                })
         );
 
         //소셜 로그인 
