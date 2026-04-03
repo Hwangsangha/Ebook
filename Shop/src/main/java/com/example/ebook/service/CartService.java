@@ -132,7 +132,7 @@ public class CartService {
 		Cart cart = getOrCreateCart(userId);	//장바구니 확보
 		
 		CartItem item = cartItemRepository
-				.findByCartIdAndEbookId(userId, ebookId)
+				.findByCartIdAndEbookId(cart.getId(), ebookId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart item not found: ebookId=" + ebookId));
 		
 		cartItemRepository.delete(item);	//삭제

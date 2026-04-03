@@ -110,20 +110,18 @@ function handleDecrease(item){
 
 //항목 삭제
 function handleRemove(item){
-    const handleRemove = async (item) => {
-        try {
-            await CartApi.removeItem({ userId, ebookId: item.ebookId });
-            showToast("삭제됨");
-            reload();
-        } catch (e) {
-            showToast(e.message || "실패");
-        }
-    };
-
     if(!confirm("이 항목을 삭제하시겠습니까?")) return;
 
+    //로컬 스토리지에서 현재 로그인한 유저의 아이디 꺼내기
+    const currentUserId = localStorage.getItem("userId");
+
+    if(!currentUserId) {
+        alert("로그인 정보가 없습니다.");
+        return;
+    }
+
     CartApi.removeItem({
-        userId: 1,
+        userId: Number(currentUserId),  //꺼내온 아이디를 숫자로 변환해서 넣기
         ebookId: item.ebookId
     })
         .then(() => {
