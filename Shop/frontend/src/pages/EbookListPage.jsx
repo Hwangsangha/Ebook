@@ -84,30 +84,39 @@ function EbookListPage() {
         setCurrentPage(0);  //카테고리 바뀌면 무조건 1페이지로 리셋
     };
 
-    if (loading) return <p style={{padding: 20}}>불러오는 중...</p>;
-    if (error) return <p style={{padding: 20, color: "red"}}>에러: {error}</p>;
+    //로딩 화면 디자인 적용(daisyUI 스피너)
+    if (loading) return(
+        <div className="flex justtify-center items-center min-h-[50vh]">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+    );
+
+    // 에러 화면 디자인 적용
+    if (error) return(
+        <div className="container mx-auto p-4 mt-10">
+            <div className="alert alert-error shadow-lg max-w-2xl mx-auto">
+                <span>에러: {error}</span>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="ui-page">
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
             <Toast message={toast}/>
-            <h1 className="ui-title">전자책 목록</h1>
+
+            <div className="flex justify-between items-end mb-6">
+                <h1 className="text-3xl font-bold text-gray-800">전자책 목록</h1>
+            </div>
 
             {/* 카테고리 탭 ui */}
-            <div style={{display: "flex", gap: "10px", marginBottom: "20px", overflow: "auto"}}>
+            <div className="flex flex-nowrap gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
                 {CATEGORIES.map(c => (
                     <button
-                        key={c.id}
-                        onClick={() => handleCategoryClick(c.id)}
-                        style={{
-                            padding: "8px 16px",
-                            borderRadius: "20px",
-                            border: "1px solid #ddd",
-                            backgroundColor: category === c.id ? "#3366FF" : "#fff",
-                            color: category === c.id ? "#fff" : "#333",
-                            fontWeight: category === c.id ? "bold" : "normal",
-                            cursor: "pointer",
-                            whiteSpace: "nowrap"
-                        }}
+                        className={`btn btn-sm rounded-full px-5 ${
+                            category === c.id
+                            ? "btn-primary"
+                            : "btn-outline border-gray-300 text-gray-600 hover:bg-gray-100"
+                        }`}
                     >
                         {c.label}
                     </button>
@@ -115,7 +124,7 @@ function EbookListPage() {
             </div>
 
             {/* 검색창 ui */}
-            <div style={{display: "flex", gap: "10px", marginBottom: "20px"}}>
+            <div className="flex gap-2 mb-8">
                 <input
                     type="text"
                     placeholder="책 제목을 검색해보세요"
@@ -125,45 +134,58 @@ function EbookListPage() {
                         //엔터키 쳤을때 검색
                         if(e.key === 'Enter') fetchEbooks(keyword);
                     }}
-                    style={{flex: 1, padding: "10px", border: "1px solid #ddd", borderRadius: "5px"}}
+                    className="input input-bordered w-full max-w-md focus:border-primary focus:ring-primary"
                 />
-                <button className="ui-btn" onClick={handleSearch}>검색</button>
+                <button className="btn btn-primary px-8" onClick={handleSearch}>검색</button>
             </div>
 
             {/* 결과가 없을 때 처리 */}
             {!ebooks || ebooks.length === 0 ? (
-                <div style={{textAlign: "center", padding: "50px", color: "#666"}}>
-                    검색 결과가 없습니다.
+                <div className="py-20 text-center bg-base-200 rounded-2xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p className="text-lg text-gray-500">검색 결과가 없습니다.</p>
                 </div>
             ) : (
-                <div>
-                    <div className="ui-grid">
-                        <div className="ui-row ui-header">
-                            <div className="col-title ellipsis">제목</div>
-                            <div className="col-author ellipsis">저자</div>
-                            <div className="col-price">가격</div>
-                            <div className="col-action"></div>
-                        </div>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    {/* 데스크톱 전용헤더(모바일에선 숨김) */}
+                    <div className="hidden md:flex bg-gray-50 p-4 font-bold text-gray-500 text-sm border-b border-gray-200">
+                        <div className="flex-1 pl-2">제목</div>
+                        <div className="w-32 text-center">저자</div>
+                        <div className="w-32 text-right pr-6">가격</div>
+                        <div className="w-24 text-center">장바구니</div>
+                    </div>
 
+                    {/* 전자책 리스트 */}
+                    <div className="flex flex-col">
                         {ebooks.map((e) => (
-                            <div className="ui-row" key={e.id}>
+                            <div className="flex flex-col md:flex-row items-start md:items-center p-4 border-b border-gray-100 hover:bg-blue-50 transition-colors duration-200" key={e.id}>
+                                {/* 책 제목 영역 */}
                                 <div 
-                                    className="col-title ellipsis"
-                                    style={{cursor: "pointer", fontWeight: "bold"}}
+                                    className="flex-1 w-full flex flex-col mb-3 md:mb-0 cursor-pointer pl-2"
                                     onClick={() => navigate(`/ebooks/${e.id}`)}
                                     >
+                                    <div className="mb-1">
                                         {/* 카테고리 뱃지 */}
-                                        <span style={{fontSize: "12px", color: "#666", marginTop: "8px", border: "1px solid #eee", padding: "2px 6px", borderRadius: "4px"}}>
+                                        <span className="badge badge-ghost badge-sm text-xs text-gray-500 border-gray-300">
                                             {CATEGORIES.find(c => c.id === (e.category || "ETC"))?.label || "기타"}
                                         </span>
+                                    </div>
+                                    <span className="text-lg font-bold text-gray-800 hover:text-primay transition=colors">
                                         {e.title}
+                                    </span>
                                 </div>
-                                <div className="col-author ellipsis">{e.author}</div>
-                                <div className="col-price">{Number(e.price).toLocaleString()}원</div>
-                                <div className="col-action">
+                                {/* 저자, 가격, 버튼 영역 */}
+                                <div className="w-full md:w-32 text-sm text-gray-500 md:text-center mb-2 md:mb-0">
+                                    {e.author}
+                                </div>
+                                <div className="w-full md:w-32 text-lg font-bold text-gray-900 md:pr-6 mb-3 md:mb-0">
+                                    {Number(e.price).toLocaleString()}원
+                                </div>
+                                <div className="w-full md:w-24 md:text-center">
                                     <button
-                                        className="ui-btn"
-                                        onClick={async () => {
+                                        className="btn btn-sm btn-primary w-full md:w-auto"
+                                        onClick={async (event) => {
+                                            event.stopPropagation();    //장바구니 버튼 클릭시 상세페이지로 이동 현상 방지
                                             try {
                                                 await CartApi.addItem({userId, ebookId: e.id, quantity: 1});
                                                 setToast("장바구니에 담았습니다.");
