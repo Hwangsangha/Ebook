@@ -1,6 +1,5 @@
 //전자책 목록 페이지
 
-import "../styles/ui.css";
 import { useEffect, useState } from "react";
 import { CartApi, EbookApi } from "../api";
 import Header from "../components/Header";
@@ -124,68 +123,87 @@ function EbookListPage() {
             </div>
 
             {/* 검색창 ui */}
-            <div className="flex gap-2 mb-8">
-                <input
-                    type="text"
-                    placeholder="책 제목을 검색해보세요"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    onKeyDown={(e) => {
-                        //엔터키 쳤을때 검색
-                        if(e.key === 'Enter') fetchEbooks(keyword);
-                    }}
-                    className="input input-bordered w-full max-w-md focus:border-primary focus:ring-primary"
-                />
-                <button className="btn btn-primary px-8" onClick={handleSearch}>검색</button>
+            <div className="flex gap-2 mb-10 max-w-xl">
+                <div className="relative w-full">
+                    <input
+                        type="text"
+                        placeholder="책 제목을 검색해보세요"
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        onKeyDown={(e) => {
+                            //엔터키 쳤을때 검색
+                            if(e.key === 'Enter') fetchEbooks(keyword);
+                        }}
+                        className="input input-bordered w-full max-w-md focus:border-primary focus:ring-primary"
+                    />
+                    {/* 돋보기 아이콘 */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-3 top-3.5 text-base-content/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 s1l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <button className="btn btn-primary px-8 shadow-sm" onClick={handleSearch}>검색</button>
             </div>
 
             {/* 결과가 없을 때 처리 */}
             {!ebooks || ebooks.length === 0 ? (
-                <div className="py-20 text-center bg-base-200 rounded-2xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <p className="text-lg text-gray-500">검색 결과가 없습니다.</p>
+                <div className="py-24 text-center bg-base-200/50 rounded-3xl border border-base-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-base-content/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                    <p className="text-lg text-base-content/60 font-medium">검색 결과가 없습니다.</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    {/* 데스크톱 전용헤더(모바일에선 숨김) */}
-                    <div className="hidden md:flex bg-gray-50 p-4 font-bold text-gray-500 text-sm border-b border-gray-200">
-                        <div className="flex-1 pl-2">제목</div>
-                        <div className="w-32 text-center">저자</div>
-                        <div className="w-32 text-right pr-6">가격</div>
-                        <div className="w-24 text-center">장바구니</div>
-                    </div>
+                /* 바둑판 그리드 적용: 폰 2줄, 태블릿 3줄, PC 4~5줄 */
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gird-cols-5 gap-x-6 gap-y-10">
+                    {ebooks.map((e) => (
+                        <div 
+                            key={e.id} 
+                            className="flex flex-col group cursor-pointer"
+                            onClick={() => navigate(`/ebooks/${e.id}`)}
+                        >
+                            {/* 1. 책 표지 썸네일 영역 (비율 2:3 적용) */}
+                            <div className="relative aspect-[2/3] w-full rounded-lg overflow-hidden border border-base-200 bg-gradient-to-br from-base-200 to-base-300 shadow-sm group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-300 mb-4">
+                                
+                                {/* 가짜 표지 디자인 (이미지 URL이 없을 때 보여줌) */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center opacity-60">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-10 h-10 mb-2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                                    </svg>
+                                    <span className="text-xs font-bold line-clamp-3">{e.title}</span>
+                                </div>
 
-                    {/* 전자책 리스트 */}
-                    <div className="flex flex-col">
-                        {ebooks.map((e) => (
-                            <div className="flex flex-col md:flex-row items-start md:items-center p-4 border-b border-gray-100 hover:bg-blue-50 transition-colors duration-200" key={e.id}>
-                                {/* 책 제목 영역 */}
-                                <div 
-                                    className="flex-1 w-full flex flex-col mb-3 md:mb-0 cursor-pointer pl-2"
-                                    onClick={() => navigate(`/ebooks/${e.id}`)}
-                                    >
-                                    <div className="mb-1">
-                                        {/* 카테고리 뱃지 */}
-                                        <span className="badge badge-ghost badge-sm text-xs text-gray-500 border-gray-300">
-                                            {CATEGORIES.find(c => c.id === (e.category || "ETC"))?.label || "기타"}
-                                        </span>
-                                    </div>
-                                    <span className="text-lg font-bold text-gray-800 hover:text-primay transition=colors">
-                                        {e.title}
+                                {/* 마우스 올렸을 때 어두워지면서 나타나는 오버레이 효과 */}
+                                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+                            
+                            {/* 2. 책 정보 영역 */}
+                            <div className="flex flex-col flex-1 px-1">
+                                {/* 카테고리 뱃지 */}
+                                <div className="mb-1.5">
+                                    <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
+                                        {CATEGORIES.find(c => c.id === (e.category || "ETC"))?.label || "기타"}
                                     </span>
                                 </div>
-                                {/* 저자, 가격, 버튼 영역 */}
-                                <div className="w-full md:w-32 text-sm text-gray-500 md:text-center mb-2 md:mb-0">
+                                
+                                {/* 제목 (두 줄 넘어가면 ... 처리) */}
+                                <h3 className="text-base font-bold text-base-content leading-tight mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                                    {e.title}
+                                </h3>
+                                
+                                {/* 저자 */}
+                                <p className="text-sm text-base-content/50 truncate mb-3">
                                     {e.author}
-                                </div>
-                                <div className="w-full md:w-32 text-lg font-bold text-gray-900 md:pr-6 mb-3 md:mb-0">
-                                    {Number(e.price).toLocaleString()}원
-                                </div>
-                                <div className="w-full md:w-24 md:text-center">
+                                </p>
+                                
+                                {/* 3. 가격 및 장바구니 버튼 (하단 고정) */}
+                                <div className="mt-auto flex items-end justify-between">
+                                    <span className="text-lg font-extrabold text-base-content">
+                                        {Number(e.price).toLocaleString()}원
+                                    </span>
+                                    
+                                    {/* 깔끔한 아이콘 장바구니 버튼 */}
                                     <button
-                                        className="btn btn-sm btn-primary w-full md:w-auto"
+                                        className="btn btn-circle btn-sm bg-base-200 border-none hover:bg-primary hover:text-white text-base-content/70 transition-colors"
                                         onClick={async (event) => {
-                                            event.stopPropagation();    //장바구니 버튼 클릭시 상세페이지로 이동 현상 방지
+                                            event.stopPropagation(); // 상세페이지 이동 방지
                                             try {
                                                 await CartApi.addItem({userId, ebookId: e.id, quantity: 1});
                                                 setToast("장바구니에 담았습니다.");
@@ -195,38 +213,39 @@ function EbookListPage() {
                                                 setTimeout(() => setToast(""), 1600);
                                             }
                                         }}
+                                        title="장바구니 담기"
                                     >
-                                        담기
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                                        </svg>
                                     </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
-                    {/* 페이징 버튼 영역 */}
-                    <div style={{display: "flex", justifyContent: "center", alignItems: "center", gap: "15px", marginTop: "30px"}}>
-                        <button
-                            className="ui-btn"
-                            disabled={currentPage === 0}
-                            onClick={() => setCurrentPage(prev => prev - 1)}
-                            style={{opacity: currentPage === 0 ? 0.5 : 1, cursor: currentPage === 0 ? "not-allowed" : "pointer"}}
-                        >
-                            이전
-                        </button>
-
-                        <span style={{fontWeight: "bold", fontSize: "16px"}}>
-                            {currentPage + 1} / {totalPages === 0 ? 1 : totalPages}
-                        </span>
-
-                        <button
-                            className="ui-btn"
-                            disabled={currentPage >= totalPages - 1}
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            style={{opacity: currentPage >= totalPages - 1 ? 0.5 : 1, cursor: currentPage >= totalPages - 1 ? "not-allowed" : "pointer"}}
-                        >
-                            다음
-                        </button>
-                    </div>
+            {/* 페이징 버튼 영역 */}
+            {ebooks && ebooks.length > 0 && (
+                <div className="flex justify-center items-center gap-2 mt-16 mb-10">
+                    <button
+                        className="btn btn-circle btn-outline btn-sm border-base-300"
+                        disabled={currentPage === 0}
+                        onClick={() => setCurrentPage(prev => prev - 1)}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <span className="font-semibold text-base-content/70 px-4">
+                        {currentPage + 1} <span className="text-base-content/30 mx-1">/</span> {totalPages === 0 ? 1 : totalPages}
+                    </span>
+                    <button
+                        className="btn btn-circle btn-outline btn-sm border-base-300"
+                        disabled={currentPage >= totalPages - 1}
+                        onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                    </button>
                 </div>
             )}
         </div>
