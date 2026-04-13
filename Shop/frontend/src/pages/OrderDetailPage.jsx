@@ -1,9 +1,8 @@
-import "../styles/ui.css";      //공통 UI스타일
 import {useEffect, useState, useRef} from "react"      //React 훅
 import {useNavigate, useParams} from "react-router-dom";        //라우팅 훅
 import api, {OrdersApi} from "../api";       //주문 API(상세)
-import Header from "../components/Header";      //헤더
 import {loadTossPayments} from "@tosspayments/payment-sdk";
+import Header from "../components/Header";
 
 const CLIENT_KEY = "test_ck_6BYq7GWPVvNBGAjnaEZ4VNE5vbo1";
 
@@ -14,20 +13,21 @@ function OrderDetailPage() {
     const [detail, setDetail] = useState(null);     //주문 상세 테이터
     const [loading, setLoading] = useState(true);      //로딩 상태
 
+    const fetchDetail = async () => {       //상세 조회 함수
+        try {
+            setLoading(true);       //로딩 시작
+            const data = await OrdersApi.detail(id);        //GET /orders/{id}
+            setDetail(data);        //상태 저장
+        } catch (e) {
+            console.error(e);
+            alert("주문 정보를 불러오지 못했습니다.");
+        } finally {
+            setLoading(false);      //로딩 종료
+        }
+    };
+
     //주문상세정보
     useEffect(() => {       //페이지 진입 시 1회 호출
-        const fetchDetail = async () => {       //상세 조회 함수
-            try {
-                setLoading(true);       //로딩 시작
-                const data = await OrdersApi.detail(id);        //GET /orders/{id}
-                setDetail(data);        //상태 저장
-            } catch (e) {
-                console.error(e);
-                alert("주문 정보를 불러오지 못했습니다.");
-            } finally {
-                setLoading(false);      //로딩 종료
-            }
-        };
         fetchDetail();      //실행
     }, [id]);       //id 바뀌면 재조회
 
@@ -68,7 +68,6 @@ function OrderDetailPage() {
             console.error("결제 에러:", error);
             if(error.code === "USER_CANCEL") {
                 //사용자가 창을 닫거나 취소한 경우
-            } else {
                 alert("결제 요청 중 오류가 발생했습니다.")
             }
         }
@@ -89,89 +88,125 @@ function OrderDetailPage() {
             //상태를 다시 불러오기 위해 화면을 새로고침(CANCELLED로 변경됨)
             window.location.reload();
         } catch(error) {
-            console.error("환불 에러: ", error);
             //백엔드에서 던진 메시지가 있다면 보여주고, 아니면 기본 메시지
             const errMsg = error.response?.data?.message || "결제 취소 중 오류가 발생했습니다.";
             alert("환불 실패: " + errMsg);
         }
     };
 
-    if(loading) return <div style={{padding: 20}}>로딩중</div>       //초기 로딩
-    if(!detail) return <div style={{padding: 20}}>주문 정보가 없습니다.</div>        //없음 처리
+    if(loading) return(
+        <div className="flex justify-center items-center min-h-[60vh]">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+    );
+    if(!detail) return(
+        <div className="container mx-auto p-10 text-center">
+            <p className="text-xl font-bold opacity-50">주문 정보가 없습니다.</p>
+            <button className="btn btn-ghost mt-4" onClick={() => navigate("/orders")}>목록으로 돌아가기</button>
+        </div>
+    );
 
-    return (
-        <div className="ui-page">
-            <Header/>
-            <div style={{maxWidth: 800, margin: "0 auto", padding: 20}}>
-                <h2 className="ui-title">주문 상세</h2>
+return (
+        <div className="container mx-auto px-4 py-8 max-w-3xl mb-20">
+            
+            <div className="flex justify-between items-center mt-10 mb-8">
+                <h2 className="text-3xl font-extrabold tracking-tight">주문 상세 내역</h2>
+                <button className="btn btn-ghost btn-sm" onClick={() => navigate("/orders")}>목록으로</button>
+            </div>
 
-                {/*주문 정보 테이블*/}
-                <div className="ui-grid">
-                    <div className="ui-row">
-                        <div className="col-title">주문번호</div>
-                        <div className="col-price">{detail.orderNumber}</div>
-                    </div>
-                    <div className="ui-row">
-                        <div className="col-title">상태</div>
-                        <div className="col-price">
-                            {/* 상태에 따라 색상 다르게 표시 */}
-                            <span style={{
-                                color: detail.status === "PAID" ? "green" : "orange",
-                                fontWeight: "bold"
-                            }}>
-                                {detail.status}
-                            </span>
+            {/* 1. 주문 요약 정보 (daisyUI Stats) */}
+            <div className="stats shadow w-full border border-base-200 mb-8 bg-base-100">
+                <div className="stat">
+                    <div className="stat-title text-xs font-bold uppercase">주문번호</div>
+                    <div className="stat-value text-lg break-all">{detail.orderNumber}</div>
+                </div>
+                <div className="stat">
+                    <div className="stat-title text-xs font-bold uppercase">상태</div>
+                    <div className="stat-value text-lg">
+                        <div className={`badge badge-lg font-bold ${
+                            detail.status === "PAID" ? "badge-success text-white" : 
+                            detail.status === "PENDING" ? "badge-warning text-white" : "badge-ghost"
+                        }`}>
+                            {detail.status}
                         </div>
                     </div>
-                    <div className="ui-row">
-                        <div className="col-title">총 금액</div>
-                        <div className="col-price">{Number(detail.totalAmount).toLocaleString()}원</div>
+                </div>
+                <div className="stat">
+                    <div className="stat-title text-xs font-bold uppercase">총 금액</div>
+                    <div className="stat-value text-primary text-2xl font-black">
+                        {Number(detail.totalAmount).toLocaleString()}원
                     </div>
                 </div>
-                {/* 구매 상품 목록 */}
-                <h3 style={{marginTop: 30}}>구매 목록</h3>
-                <ul style={{listStyle: "none", padding: 0}}>
-                    {detail.items.map((item) => (
-                        <li key={item.id} style={{borderBottom: "1px solid #eee", padding: "10px 0", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                            <span>{item.title}</span>
-                            {detail.status === "PAID" ? (
-                                <button className="ui-btn" onClick={() => handleDownload(item.ebookId)}>다운로드</button>
-                            ) : (
-                                <span style={{fontSize: 12, color: "#999"}}>결제 후 다운로드 가능</span>
-                            )}
-                        </li>
-                    ))}
-                </ul>
+            </div>
 
-                {/* 결제 위젯 영역 */}
-                {detail.status === "PENDING" && (
-                    <div style={{marginTop: 40, textAlign: "center"}}>
-                        <button
-                            className="ui-btn"
-                            style={{width: "100%", backgroundColor: "#3366FF", color: "white", height: 50, fontSize: 16}}
-                            onClick={handlePay}
-                        >
-                            결제하기
-                        </button>
+            {/* 2. 구매 상품 목록 */}
+            <div className="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+                <div className="card-body p-0">
+                    <h3 className="text-xl font-bold p-6 bg-base-200/30 border-b border-base-200">구매 상품 목록</h3>
+                    <div className="overflow-x-auto">
+                        <table className="table w-full">
+                            <thead>
+                                <tr className="bg-base-200/10">
+                                    <th className="py-4 pl-6">상품명</th>
+                                    <th className="py-4 text-right pr-6">액션</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-base-100">
+                                {detail.items.map((item) => (
+                                    <tr key={item.id} className="hover:bg-base-200/20 transition-colors">
+                                        <td className="py-6 pl-6">
+                                            <div className="font-bold text-base">{item.title}</div>
+                                        </td>
+                                        <td className="py-6 text-right pr-6">
+                                            {detail.status === "PAID" ? (
+                                                <button 
+                                                    className="btn btn-primary btn-sm rounded-lg"
+                                                    onClick={() => handleDownload(item.ebookId)}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-1">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                                    </svg>
+                                                    다운로드
+                                                </button>
+                                            ) : (
+                                                <span className="text-xs text-base-content/40 font-medium">결제 대기 중</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
+
+            {/* 3. 하단 액션 버튼 영역 */}
+            <div className="mt-12 space-y-4">
+                {/* 결제하기 (PENDING 상태일 때만) */}
+                {detail.status === "PENDING" && (
+                    <button
+                        className="btn btn-primary btn-lg w-full rounded-2xl shadow-lg shadow-primary/30 text-lg font-bold"
+                        onClick={handlePay}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 mr-1">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                        </svg>
+                        지금 결제하기
+                    </button>
                 )}
 
-                {/* 결제 취소 버튼 영역 */}
+                {/* 결제 취소/환불 (PAID 상태일 때만) */}
                 {detail.status === "PAID" && (
-                    <div style={{marginTop: 40, textAlign: "center"}}>
+                    <div className="bg-error/5 p-6 rounded-2xl border border-error/20 text-center">
+                        <p className="text-sm text-error/70 mb-4">상품을 이미 다운로드했다면 환불이 어려울 수 있습니다.</p>
                         <button
-                            className="ui-btn"
-                            style={{width: "100%", backgroundColor: "#FF4444", color: "white", height: 50, fontSize: 16}}
+                            className="btn btn-error btn-outline btn-sm px-8 rounded-xl"
                             onClick={handleCancel}
                         >
-                            결제 취소(환불하기)
+                            결제 취소 및 환불 요청
                         </button>
                     </div>
                 )}
-
-                <div style={{marginTop: 20, textAlign: "right"}}>
-                    <button className="ui-btn" onClick={() => navigate("/orders")}>목록으로</button>
-                </div>
             </div>
         </div>
     );

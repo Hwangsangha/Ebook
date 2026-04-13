@@ -34,8 +34,6 @@ function SummaryPage(){
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl mb-20">
-            {/* 상단에 Header가 중복으로 나온다면 이 줄을 지워줘! */}
-            <Header />
             
             <h1 className="text-3xl font-extrabold text-base-content tracking-tight mt-8 mb-8 flex items-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CartApi } from "../api";
-import Header from "../components/Header";
 import Toast from "../components/Toast";
 
 function CartPage(){
@@ -115,7 +114,7 @@ function CartPage(){
     if(items.length === 0) {
         return(
             <div className="container mx-auto px-4 py-8 max-w-4xl">
-                <Header/>
+                
                 <div className="flex flex-col items-center justify-center py-20 bg-base-200/30 rounded-3xl mt-8 border border-base-200">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-base-content/20 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -131,7 +130,6 @@ function CartPage(){
     //항목 있을때
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl mb-20">
-            <Header/>
             <Toast message={toast}/>
             
             <h1 className="text-3xl font-extrabold text-base-content tracking-tight mt-8 mb-8 flex items-center gap-3">
