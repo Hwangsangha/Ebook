@@ -39,16 +39,14 @@ function App() {
         <Route 
           path="/cart"
           element={<RequireAuth> <CartPage/> </RequireAuth>}/>
-        <Route
-          path="/orders"
-          element={<RequireAuth> <OrdersPage/> </RequireAuth>}/>
+        
         <Route
           path="/orders/:id"
           element={<RequireAuth><OrderDetailPage/></RequireAuth>}/>
 
-        <Route
+        {/* <Route
           path="/orders"
-          element={<RequireAuth><OrderListPage/></RequireAuth>}/>
+          element={<RequireAuth><OrderListPage/></RequireAuth>}/> */}
 
         <Route
           path= "/payment/success"
