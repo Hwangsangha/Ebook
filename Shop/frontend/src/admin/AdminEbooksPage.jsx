@@ -211,183 +211,218 @@ function AdminEbooksPage() {
         setEditForm({title: "", price: "", status: "ACTIVE", category: "ETC"});  //폼 초기화
     }
 
-    // role이 ADMIN이 아니면 안내만 보여주고 UI는 숨김(최소 가드)
+    // role이 없는 경우의 UI를 OrderPage와 동일한 에러카드로 통일
     const role = localStorage.getItem("role");
     if (role !== "ADMIN") {
-        return (
-            <div style={{ padding: 24, fontFamily: "system-ui" }}>
-                <h2>관리자 페이지</h2>
-                <p style={{ color: "crimson" }}>{msg || "ADMIN만 접근 가능"}</p>
+ return (
+            <div className="flex justify-center items-center min-h-[60vh] px-4">
+                <div className="alert alert-error shadow-lg max-w-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div>
+                        <h3 className="font-bold">접근 거부</h3>
+                        <div className="text-sm">{msg || "관리자(ADMIN)만 접근할 수 있는 페이지입니다."}</div>
+                    </div>
+                </div>
             </div>
         );
     }
     //백엔드 URL(이미지 표시에 필요)
     const BASE_URL = import.meta.env.VITE_API_BASE ||  "http://localhost:8080";
 
-    return (
-        <div style={{ padding: 24, fontFamily: "system-ui", maxWidth: "1000px", margin: "0 auto" }}>
-            <h2>관리자: 전자책 관리</h2>
+return (
+        // 전체 컨테이너를 테일윈드 max-w-6xl로 넓게 잡아 대시보드 느낌 강조
+        <div className="container mx-auto px-4 py-8 max-w-6xl mb-20">
+            
+            {/*  헤더 영역 타이틀 폰트 및 아이콘 추가 */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mt-4 mb-8 gap-4">
+                <h2 className="text-3xl font-extrabold text-base-content tracking-tight flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    전자책 관리 대시보드
+                </h2>
+            </div>
 
-            {msg && <p style={{ color: msg.includes("완료") ? "green" : "crimson", fontWeight: "bold" }}>{msg}</p>}
-
-            {/* ✅ 등록 영역 (디자인 살짝 깔끔하게 정돈) */}
-            <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 20, marginBottom: 24, backgroundColor: "#f9f9f9" }}>
-                <h3 style={{ marginTop: 0 }}>새 전자책 등록</h3>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 15 }}>
-                    <input placeholder="제목" value={createForm.title} onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })} style={{ flex: 1, padding: 8 }} />
-                    <input type="number" placeholder="가격" value={createForm.price} onChange={(e) => setCreateForm({ ...createForm, price: e.target.value })} style={{ width: 120, padding: 8 }} />
-                    
-                    {/* 카테고리 선택 영역 */}
-                    <select>
-                        <option value="ETC">기타</option>
-                        <option value="IT">IT/프로그래밍</option>
-                        <option value="NOVEL">소설/문학</option>
-                        <option value="BUSINESS">경제/경영</option>
-                    </select>
-                    
-                    <select value={createForm.status} onChange={(e) => setCreateForm({ ...createForm, status: e.target.value })} style={{ padding: 8 }}>
-                        <option value="ACTIVE">ACTIVE</option>
-                        <option value="INACTIVE">INACTIVE</option>
-                        <option value="SOLD_OUT">SOLD_OUT</option>
-                    </select>
+            {/* 메세지 알림 */}
+            {msg && (
+                <div className={`alert ${msg.includes("완료") ? "alert-success" : "alert-error"} text-white text-sm rounded-xl mb-6 shadow-sm py-3`}>
+                    <span>{msg}</span>
                 </div>
-                <div style={{ display: "flex", gap: 20, alignItems: "flex-end" }}>
-                    <div>
-                        <label style={{ fontSize: "12px", fontWeight: "bold", display: "block", marginBottom: 4 }}>표지 이미지 (Image)</label>
-                        <input id="input-thumbnail" type="file" accept="image/*" onChange={(e) => setThumbnail(e.target.files[0])} />
+            )}
+
+            {/* 전자책 등록 폼을 그림자 있는 깔끔한 카드로 묶고, input들을 반응형 Grid/Flex로 배치 */}
+            <div className="card bg-base-100 shadow-sm border border-base-200 mb-8">
+                <div className="card-body">
+                    <h3 className="card-title text-lg mb-4">새 전자책 등록</h3>
+                    
+                    <div className="flex flex-wrap gap-4 mb-4">
+                        <input type="text" placeholder="제목" className="input input-bordered flex-1 min-w-[200px]" value={createForm.title} onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })} />
+                        <input type="number" placeholder="가격" className="input input-bordered w-32" value={createForm.price} onChange={(e) => setCreateForm({ ...createForm, price: e.target.value })} />
+                        <select className="select select-bordered" value={createForm.category} onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}>
+                            <option value="ETC">기타</option>
+                            <option value="IT">IT/프로그래밍</option>
+                            <option value="NOVEL">소설/문학</option>
+                            <option value="BUSINESS">경제/경영</option>
+                        </select>
+                        <select className="select select-bordered" value={createForm.status} onChange={(e) => setCreateForm({ ...createForm, status: e.target.value })}>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                            <option value="SOLD_OUT">SOLD_OUT</option>
+                        </select>
                     </div>
-                    <div>
-                        <label style={{ fontSize: "12px", fontWeight: "bold", display: "block", marginBottom: 4 }}>전자책 파일 (PDF)</label>
-                        <input id="input-file" type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} />
+
+                    <div className="flex flex-col md:flex-row gap-6 items-end">
+                        <div className="form-control w-full md:w-auto">
+                            <label className="label py-1"><span className="label-text font-bold text-xs">표지 이미지 (Image)</span></label>
+                            {/* 기본 input file을 daisyUI의 file-input으로 변경하여 예쁘게 만듦 */}
+                            <input id="input-thumbnail" type="file" accept="image/*" className="file-input file-input-bordered file-input-sm w-full max-w-xs" onChange={(e) => setThumbnail(e.target.files[0])} />
+                        </div>
+                        <div className="form-control w-full md:w-auto">
+                            <label className="label py-1"><span className="label-text font-bold text-xs">전자책 파일 (PDF)</span></label>
+                            <input id="input-file" type="file" accept=".pdf" className="file-input file-input-bordered file-input-sm w-full max-w-xs" onChange={(e) => setFile(e.target.files[0])} />
+                        </div>
+                        <div className="ml-auto mt-4 md:mt-0 w-full md:w-auto">
+                            <button onClick={handleCreate} disabled={loading} className="btn btn-primary w-full md:w-auto">
+                                {loading ? <span className="loading loading-spinner"></span> : "등록하기"}
+                            </button>
+                        </div>
                     </div>
-                    <button onClick={handleCreate} disabled={loading} style={{ backgroundColor: "#3366FF", color: "white", border: "none", padding: "10px 20px", borderRadius: 4, cursor: "pointer", marginLeft: "auto", fontWeight: "bold" }}>
-                        {loading ? "처리중..." : "등록하기"}
-                    </button>
                 </div>
             </div>
 
-            {/* ✅ 필터링 및 목록 새로고침 영역 */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <label style={{ fontWeight: "bold" }}>상태 필터:</label>
-                    <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(0); }} style={{ padding: 6 }}>
+            {/* 목록 새로고침 및 필터 영역 스타일링 */}
+            <div className="flex justify-between items-center mb-4 px-2">
+                <div className="flex items-center gap-3">
+                    <span className="font-bold text-sm text-base-content/70">상태 필터:</span>
+                    <select className="select select-bordered select-sm" value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(0); }}>
                         <option value="ALL">전체 보기</option>
                         <option value="ACTIVE">판매중 (ACTIVE)</option>
                         <option value="INACTIVE">비활성 (INACTIVE)</option>
                         <option value="SOLD_OUT">품절 (SOLD_OUT)</option>
                     </select>
                 </div>
-                <button onClick={() => fetchList(currentPage, filterStatus)} style={{ padding: "6px 12px", cursor: "pointer" }}>↻ 새로고침</button>
+                <button onClick={() => fetchList()} className="btn btn-sm btn-outline">↻ 새로고침</button>
             </div>
 
-            {/* 목록영역 */}
-            {ebooks.length === 0 ? (
-                <div style={{ textAlign: "center", padding: 50, border: "1px solid #ddd", borderRadius: 8 }}>
-                    <p style={{ color: "#666" }}>표시할 전자책이 없습니다.</p>
-                </div>
-            ) : (
-                <>
-                    <table style={{ borderCollapse: "collapse", width: "100%", border: "1px solid #ddd", textAlign: "left" }}>
-                        <thead style={{ background: "#f1f1f1" }}>
-                            <tr>
-                                <th style={{ padding: 12, borderBottom: "1px solid #ddd" }}>ID</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #ddd", textAlign: "center" }}>표지</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #ddd" }}>제목</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #ddd" }}>가격</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #ddd" }}>상태</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #ddd" }}>관리</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {ebooks.map((ebook) => {
-                                const isEditing = editingId === ebook.id;
-                                return (
-                                    <tr key={ebook.id} style={{ borderBottom: "1px solid #eee" }}>
-                                        <td style={{ padding: 12 }}>{ebook.id}</td>
-                                        <td style={{ padding: 12, textAlign: "center" }}>
-                                            {ebook.thumbnailPath ? (
-                                                <img src={`${BASE_URL}/uploads/${ebook.thumbnailPath}`} alt="표지" style={{ width: 40, height: 55, objectFit: "cover", borderRadius: 4 }} />
-                                            ) : (
-                                                <span style={{ fontSize: 12, color: "#ccc" }}>No Image</span>
-                                            )}
-                                        </td>
+            {/* 목록 테이블 영역 */}
+            <div className="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+                {ebooks.length === 0 ? (
+                    <div className="text-center py-20 text-base-content/50">표시할 전자책이 없습니다.</div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        {/* table-zebra 클래스로 지브라 패턴 적용 */}
+                        <table className="table table-zebra w-full text-sm">
+                            <thead className="bg-base-200/50 text-base-content/70">
+                                <tr>
+                                    <th>ID</th>
+                                    <th className="text-center">표지</th>
+                                    <th>제목</th>
+                                    <th>가격</th>
+                                    <th>카테고리</th>
+                                    <th>상태</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {ebooks.map((ebook) => {
+                                    const isEditing = editingId === ebook.id;
+                                    return (
+                                        <tr key={ebook.id} className="hover">
+                                            <td>{ebook.id}</td>
+                                            <td className="text-center flex justify-center">
+                                                {ebook.thumbnailPath ? (
+                                                    // 이미지를 둥근 사각형(rounded-md)과 작은 그림자로 깔끔하게
+                                                    <img src={`${BASE_URL}/uploads/${ebook.thumbnailPath}`} alt="표지" className="w-10 h-14 object-cover rounded-md shadow-sm" />
+                                                ) : (
+                                                    <span className="text-xs text-base-content/30 inline-block py-4">No Image</span>
+                                                )}
+                                            </td>
 
-                                        {/* 카테고리 수정영역 */}
-                                        <td style={{padding: 12}}>
-                                            {isEditing ? (
-                                                <select value={editForm.category} onChange={(e) => setEditForm({...editForm, category: e.target.value})} style={{padding: 4}}>
-                                                    <option value="ETC">기타</option>
-                                                    <option value="IT">IT/프로그래밍</option>
-                                                    <option value="NOVEL">소설/문학</option>
-                                                    <option value="BUSINESS">경제/경영</option>
-                                                </select>
-                                            ) : (
-                                                <span style={{fontWeight: "bold", color: "#555"}}>
-                                                    {ebook.category === "IT" ? "IT/프로" :
-                                                     ebook.category === "NOVEL" ? "소설" :
-                                                     ebook.category === "BUSINESS" ? "경제" : "기타"}
-                                                </span>
-                                            )}
-                                        </td>
+                                            <td>
+                                                {/* 수정 모드일 때 input 태그를 input-bordered input-sm으로 세련되게 변경 */}
+                                                {isEditing ? <input type="text" className="input input-bordered input-sm w-full" value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} /> : <span className="font-semibold">{ebook.title}</span>}
+                                            </td>
+                                            
+                                            <td>
+                                                {isEditing ? <input type="number" className="input input-bordered input-sm w-24" value={editForm.price} onChange={(e) => setEditForm({ ...editForm, price: e.target.value })} /> : `${Number(ebook.price).toLocaleString()}원`}
+                                            </td>
+                                            
+                                            <td>
+                                                {isEditing ? (
+                                                    <select className="select select-bordered select-sm" value={editForm.category} onChange={(e) => setEditForm({...editForm, category: e.target.value})}>
+                                                        <option value="ETC">기타</option>
+                                                        <option value="IT">IT/프로그래밍</option>
+                                                        <option value="NOVEL">소설/문학</option>
+                                                        <option value="BUSINESS">경제/경영</option>
+                                                    </select>
+                                                ) : (
+                                                    <span className="text-base-content/70 font-medium">
+                                                        {ebook.category === "IT" ? "IT/프로" : ebook.category === "NOVEL" ? "소설" : ebook.category === "BUSINESS" ? "경제" : "기타"}
+                                                    </span>
+                                                )}
+                                            </td>
 
-                                        <td style={{ padding: 12 }}>
-                                            {isEditing ? <input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} style={{ width: "100%", padding: 4 }} /> : ebook.title}
-                                        </td>
-                                        <td style={{ padding: 12 }}>
-                                            {isEditing ? <input type="number" value={editForm.price} onChange={(e) => setEditForm({ ...editForm, price: e.target.value })} style={{ width: 80, padding: 4 }} /> : `${Number(ebook.price).toLocaleString()}원`}
-                                        </td>
-                                        <td style={{ padding: 12 }}>
-                                            {isEditing ? (
-                                                <select value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })} style={{ padding: 4 }}>
-                                                    <option value="ACTIVE">ACTIVE</option>
-                                                    <option value="INACTIVE">INACTIVE</option>
-                                                    <option value="SOLD_OUT">SOLD_OUT</option>
-                                                </select>
-                                            ) : (
-                                                <span style={{ color: ebook.status === 'ACTIVE' ? 'green' : ebook.status === 'SOLD_OUT' ? 'red' : 'gray', fontWeight: "bold" }}>
-                                                    {ebook.status}
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td style={{ padding: 12 }}>
-                                            {isEditing ? (
-                                                <div style={{ display: "flex", gap: 5 }}>
-                                                    <button onClick={() => saveEdit(ebook.id)} disabled={loading} style={{ padding: "4px 8px", cursor: "pointer" }}>저장</button>
-                                                    <button onClick={cancelEdit} style={{ padding: "4px 8px", cursor: "pointer" }}>취소</button>
-                                                </div>
-                                            ) : (
-                                                <div style={{ display: "flex", gap: 5 }}>
-                                                    <button onClick={() => startEdit(ebook)} style={{ padding: "4px 8px", cursor: "pointer" }}>수정</button>
-                                                    <button onClick={() => deleteEbook(ebook.id)} disabled={loading} style={{ padding: "4px 8px", cursor: "pointer", color: "red" }}>삭제</button>
-                                                </div>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                            <td>
+                                                {isEditing ? (
+                                                    <select className="select select-bordered select-sm" value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}>
+                                                        <option value="ACTIVE">ACTIVE</option>
+                                                        <option value="INACTIVE">INACTIVE</option>
+                                                        <option value="SOLD_OUT">SOLD_OUT</option>
+                                                    </select>
+                                                ) : (
+                                                    // 상태를 daisyUI 뱃지로 표시
+                                                    <div className={`badge badge-sm font-bold ${ebook.status === 'ACTIVE' ? 'badge-success text-white' : ebook.status === 'SOLD_OUT' ? 'badge-error text-white' : 'badge-ghost'}`}>
+                                                        {ebook.status}
+                                                    </div>
+                                                )}
+                                            </td>
 
-                    {/* ✅ 페이징(Pagination) 버튼 컨트롤 */}
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 15, marginTop: 20 }}>
-                        <button 
-                            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))} 
-                            disabled={currentPage === 0}
-                            style={{ padding: "6px 12px", cursor: currentPage === 0 ? "not-allowed" : "pointer" }}
-                        >
-                            ◀ 이전
-                        </button>
-                        <span style={{ fontWeight: "bold" }}>{currentPage + 1} / {totalPages} 페이지</span>
-                        <button 
-                            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))} 
-                            disabled={currentPage >= totalPages - 1}
-                            style={{ padding: "6px 12px", cursor: currentPage >= totalPages - 1 ? "not-allowed" : "pointer" }}
-                        >
-                            다음 ▶
-                        </button>
+                                            <td>
+                                                {/* 버튼들을 btn-sm btn-ghost 등으로 깔끔하게 묶음 */}
+                                                {isEditing ? (
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => saveEdit(ebook.id)} disabled={loading} className="btn btn-sm btn-primary">저장</button>
+                                                        <button onClick={cancelEdit} className="btn btn-sm btn-ghost">취소</button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => startEdit(ebook)} className="btn btn-sm btn-outline">수정</button>
+                                                        <button onClick={() => deleteEbook(ebook.id)} disabled={loading} className="btn btn-sm btn-error btn-outline">삭제</button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
-                </>
-            )}
+                )}
+            </div>
+
+            {/* 페이징 컨트롤을 daisyUI의 'join' 컴포넌트를 사용하여 버튼 그룹처럼 예쁘게 만듦 */}
+            <div className="flex justify-center mt-8">
+                <div className="join shadow-sm">
+                    <button 
+                        className="join-item btn btn-sm" 
+                        onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))} 
+                        disabled={currentPage === 0}
+                    >
+                        ◀ 이전
+                    </button>
+                    <button className="join-item btn btn-sm btn-disabled text-base-content font-bold">
+                        {currentPage + 1} / {totalPages} 페이지
+                    </button>
+                    <button 
+                        className="join-item btn btn-sm" 
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))} 
+                        disabled={currentPage >= totalPages - 1}
+                    >
+                        다음 ▶
+                    </button>
+                </div>
+            </div>
+
         </div>
     );
 }

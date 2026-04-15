@@ -14,9 +14,9 @@ function RegisterPage() {       //회원가입 컴포넌트
         e.preventDefault();     //폼 기본 제출(새로고침) 막기
         if(loading) return;     //중복 클릭 방지
         setMsg("");     //메시지 초기화
-        if(!email.trim()) return setMsg("email은 필수입니다.");     //간단검증
-        if(!password.trim()) return setMsg("password는 필수입니다.");
-        if(!name.trim()) return setMsg("name는 필수입니다.");
+        if(!email.trim()) return setMsg("이메일을 입력해주세요.");     //간단검증
+        if(!password.trim()) return setMsg("비밀번호를 입력해주세요.");
+        if(!name.trim()) return setMsg("이름을 입력해주세요.");
 
         try {
             setLoading(true);
@@ -36,47 +36,98 @@ function RegisterPage() {       //회원가입 컴포넌트
     };
 
 
-return (                                                           // 화면 렌더링
-    <div style={{ padding: 24, fontFamily: "system-ui", maxWidth: 420 }}> {/* 레이아웃 */}
-      <h2>회원가입</h2>                                               {/* 제목 */}
+return (
+        // 화면 중앙 정렬을 위한 테일윈드 컨테이너 적용
+        <div className="flex justify-center items-center min-h-[80vh] bg-base-100 px-4">
+            
+            {/* 흰색 카드 레이아웃으로 감쌈 */}
+            <div className="card w-full max-w-md shadow-2xl bg-base-100 border border-base-200">
+                <div className="card-body p-8 md:p-10">
+                    
+                    {/* 제목 폰트 크기 및 두께 강화 (로그인 페이지와 디자인 통일) */}
+                    <h2 className="text-3xl font-extrabold text-center mb-8 text-base-content tracking-tight">회원가입</h2>
 
-      {msg && (                                                       // 메시지 있으면 출력
-        <p style={{ color: "crimson" }}>{msg}</p>                      // 빨간 글씨로 표시
-      )}
+                    {/* 아이콘이 포함된 빨간색 경고 박스(alert-error)로 업그레이드 */}
+                    {msg && (
+                        <div className="alert alert-error text-sm rounded-xl mb-4 p-3 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span>{msg}</span>
+                        </div>
+                    )}
 
-      <form onSubmit={onSubmit} style={{ display: "grid", gap: 10 }}>  {/* 폼 */}
-        <input                                                        // 이메일 입력
-          placeholder="email"                                          // 안내문구
-          value={email}                                                // 상태 바인딩
-          onChange={(e) => setEmail(e.target.value)}                   // 입력 변경 시 상태 갱신
-        />
+                    {/* flex/gap 조합의 daisyUI form-control 적용 */}
+                    <form onSubmit={onSubmit} className="form-control w-full gap-4">
+                        
+                        {/* 각 입력창 위에 시각적인 안정감을 주는 라벨(label) 추가 */}
+                        <div>
+                            <label className="label py-1">
+                                <span className="label-text font-bold text-base-content/80">이메일</span>
+                            </label>
+                            {/* input-bordered 클래스 적용 및 클릭 시 테두리 색상 변경(focus:input-primary) 효과 추가 */}
+                            <input
+                                type="email"
+                                placeholder="example@test.com"
+                                className="input input-bordered w-full focus:input-primary transition-colors bg-base-100"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={loading}
+                            />
+                        </div>
 
-        <input                                                        // 비밀번호 입력
-          type="password"                                              // 비번 마스킹
-          placeholder="password"                                       // 안내문구
-          value={password}                                             // 상태 바인딩
-          onChange={(e) => setPassword(e.target.value)}                // 입력 변경 시 상태 갱신
-        />
+                        <div>
+                            <label className="label py-1">
+                                <span className="label-text font-bold text-base-content/80">비밀번호</span>
+                            </label>
+                            <input
+                                type="password"
+                                placeholder="••••••••"
+                                className="input input-bordered w-full focus:input-primary transition-colors bg-base-100"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                disabled={loading}
+                            />
+                        </div>
 
-        <input                                                        // 이름 입력
-          placeholder="name"                                           // 안내문구
-          value={name}                                                 // 상태 바인딩
-          onChange={(e) => setName(e.target.value)}                    // 입력 변경 시 상태 갱신
-        />
+                        <div>
+                            <label className="label py-1">
+                                <span className="label-text font-bold text-base-content/80">이름</span>
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="홍길동"
+                                className="input input-bordered w-full focus:input-primary transition-colors bg-base-100"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                disabled={loading}
+                            />
+                        </div>
 
-        <button type="submit" disabled={loading}>                      {/* 제출 버튼 */}
-          {loading ? "처리중..." : "회원가입"}                         {/* 로딩 상태 표시 */}
-        </button>                                                     {/* 버튼 끝 */}
+                        {/* 그림자가 있는 프라이머리(Primary) 버튼으로 변경 */}
+                        <button 
+                            type="submit" 
+                            className="btn btn-primary w-full mt-4 text-lg rounded-xl shadow-lg shadow-primary/30"
+                            disabled={loading}
+                        >
+                            {loading ? <span className="loading loading-spinner"></span> : "가입 완료하기"}
+                        </button>
 
-        <button                                                       // 로그인 이동 버튼
-          type="button"                                                // submit 아님
-          onClick={() => navigate("/login")}                                // 로그인 화면으로 이동
-        >
-          로그인으로 이동
-        </button>
-      </form>
-    </div>
-  );
+                        {/* 하단 텍스트 링크(btn-link) 형태로 변경하여 UX 향상 */}
+                        <div className="flex justify-center items-center mt-6">
+                            <span className="text-base-content/60 text-sm">이미 계정이 있으신가요?</span>
+                            <button
+                                type="button"
+                                className="btn btn-link btn-sm p-0 ml-2 text-primary no-underline hover:underline font-bold"
+                                onClick={() => navigate("/login")}
+                                disabled={loading}
+                            >
+                                로그인
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
 }
 
-export default RegisterPage;                                          // 컴포넌트 export
+export default RegisterPage;
