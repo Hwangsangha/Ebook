@@ -11,7 +11,7 @@ function MyOrderListPage() {
         const fetchMyOrders = async () => {
             try {
                 // 백엔드 컨트롤러 경로로 요청
-                const response = await api.get("/orders/my");
+                const response = await api.get("/orders");
                 setOrders(response.data);
             } catch (error) {
                 console.error("주문 목록 조회 실패: ", error);

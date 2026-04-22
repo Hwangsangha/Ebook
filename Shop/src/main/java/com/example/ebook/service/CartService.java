@@ -85,7 +85,7 @@ public class CartService {
 		cart.touch();							//장바구니의 타임스탬프갱신
 	}
 	
-	@Transactional(readOnly = true)
+	@Transactional
 	public List<CartLine> getItems(Long userId){
 		Cart cart = getOrCreateCart(userId);
 		List<CartItem> items = cartItemRepository.findByCartId(cart.getId());

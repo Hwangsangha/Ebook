@@ -75,6 +75,7 @@ public class EbookService {
 	//이북생성
 	//제목, 가격 필수 검증
 	//status 기본값 미지정시 active로 지정
+	@Transactional
 	public Ebook create(String title, String author, BigDecimal price, String status, String category, String thumbnailPath, 
 						String filePath, String originalFileName) {
 		if(title == null || title.isBlank()) {

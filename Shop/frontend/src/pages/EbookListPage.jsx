@@ -111,6 +111,8 @@ function EbookListPage() {
             <div className="flex flex-nowrap gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
                 {CATEGORIES.map(c => (
                     <button
+                        key={c.id}
+                        onClick={() => handleCategoryClick(c.id)}
                         className={`btn btn-sm rounded-full px-5 ${
                             category === c.id
                             ? "btn-primary"

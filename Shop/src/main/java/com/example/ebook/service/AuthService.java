@@ -3,6 +3,7 @@ package com.example.ebook.service;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.ebook.common.JwtProvider;
@@ -21,6 +22,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     //회원가입
+    @Transactional
     public AuthDto.LoginResponse register(AuthDto.RegisterRequest req) {
         String email = req.email().trim().toLowerCase();
 

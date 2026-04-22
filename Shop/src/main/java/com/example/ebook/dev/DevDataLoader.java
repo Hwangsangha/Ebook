@@ -22,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * 이미 데이터가 있으면 아무것도 하지 않는다(중복방지)
  */
 @Component
-@Profile("dev")
+//@Profile("dev")
 public class DevDataLoader implements CommandLineRunner{
 
 	private final EbookRepository ebookRepository;
