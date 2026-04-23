@@ -1,5 +1,7 @@
 package com.example.ebook.service;
 
+import com.example.ebook.controller.AdminEbookController;
+import com.example.ebook.controller.AdminOrderController;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +35,9 @@ import com.example.ebook.entity.OrderItem;
 @Transactional	//중간에 에러나면 안되기 때문에 전부 롤백
 public class OrderService {
 
-	private final OrderRepository orderRepository;
+	private final AdminOrderController adminOrderController;
+    private final AdminEbookController adminEbookController;
+    private final OrderRepository orderRepository;
 	private final CartItemRepository cartItemRepository;
 	private final CartService cartService;
 	private final EbookRepository ebookRepository;
@@ -43,12 +47,14 @@ public class OrderService {
 						CartItemRepository cartItemRepository,
 						CartService cartService,
 						EbookRepository ebookRepository,
-						OrderItemRepository orderItemRepository) {
+						OrderItemRepository orderItemRepository, AdminEbookController adminEbookController, AdminOrderController adminOrderController) {
 		this.orderRepository = orderRepository;
 		this.cartItemRepository = cartItemRepository;
 		this.cartService = cartService;
 		this.ebookRepository = ebookRepository;
 		this.orderItemRepository = orderItemRepository;
+        this.adminEbookController = adminEbookController;
+        this.adminOrderController = adminOrderController;
 	}
 	
 	/*
@@ -91,7 +97,7 @@ public class OrderService {
 			if(!"ACTIVE".equals(status)) {
 				throw new ResponseStatusException(
 						HttpStatus.BAD_REQUEST,
-						"Ebook is not available: id=" + ebook.getId());
+						String.format("장바구니의 [%s] 도서가 현재 판매 중지 상태입니다. 제외 후 다시 시도해주세요.", ebook.getTitle()));
 			}
 			
 			//스냅샷 생성: 제목/가격은 주문 시점 값으로 보존
@@ -230,6 +236,14 @@ public class OrderService {
 		//책 정보 조회
 		Ebook ebook = ebookRepository.findById(ebookId)
 						.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "책을 찾을 수 없습니다."));
+		
+		//판매 상태 체크 추가
+		String status = ebook.getStatus() == null ? "" : ebook.getStatus().trim().toUpperCase();
+		if(!"ACTIVE".equals(status)) {
+			//판매 중지임을 알림
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				String.format("[%s] 도서는 현재 판매 중이거나 구매 가능한 상태가 아닙니다.", ebook.getTitle()));
+		}
 		
 		//구매완료 확인(PAID) - 예외발생
 		if(orderRepository.existsByUserIdAndEbookIdAndStatus(userId, ebookId, "PAID")) {

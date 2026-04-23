@@ -1,6 +1,9 @@
 package com.example.ebook.dev;
 
+import com.example.ebook.controller.AdminEbookController;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -13,7 +16,6 @@ import com.example.ebook.domain.UserRepository;
 import com.example.ebook.entity.Ebook;
 import com.example.ebook.entity.User;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /*
@@ -25,7 +27,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //@Profile("dev")
 public class DevDataLoader implements CommandLineRunner{
 
-	private final EbookRepository ebookRepository;
+	private final AdminEbookController adminEbookController;
+
+    private final EbookRepository ebookRepository;
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -34,10 +38,11 @@ public class DevDataLoader implements CommandLineRunner{
                          CartRepository cartRepository,
                          OrderRepository orderRepository,
 						 UserRepository userRepository,
-						 PasswordEncoder passwordEncoder) {
+						 PasswordEncoder passwordEncoder, AdminEbookController adminEbookController) {
         this.ebookRepository = ebookRepository;
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+        this.adminEbookController = adminEbookController;
 	}
 
 	@Override
@@ -53,20 +58,35 @@ public class DevDataLoader implements CommandLineRunner{
 
 	private void seedEbookCarOrder() {
 		//1) 이미 데이터가 있으면 시드 주입 스킵
-		if(ebookRepository.count() > 0) return;
+		if(ebookRepository.count() > 10) return;
+
+		System.out.println("대량 데이터 시딩 시작");
+		List<Ebook> bulkEbooks = new ArrayList<>();
 		
 		//-----------ebooks-------------
-		Ebook e1 = new Ebook("스프링 입문", "홍길동", new BigDecimal("9900"), "SALE");
-		Ebook e2 = new Ebook("이펙티브 자바 요약", "조바", new BigDecimal("12900"), "SALE");
-		Ebook e3 = new Ebook("클린 아키텍처 한입", "로버트 C. 마틴", new BigDecimal("15000"),  "ACTIVE");
-		Ebook e4 = new Ebook("자바 기초", "이몽룡", new BigDecimal("20000"), "ACTIVE");
-		Ebook e5 = new Ebook("리액트 처음부터", "임꺽정", new BigDecimal("18000"), "ACTIVE");		
-		
-		ebookRepository.save(e1);
-		ebookRepository.save(e2);
-		ebookRepository.save(e3);
-		ebookRepository.save(e4);
-		ebookRepository.save(e5);
+		for(int i = 1; i <= 1000; i++) {
+			Ebook ebook = new Ebook(
+				"성능 테스트용 책" + i,
+				"작가 " + (i % 10),		//작가 10명 고정
+				new BigDecimal(10000 + (i * 10)),
+				"ACTIVE"
+			);
+			ebook.setCategory(i % 5 == 0 ? "IT" : "NOVEL");	//카테고리 분산
+			bulkEbooks.add(ebook);
+
+			//메모리 터질수 있으니 500건마다 나눠서 저장(Flush)
+			if(i % 500 == 0) {
+				ebookRepository.saveAll(bulkEbooks);
+				bulkEbooks.clear();
+			}
+		}
+
+		//남은 데이터 저장
+		if(!bulkEbooks.isEmpty()) {
+			ebookRepository.saveAll(bulkEbooks);
+		}
+
+		System.out.println("1000건의 테스트 데이터 모두 주입 완료");
 		
 		/*//----------cart----------------
 		Cart cart = new Cart(1L);	//userId = 1
@@ -90,7 +110,6 @@ public class DevDataLoader implements CommandLineRunner{
 		
 		orderRepository.save(order);
 		*/
-		System.out.println("Dev data loaded: 3 ebooks, 1 order, 1 cart (userId=1)");
 	}
 
 
