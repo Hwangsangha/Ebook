@@ -218,15 +218,38 @@ public class OrderService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId is required");
 		}
 
-		return orderRepository.findByUserIdOrderByIdDesc(userId).stream()
-				.map(o -> new OrderSummary(
-					o.getId(),
-					o.getOrderNumber(),
-					o.getStatus(),
-					o.getTotalAmount(),
-					o.getFinalAmount(),
-					o.getCreatedAt()
-				))
+		// return orderRepository.findByUserIdOrderByIdDesc(userId).stream()
+		// 		.map(o -> new OrderSummary(
+		// 			o.getId(),
+		// 			o.getOrderNumber(),
+		// 			o.getStatus(),
+		// 			o.getTotalAmount(),
+		// 			o.getFinalAmount(),
+		// 			o.getCreatedAt()
+		// 		))
+		// 		.toList();
+
+		/* N + 1 장애 테스트 코드 */
+		//1. 주문 목록 조회 (쿼리 1번 실행)
+		List<Order> orders = orderRepository.findByUserIdOrderByIdDesc(userId);
+
+		//2. 루프를 돌며 DTO로 변환
+		return orders.stream()
+				.map(o -> {
+					//장애 유발 지점) 각 주문의 아이템 목록 중 첫 번째로 상품의 제목 가져옴
+					//지연 로딩이 설정되어 있어서, 여기서 주문 개수만큼 쿼리 추가 실행
+					String title = o.getItems().isEmpty() ? "상품 없음" : o.getItems().get(0).getTitleSnap();
+					String summaryTitle = o.getItems().size() > 1 ? title + " 외 " + (o.getItems().size() - 1) + "건" : title;
+
+					return new OrderSummary(
+						o.getId(),
+						summaryTitle,	//주문 번호 대신 상품명을 넣어서 테스트
+						o.getStatus(),
+						o.getTotalAmount(),
+						o.getFinalAmount(),
+						o.getCreatedAt()
+					);
+				})
 				.toList();
 	}
 
