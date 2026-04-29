@@ -231,7 +231,9 @@ public class OrderService {
 
 		/* N + 1 장애 테스트 코드 */
 		//1. 주문 목록 조회 (쿼리 1번 실행)
-		List<Order> orders = orderRepository.findByUserIdOrderByIdDesc(userId);
+		//List<Order> orders = orderRepository.findByUserIdOrderByIdDesc(userId);
+
+		List<Order> orders = orderRepository.findAllWithItemsByUserId(userId);
 
 		//2. 루프를 돌며 DTO로 변환
 		return orders.stream()
