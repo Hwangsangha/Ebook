@@ -14,8 +14,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
 	//Optional로 Order에 주문번호가 있는지 없느지 판단
 	Optional<Order> findByOrderNumber(String orderNumber);
 	
-	/* //userId를 통해 찾아서 내림차순으로 정렬, 여러건이 나오니 List에 담음
-	List<Order> findByUserIdOrderByIdDesc(Long userId);		*/
+	//userId를 통해 찾아서 내림차순으로 정렬, 여러건이 나오니 List에 담음
+	List<Order> findByUserIdOrderByIdDesc(Long userId);
 
 	//JOIN FETCH를 사용해 연관된 items를 한꺼번에 가져옴
 	@Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.items WHERE o.userId = :userId ORDER BY o.id DESC")
