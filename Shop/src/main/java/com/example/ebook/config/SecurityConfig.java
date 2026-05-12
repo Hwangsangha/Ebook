@@ -55,6 +55,9 @@ public class SecurityConfig {
         //URL 별 접근 제어
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                //프론트엔드 정적 파일들 로그인 없이 허용
+                .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/favicon.ico", "*.svg").permitAll()
+
                 //첨부파일
                 .requestMatchers("/uploads/**").permitAll()
                 
