@@ -1,5 +1,6 @@
 package com.example.ebook.controller;
 
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import com.example.ebook.domain.OrderRepository;
 import com.example.ebook.entity.Order;
 import com.example.ebook.service.OrderRefundService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/payments")
@@ -36,7 +40,7 @@ public class PaymentController {
     }
 
     @PostMapping("/confirm")
-    public ResponseEntity<?> confirmPayment(@RequestBody Map<String, Object> payload) {
+    public void confirmPayment(@RequestBody Map<String, Object> payload, HttpServletResponse response) throws IOException {
         String paymentKey = (String) payload.get("paymentKey");
         String orderId = (String) payload.get("orderId");
         Number amountNumber = (Number) payload.get("amount");
@@ -56,11 +60,12 @@ public class PaymentController {
         );
 
         try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(
+            ResponseEntity<Map> responseEntity = restTemplate.postForEntity(
                 "https://api.tosspayments.com/v1/payments/confirm",
                 new HttpEntity<>(tossRequest, headers),
                 Map.class);
-            if(response.getStatusCode() == HttpStatus.OK) {
+
+            if(responseEntity.getStatusCode() == HttpStatus.OK) {
                 //PENDING을 PAID로 바꿈
                 Order order = orderRepository.findByOrderNumber(orderId)
                         .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
@@ -68,13 +73,13 @@ public class PaymentController {
                 order.setStatus("PAID");
                 orderRepository.save(order);
                 
-                return ResponseEntity.ok().body(Map.of("message", "결제 성공"));
+                response.sendRedirect("/payment/success");
             } else {
-                return ResponseEntity.status(400).body(Map.of("message", "결제 승인 실패"));
+                response.sendRedirect("/payment/fail");
             }
         } catch(Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(400).body(Map.of("message", "토스 승인 중 오류: " + e.getMessage()));
+            response.sendRedirect("/payment/fail"+ "?message=" + e.getMessage());
         }
     }
 
