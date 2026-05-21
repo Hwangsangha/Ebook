@@ -40,7 +40,7 @@ public class PaymentController {
     }
 
     @PostMapping("/confirm")
-    public void confirmPayment(@RequestBody Map<String, Object> payload, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> confirmPayment(@RequestBody Map<String, Object> payload) {
         String paymentKey = (String) payload.get("paymentKey");
         String orderId = (String) payload.get("orderId");
         Number amountNumber = (Number) payload.get("amount");
@@ -60,12 +60,12 @@ public class PaymentController {
         );
 
         try {
-            ResponseEntity<Map> responseEntity = restTemplate.postForEntity(
+            ResponseEntity<Map> response = restTemplate.postForEntity(
                 "https://api.tosspayments.com/v1/payments/confirm",
                 new HttpEntity<>(tossRequest, headers),
                 Map.class);
 
-            if(responseEntity.getStatusCode() == HttpStatus.OK) {
+            if(response.getStatusCode() == HttpStatus.OK) {
                 //PENDING을 PAID로 바꿈
                 Order order = orderRepository.findByOrderNumber(orderId)
                         .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
@@ -73,13 +73,13 @@ public class PaymentController {
                 order.setStatus("PAID");
                 orderRepository.save(order);
                 
-                response.sendRedirect("/payment/success");
+                return ResponseEntity.ok().body(Map.of("message", "결제 성공"));
             } else {
-                response.sendRedirect("/payment/fail");
+                return ResponseEntity.status(400).body(Map.of("message", "결제 승인 실패"));
             }
         } catch(Exception e) {
             e.printStackTrace();
-            response.sendRedirect("/payment/fail"+ "?message=" + e.getMessage());
+            return ResponseEntity.status(400).body(Map.of("message", "토스 승인 중 오류: " + e.getMessage()));
         }
     }
 
