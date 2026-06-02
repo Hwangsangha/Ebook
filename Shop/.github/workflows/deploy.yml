@@ -1,0 +1,33 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with Gradle
+      run: |
+        chmod +x ./gradlew
+        ./gradlew clean build -x test
+
+    # 4. Azure에 로그인하고 직접 jar 파일 주입 (우리가 터미널로 하던 짓을 깃허브가 대신 함)
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'mymall-ebook' # 사용자님의 Azure 앱 이름
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # Azure 보안 키
+        package: 'build/libs/app.jar'

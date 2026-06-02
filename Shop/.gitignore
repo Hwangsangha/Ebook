@@ -38,6 +38,8 @@ out/
 
 ### yml ###
 *.yml
+# 모든 yml 파일을 무시하되, github workflows 폴더 안의 yml 파일은 업로드 허용하기
+!/.github/workflows/*.yml
 /gradle.properties
 
 ### 사용자 업로드 파일 ###
