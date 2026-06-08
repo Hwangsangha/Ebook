@@ -19,21 +19,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 1. 자바 백엔드 폴더 내부로 들어가서 그래들 빌드를 수행합니다.
+    # 1. 루트 경로를 유지한 채, Shop 폴더 안의 gradlew를 실행해 빌드합니다.
     - name: Build with Gradle
-      working-directory: ./Shop
       run: |
-        chmod +x ./gradlew
-        ./gradlew clean build -x test
+        chmod +x ./Shop/gradlew
+        ./Shop/gradlew clean build -x test -p ./Shop
 
-    # 2. 🔥 [치트키] 빌드된 app.jar를 최상위 루트 폴더로 강제 복사합니다.
-    - name: Copy artifact to root
-      run: cp Shop/build/libs/app.jar ./app.jar
-
-    # 3. 최상위 루트에 꺼내놓은 app.jar를 Azure로 곧바로 쏘아 올립니다.
+    # 2. 헷갈리지 않게 빌드된 파일의 절대적인 경로를 정확히 찝어서 Azure로 보냅니다.
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'mymall-ebook'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: './app.jar'
+        package: 'Shop/build/libs/*.jar'
