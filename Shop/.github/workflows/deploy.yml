@@ -3,7 +3,7 @@ name: Deploy to Azure Web App
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-deploy:
@@ -19,15 +19,21 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    # 1. 자바 백엔드 폴더 내부로 들어가서 그래들 빌드를 수행합니다.
     - name: Build with Gradle
+      working-directory: ./Shop
       run: |
         chmod +x ./gradlew
         ./gradlew clean build -x test
 
-    # 4. Azure에 로그인하고 직접 jar 파일 주입 (우리가 터미널로 하던 짓을 깃허브가 대신 함)
+    # 2. 🔥 [치트키] 빌드된 app.jar를 최상위 루트 폴더로 강제 복사합니다.
+    - name: Copy artifact to root
+      run: cp Shop/build/libs/app.jar ./app.jar
+
+    # 3. 최상위 루트에 꺼내놓은 app.jar를 Azure로 곧바로 쏘아 올립니다.
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'mymall-ebook' # 사용자님의 Azure 앱 이름
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # Azure 보안 키
-        package: 'build/libs/app.jar'
+        app-name: 'mymall-ebook'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: './app.jar'
