@@ -61,7 +61,7 @@ function LoginPage() {
 
     //카카오 로그인
     const handleKakaoLogin = () => {
-        window.location.href = "https://mymall-ebook-aygya0obsbrf2fyd6.koreacentral.azurewebsites.net/oauth2/authorization/kakao";
+        window.location.href = "/oauth2/authorization/kakao";
     };
 
 return (
